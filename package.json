@@ -1,0 +1,20 @@
+{
+  "name": "ark-fluid-console",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "ARK-FLUID — 만타레이 기반 해양 쓰레기 수거 로봇 모바일 관제 앱 프로토타입",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.2"
+  }
+}
