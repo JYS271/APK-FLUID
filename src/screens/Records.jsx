@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { BarChart, DonutChart, Legend } from '../components/Charts.jsx'
 import {
   weeklyCollection,
+  monthlyCollection,
   debrisTypes,
   badges,
   history,
@@ -9,6 +11,10 @@ import {
 
 /* 기록(Analyze) — KPI·히트맵·차트·배지·이력 */
 export default function Records({ onOpenWeb }) {
+  const [range, setRange] = useState('week') // week | month
+  const chartData = range === 'week' ? weeklyCollection : monthlyCollection
+  const rangeTotal = chartData.reduce((s, d) => s + d.value, 0)
+
   return (
     <div className="screen records">
       <header className="records__head swim-in">
@@ -24,13 +30,25 @@ export default function Records({ onOpenWeb }) {
         <Kpi icon="ti-plug-connected" label="가동률" value={kpi.uptime} unit="%" />
       </section>
 
-      {/* 주간 차트 */}
+      {/* 수거량 차트 (주간/월간 전환) */}
       <section className="card swim-in" style={{ animationDelay: '.08s' }}>
         <div className="card__title-row">
-          <h2 className="card__title"><i className="ti ti-chart-bar" /> 주간 수거량</h2>
-          <span className="card__sub num">kg / 일</span>
+          <h2 className="card__title">
+            <i className="ti ti-chart-bar" /> {range === 'week' ? '주간' : '월간'} 수거량
+          </h2>
+          <div className="rangeToggle">
+            <button className={range === 'week' ? 'is-on' : ''} onClick={() => setRange('week')}>주간</button>
+            <button className={range === 'month' ? 'is-on' : ''} onClick={() => setRange('month')}>월간</button>
+          </div>
         </div>
-        <BarChart data={weeklyCollection} />
+        <div className="card__range-total">
+          <span className="num">{rangeTotal.toLocaleString()}</span>
+          <em>kg · {range === 'week' ? '이번 주 누적' : '최근 6개월 누적'}</em>
+        </div>
+        <BarChart key={range} data={chartData} />
+        <p className="card__sub num" style={{ textAlign: 'right', marginTop: 4 }}>
+          kg / {range === 'week' ? '일' : '월'}
+        </p>
       </section>
 
       {/* 종류 분포 도넛 */}

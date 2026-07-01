@@ -1,6 +1,14 @@
 import { useState } from 'react'
 import { useTelemetry } from '../state/TelemetryContext.jsx'
 
+// 쓰레기 종류별 실루엣 아이콘 (박스 안에 실제 객체로 표시)
+function debrisIcon(label) {
+  if (label.includes('플라스틱')) return 'ti-bottle'
+  if (label.includes('어망') || label.includes('그물')) return 'ti-grid-dots'
+  if (label.includes('스티로폼')) return 'ti-box'
+  return 'ti-trash'
+}
+
 /* 가상 카메라 피드 (RGB / 열화상)
    - AI 바운딩 박스: state.detections를 픽셀단위(%) 실시간 오버레이
    - 디헤이징: 탁도 보정 필터로 시인성 확보
@@ -43,6 +51,10 @@ export default function VideoFeed({ compact = false, thermal: thermalProp, showC
               height: `${d.h * 100}%`,
             }}
           >
+            {/* 실제 쓰레기 객체 — 박스 안에 눈에 보이게 표시 */}
+            <span className="videofeed__obj">
+              <i className={`ti ${debrisIcon(d.label)}`} />
+            </span>
             <span className="videofeed__bbox-tag num">
               {d.label} {d.conf.toFixed(2)}
             </span>

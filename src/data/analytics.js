@@ -13,6 +13,16 @@ export const weeklyCollection = [
   { label: '일', value: 61 },
 ]
 
+// 월간 수거량 (kg) — 최근 6개월
+export const monthlyCollection = [
+  { label: '2월', value: 980 },
+  { label: '3월', value: 1240 },
+  { label: '4월', value: 1105 },
+  { label: '5월', value: 1420 },
+  { label: '6월', value: 1680 },
+  { label: '7월', value: 1535 },
+]
+
 // 구역별 수거 비중
 export const zoneBreakdown = [
   { label: 'A구역 (북안)', value: 34, color: 'var(--orange-500)' },

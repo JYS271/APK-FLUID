@@ -1,5 +1,5 @@
 import { createContext, useContext, useReducer, useEffect, useRef, useCallback } from 'react'
-import { patrolPath, heatmapPoints, obstacles } from '../data/mapData.js'
+import { patrolPath, heatmapPoints, obstacles, homeBase } from '../data/mapData.js'
 
 /* ============================================================
    ARK-FLUID 가상 텔레메트리 시뮬레이션 엔진
@@ -47,6 +47,7 @@ const initialState = {
 
   // AI 자율항법
   mode: 'patrol', // patrol(auto) | manual | hold | estop
+  returning: false, // 수거함 배출 위해 기지 자동 복귀 중
   avoiding: false, // OA 회피 기동 중
   nearObstacle: null, // { x, y, r, dist } 감지된 최근접 장애물
   assist: false, // 조작 어시스트(정밀 정렬)
@@ -212,6 +213,11 @@ function reducer(state, action) {
       } else if (state.mode === 'hold') {
         s.speed = Math.max(0, state.speed - 1.2 * dt)
         thrust = 0
+      } else if (state.returning) {
+        // 기지 자동 복귀(배출) — homeBase로 직진
+        targetHeading = (relBearing(state.pos, 0, homeBase) + 360) % 360
+        thrust = 0.72
+        s.speed = clamp(1.5 + Math.sin(t * 0.5) * 0.2, 0.6, 1.9)
       } else {
         // patrol(auto): 순찰 경로 자동 추종
         const nextIdx = (state.pathIndex + dt * 0.28) % patrolPath.length
@@ -271,12 +277,28 @@ function reducer(state, action) {
       s.battery = clamp(state.battery - dr, 0, 100)
       if (s.battery <= 0) s.mode = 'hold'
 
-      // --- 수거함 적재 ---
-      if (s.speed > 0.3 && s.netLoad < 100) {
+      // --- 수거함 적재 (복귀 중엔 수거 중단) ---
+      if (s.speed > 0.3 && s.netLoad < 100 && !state.returning) {
         const gain = (0.16 + s.speed * 0.05) * dt
         s.netLoad = clamp(state.netLoad + gain, 0, 100)
         if (Math.floor(s.netLoad) > Math.floor(state.netLoad)) {
           s.collectedToday = state.collectedToday + Math.round(1 + s.speed)
+        }
+      }
+
+      // --- 수거함 80% → 기지 자동 복귀·배출 트리거 (자동 순찰 중) ---
+      if (!state.returning && state.mode === 'patrol' && s.netLoad >= 80) {
+        s.returning = true
+        s.toast = { id: t, kind: 'warning', text: '수거함 80% — 기지로 자동 복귀·배출' }
+      }
+
+      // --- 기지 도킹 시 자동 배출 ---
+      if (s.returning) {
+        const dHome = Math.hypot(s.pos.x - homeBase.x, s.pos.y - homeBase.y)
+        if (dHome < 3) {
+          s.netLoad = 0
+          s.returning = false
+          s.toast = { id: t, kind: 'success', text: '기지 도킹 · 수거함 자동 배출 완료' }
         }
       }
 
@@ -355,10 +377,10 @@ function reducer(state, action) {
       return { ...state, mode: 'hold', estopEngaged: false, toast: { id: state.missionTime, kind: 'success', text: '긴급 정지 해제 — 대기 모드' } }
 
     case 'RETURN_HOME':
-      return { ...state, mode: 'patrol', toast: { id: state.missionTime, kind: 'success', text: '기지 복귀 경로로 전환' } }
+      return { ...state, mode: 'patrol', returning: true, toast: { id: state.missionTime, kind: 'success', text: '기지 복귀 경로로 전환' } }
 
     case 'DUMP_NET':
-      return { ...state, netLoad: 0, toast: { id: state.missionTime, kind: 'success', text: '수거함 배출 완료' } }
+      return { ...state, netLoad: 0, returning: false, toast: { id: state.missionTime, kind: 'success', text: '수거함 배출 완료' } }
 
     case 'SET_CONNECTION':
       return { ...state, connection: action.value }

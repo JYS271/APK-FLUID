@@ -135,10 +135,31 @@ export default function MarineMap({ compact = false }) {
         <path d={avoidArc} fill="none" stroke="var(--warning)" strokeWidth="0.9" strokeDasharray="1.4 1.2" strokeLinecap="round" />
       )}
 
+      {/* 기지 자동 복귀 경로 (배출 복귀 중) */}
+      {state.returning && (
+        <line
+          x1={gps.x}
+          y1={gps.y}
+          x2={homeBase.x}
+          y2={homeBase.y}
+          stroke="var(--success)"
+          strokeWidth="0.7"
+          strokeDasharray="2 1.4"
+          strokeLinecap="round"
+          opacity="0.9"
+        />
+      )}
+
       {/* 기지 */}
       <g transform={`translate(${homeBase.x} ${homeBase.y})`}>
-        <circle r="2.4" fill="none" stroke="rgba(120,220,160,0.8)" strokeWidth="0.5" />
+        <circle r="2.4" fill="none" stroke={state.returning ? 'var(--success)' : 'rgba(120,220,160,0.8)'} strokeWidth="0.5" />
         <circle r="0.9" fill="rgba(120,220,160,0.9)" />
+        {state.returning && (
+          <circle r="2.4" fill="none" stroke="var(--success)" strokeWidth="0.5" opacity="0.7">
+            <animate attributeName="r" values="2.4;5;2.4" dur="1.5s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="0.7;0;0.7" dur="1.5s" repeatCount="indefinite" />
+          </circle>
+        )}
       </g>
 
       {/* 경로 시작(0%) 가오리 마커 */}

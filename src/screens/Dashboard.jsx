@@ -5,18 +5,25 @@ import VideoFeed from '../components/VideoFeed.jsx'
 import NetGauge from '../components/NetGauge.jsx'
 import EnvOverlay from '../components/EnvOverlay.jsx'
 
+// 실시간 원격 접속 링크 (첨부 파일)
+const REMOTE_URL = encodeURI(
+  'file:///C:/Users/VISION/Documents/카카오톡 받은 파일/index.html'
+)
+
 /* 대시보드(Monitor) — 상태바·지도·영상·요약·빠른작업 */
 export default function Dashboard({ onControl, onOpenWeb }) {
-  const { state, returnHome, dumpNet } = useTelemetry()
+  const { state, returnHome } = useTelemetry()
   const lat = latencyLevel(state.latency)
   const laggy = state.latency > 300
 
-  const modeLabel = {
-    patrol: '자동 순찰',
-    manual: '수동 조종',
-    hold: '정지 대기',
-    estop: '긴급 정지',
-  }[state.mode]
+  const modeLabel = state.returning
+    ? '기지 복귀 · 배출'
+    : {
+        patrol: '자동 순찰',
+        manual: '수동 조종',
+        hold: '정지 대기',
+        estop: '긴급 정지',
+      }[state.mode]
 
   return (
     <div className="screen dash">
@@ -91,25 +98,22 @@ export default function Dashboard({ onControl, onOpenWeb }) {
       {/* 빠른 작업 */}
       <section className="quick swim-in" style={{ animationDelay: '.2s' }}>
         <h2 className="section-title">빠른 작업</h2>
-        <div className="quick__row">
+        <div className="quick__row quick__row--2">
           <button className="quick__btn" onClick={returnHome}>
             <i className="ti ti-home-move" />
-            기지 복귀
-          </button>
-          <button className="quick__btn" onClick={dumpNet}>
-            <i className="ti ti-basket-down" />
-            수거함 배출
+            기지 복귀 · 배출
           </button>
           <button className="quick__btn" onClick={() => onOpenWeb('report')}>
             <i className="ti ti-file-analytics" />
             상세 리포트
           </button>
         </div>
-        {/* 화면당 Primary 오렌지 CTA 1개 */}
-        <button className="cta" onClick={onControl}>
-          <i className="ti ti-steering-wheel" />
-          제어 모드 진입
-        </button>
+        {/* 화면당 Primary 오렌지 CTA 1개 — 실시간 원격 접속 링크(첨부) */}
+        <a className="cta" href={REMOTE_URL} target="_blank" rel="noopener noreferrer">
+          <i className="ti ti-info-circle" />
+          ARK-FLUID 더 알아보기
+          <i className="ti ti-external-link cta__ext" />
+        </a>
       </section>
     </div>
   )
