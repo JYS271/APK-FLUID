@@ -35,3 +35,14 @@ export const coastline = '100,0 100,38 82,30 74,16 88,4 100,0'
 
 // 회수(도킹) 기지 위치
 export const homeBase = { x: 14, y: 20 }
+
+// 장애물 (LiDAR/소나로 감지 · OA 알고리즘 대상) — 순찰 경로 인근 배치
+export const obstacles = [
+  { x: 52, y: 26, r: 3.6, type: 'rock' }, // 암초
+  { x: 68, y: 52, r: 3.0, type: 'buoy' }, // 부표
+  { x: 40, y: 60, r: 4.2, type: 'net' }, // 유령그물 뭉치
+]
+
+// 경로 시작(0%) / 목표(100%) — 캐릭터 마커용
+export const pathStart = patrolPath[0]
+export const pathGoal = patrolPath[patrolPath.length - 1]

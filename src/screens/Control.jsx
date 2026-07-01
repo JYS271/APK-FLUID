@@ -10,8 +10,10 @@ import Throttle from '../components/Throttle.jsx'
    운전대(선회, 놓으면 중앙 복귀) + 세로 스로틀(추력, 위치 유지) → differential thrust
    E-STOP: 길게 눌러(600ms) 확정 */
 export default function Control({ onExit }) {
-  const { state, setThruster, setMode, estop, resetEstop } = useTelemetry()
+  const { state, setThruster, setMode, setAutonomy, toggleAssist, estop, resetEstop } = useTelemetry()
   const lat = latencyLevel(state.latency)
+  const auto = state.mode === 'patrol'
+  const lowLat = state.latency <= 100
 
   // 스로틀 = 추력(위치 유지), 운전대 = 선회(중앙 복귀)
   const thrustRef = useRef(0)
@@ -70,8 +72,9 @@ export default function Control({ onExit }) {
           <i className="ti ti-chevron-left" /> 모니터
         </button>
         <div className="control__hudstats num">
-          <span style={{ color: lat.color }}>
+          <span style={{ color: lat.color }} title={lowLat ? 'WebRTC 저지연' : '지연'}>
             <i className="ti ti-activity-heartbeat" /> {Math.round(state.latency)}ms
+            {!auto && lowLat && <b className="control__webrtc">RTC</b>}
           </span>
           <span><i className="ti ti-gauge" /> {state.speed.toFixed(1)}kn</span>
           <span><i className="ti ti-compass" /> {Math.round(state.heading)}°</span>
@@ -79,10 +82,63 @@ export default function Control({ onExit }) {
         </div>
       </div>
 
+      {/* Auto/Manual 토글 + 어시스트 */}
+      <div className="control__modebar">
+        <div className="segToggle" role="tablist">
+          <button
+            role="tab"
+            className={`segToggle__opt ${auto ? 'is-on' : ''}`}
+            onClick={() => setAutonomy('auto')}
+          >
+            <i className="ti ti-robot" /> AUTO
+          </button>
+          <button
+            role="tab"
+            className={`segToggle__opt ${!auto ? 'is-on' : ''}`}
+            onClick={() => setAutonomy('manual')}
+          >
+            <i className="ti ti-steering-wheel" /> MANUAL
+          </button>
+        </div>
+
+        <button
+          className={`assistBtn ${state.assist ? 'is-on' : ''} ${auto ? 'is-disabled' : ''}`}
+          onClick={() => !auto && toggleAssist()}
+          disabled={auto}
+          title="정밀 정렬 어시스트"
+        >
+          <i className="ti ti-focus-2" />
+          어시스트{state.assist ? ' ON' : ''}
+        </button>
+      </div>
+
       {laggyBanner(state.latency)}
 
+      {/* AI 자율항법 주행 안내 */}
+      {auto && (
+        <div className="control__autonote">
+          <i className="ti ti-robot" /> AI 자율항법 주행 중 — 장애물 자동 회피 · 경로 자동 추종
+        </div>
+      )}
+
+      {/* 조작 어시스트 정렬 리티클 */}
+      {!auto && state.assist && (
+        <div className={`assistReticle ${state.assistTarget ? 'has-target' : ''} ${state.assistAligned ? 'is-aligned' : ''}`}>
+          <div className="assistReticle__ring">
+            <i className="ti ti-plus" />
+          </div>
+          <span className="assistReticle__label num">
+            {state.assistTarget
+              ? state.assistAligned
+                ? '정렬 완료 · 수거 진입'
+                : `정렬 보정 ${Math.abs(Math.round(state.assistErr))}°`
+              : '표적 탐색 중…'}
+          </span>
+        </div>
+      )}
+
       {/* 하단 컨트롤 독 — 운전대(선회) · E-STOP · 스로틀(추력) */}
-      <div className="control__dock">
+      <div className={`control__dock ${auto ? 'is-locked' : ''}`}>
         <SteeringWheel label="운전대" onChange={onSteer} />
 
         <div className="control__center">
@@ -110,23 +166,66 @@ export default function Control({ onExit }) {
   )
 }
 
+const ZOOM_MIN = 1
+const ZOOM_MAX = 3
+const ZOOM_STEP = 0.5
+
 function ControlBackground() {
   const [mode, setMode] = useState('map') // map | video
+  const [zoom, setZoom] = useState(1)
+  const [thermal, setThermal] = useState(false)
+
+  const zoomIn = () => setZoom((z) => Math.min(ZOOM_MAX, +(z + ZOOM_STEP).toFixed(1)))
+  const zoomOut = () => setZoom((z) => Math.max(ZOOM_MIN, +(z - ZOOM_STEP).toFixed(1)))
+  const resetZoom = () => setZoom(1)
+
+  // 열화상: 영상 모드로 전환하며 토글 (지도에는 열화상 미적용)
+  const toggleThermal = () => {
+    setMode('video')
+    setThermal((v) => !v)
+    if (navigator.vibrate) navigator.vibrate(10)
+  }
+
   return (
     <div className="control__bg">
-      {mode === 'map' ? (
-        <div className="control__bg-map">
-          <MarineMap compact />
-        </div>
-      ) : (
-        <VideoFeed compact />
-      )}
+      <div className="control__bg-zoomwrap" style={{ transform: `scale(${zoom})` }}>
+        {mode === 'map' ? (
+          <div className="control__bg-map">
+            <MarineMap compact />
+          </div>
+        ) : (
+          <VideoFeed compact thermal={thermal} showChips={false} />
+        )}
+      </div>
+
+      {/* 소스 전환 */}
       <div className="control__bg-switch">
-        <button className={mode === 'map' ? 'is-on' : ''} onClick={() => setMode('map')}>
+        <button className={mode === 'map' ? 'is-on' : ''} onClick={() => setMode('map')} aria-label="지도">
           <i className="ti ti-map" />
         </button>
-        <button className={mode === 'video' ? 'is-on' : ''} onClick={() => setMode('video')}>
+        <button className={mode === 'video' ? 'is-on' : ''} onClick={() => setMode('video')} aria-label="영상">
           <i className="ti ti-video" />
+        </button>
+        <button
+          className={mode === 'video' && thermal ? 'is-on' : ''}
+          onClick={toggleThermal}
+          aria-label="열화상"
+          title={thermal ? '열화상' : 'RGB'}
+        >
+          <i className="ti ti-flame" />
+        </button>
+      </div>
+
+      {/* 줌 컨트롤 */}
+      <div className="control__zoom">
+        <button onClick={zoomIn} disabled={zoom >= ZOOM_MAX} aria-label="줌 인">
+          <i className="ti ti-plus" />
+        </button>
+        <button className="control__zoom-level num" onClick={resetZoom} title="줌 리셋">
+          {zoom.toFixed(1)}×
+        </button>
+        <button onClick={zoomOut} disabled={zoom <= ZOOM_MIN} aria-label="줌 아웃">
+          <i className="ti ti-minus" />
         </button>
       </div>
     </div>

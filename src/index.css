@@ -121,13 +121,17 @@ body {
   overflow: hidden;
 }
 
-/* 스크롤 영역 */
+/* 스크롤 영역
+   min-height:0 → 플렉스 자식이 콘텐츠 높이로 늘어나지 않고 내부 스크롤 활성화.
+   margin-bottom → 스크롤 영역이 하단 탭바 위에서 끝나 콘텐츠가 가려지지 않음. */
 .screen {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  padding-bottom: calc(var(--tabbar-h) + 16px);
+  margin-bottom: var(--tabbar-h);
+  padding-bottom: 20px;
 }
 .screen::-webkit-scrollbar {
   width: 0;

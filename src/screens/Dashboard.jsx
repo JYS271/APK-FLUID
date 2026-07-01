@@ -3,6 +3,7 @@ import { latencyLevel } from '../components/StatusBar.jsx'
 import MarineMap from '../components/MarineMap.jsx'
 import VideoFeed from '../components/VideoFeed.jsx'
 import NetGauge from '../components/NetGauge.jsx'
+import EnvOverlay from '../components/EnvOverlay.jsx'
 
 /* 대시보드(Monitor) — 상태바·지도·영상·요약·빠른작업 */
 export default function Dashboard({ onControl, onOpenWeb }) {
@@ -45,6 +46,12 @@ export default function Dashboard({ onControl, onOpenWeb }) {
       <section className="card card--map swim-in" style={{ animationDelay: '.04s' }}>
         <div className="card__map-wrap">
           <MarineMap />
+          <EnvOverlay />
+          {state.avoiding && (
+            <div className="oa-badge">
+              <i className="ti ti-alert-triangle" /> 장애물 회피 기동
+            </div>
+          )}
           <button className="card__map-fs" onClick={onControl} aria-label="제어로 전환">
             <i className="ti ti-arrows-maximize" />
           </button>
