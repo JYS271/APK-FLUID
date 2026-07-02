@@ -15,8 +15,13 @@ function Manta({ fill, stroke = '#fff', sw = 0.35 }) {
    - 순찰 경로(오렌지 점선) + 시작/목표 가오리 마커
    - 쓰레기 히트맵 · 장애물(소나 링) · OA 회피 아크
    - 부채꼴(날개) 센서 FOV · 로봇 마커(위치/방위 회전) · 조류 화살표 */
-export default function MarineMap({ compact = false }) {
+export default function MarineMap({ compact = false, zoom = 1 }) {
   const { state, gps, heatmap, path, obstacles } = useTelemetry()
+
+  // 줌: 배율이 낮을수록 viewBox를 넓혀 그만큼 더 넓은 바다를 보여줌
+  const vs = 100 / zoom
+  const vOff = 50 - vs / 2
+  const viewBox = `${vOff} ${vOff} ${vs} ${vs}`
 
   const pathStr = path.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ') + ' Z'
 
@@ -53,7 +58,7 @@ export default function MarineMap({ compact = false }) {
   const goalDone = state.netLoad >= 90
 
   return (
-    <svg className="marinemap" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" role="img" aria-label="해양 순찰 지도">
+    <svg className="marinemap" viewBox={viewBox} preserveAspectRatio="xMidYMid slice" role="img" aria-label="해양 순찰 지도">
       <defs>
         <radialGradient id="sea" cx="42%" cy="38%" r="80%">
           <stop offset="0%" stopColor="#173a6b" />
@@ -70,15 +75,16 @@ export default function MarineMap({ compact = false }) {
         </linearGradient>
       </defs>
 
-      <rect x="0" y="0" width="100" height="100" fill="url(#sea)" />
+      {/* 바다 — 줌 아웃 시에도 화면을 채우도록 넓게 */}
+      <rect x="-80" y="-80" width="260" height="260" fill="url(#sea)" />
 
-      {/* 등심선 그리드 */}
+      {/* 등심선 그리드 (확장 범위) */}
       <g stroke="rgba(120,170,230,0.10)" strokeWidth="0.4">
-        {[20, 40, 60, 80].map((v) => (
-          <line key={`h${v}`} x1="0" y1={v} x2="100" y2={v} />
+        {Array.from({ length: 14 }, (_, i) => -80 + i * 20).map((v) => (
+          <line key={`h${v}`} x1="-80" y1={v} x2="180" y2={v} />
         ))}
-        {[20, 40, 60, 80].map((v) => (
-          <line key={`v${v}`} x1={v} y1="0" x2={v} y2="100" />
+        {Array.from({ length: 14 }, (_, i) => -80 + i * 20).map((v) => (
+          <line key={`v${v}`} x1={v} y1="-80" x2={v} y2="180" />
         ))}
       </g>
 

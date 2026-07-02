@@ -166,7 +166,7 @@ export default function Control({ onExit }) {
   )
 }
 
-const ZOOM_MIN = 1
+const ZOOM_MIN = 0.5
 const ZOOM_MAX = 3
 const ZOOM_STEP = 0.5
 
@@ -188,15 +188,17 @@ function ControlBackground() {
 
   return (
     <div className="control__bg">
-      <div className="control__bg-zoomwrap" style={{ transform: `scale(${zoom})` }}>
-        {mode === 'map' ? (
-          <div className="control__bg-map">
-            <MarineMap compact />
-          </div>
-        ) : (
+      {mode === 'map' ? (
+        // 지도: viewBox 배율 → 줌 아웃 시 바다가 그만큼 넓게 보임
+        <div className="control__bg-map">
+          <MarineMap compact zoom={zoom} />
+        </div>
+      ) : (
+        // 영상: 디지털 줌(transform scale)
+        <div className="control__bg-zoomwrap" style={{ transform: `scale(${zoom})` }}>
           <VideoFeed compact thermal={thermal} showChips={false} />
-        )}
-      </div>
+        </div>
+      )}
 
       {/* 소스 전환 */}
       <div className="control__bg-switch">
