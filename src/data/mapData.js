@@ -84,12 +84,35 @@ export const coastline = '100,0 100,38 82,30 74,16 88,4 100,0'
 // 회수(도킹) 기지 위치
 export const homeBase = { x: 14, y: 20 }
 
-// 장애물 (LiDAR/소나로 감지 · OA 알고리즘 대상) — 순찰 경로 인근 배치
-export const obstacles = [
-  { x: 52, y: 26, r: 3.6, type: 'rock' }, // 암초
-  { x: 68, y: 52, r: 3.0, type: 'buoy' }, // 부표
-  { x: 40, y: 60, r: 4.2, type: 'net' }, // 유령그물 뭉치
-]
+// 환경별 장애물 (LiDAR/소나 감지 · OA 대상) — 각 환경 경로 인근에 다르게 배치
+export const obstacleSets = {
+  harbor: [
+    { x: 52, y: 26, r: 3.6, type: 'rock' },
+    { x: 68, y: 52, r: 3.0, type: 'buoy' },
+    { x: 40, y: 60, r: 4.2, type: 'net' },
+  ],
+  river: [
+    { x: 30, y: 34, r: 3.2, type: 'rock' },
+    { x: 52, y: 54, r: 2.8, type: 'buoy' },
+    { x: 66, y: 70, r: 3.8, type: 'net' },
+    { x: 20, y: 30, r: 2.6, type: 'rock' },
+  ],
+  reservoir: [
+    { x: 48, y: 40, r: 3.6, type: 'rock' },
+    { x: 60, y: 54, r: 2.8, type: 'buoy' },
+    { x: 38, y: 58, r: 3.4, type: 'net' },
+    { x: 56, y: 34, r: 2.6, type: 'buoy' },
+  ],
+  coast: [
+    { x: 40, y: 46, r: 3.0, type: 'rock' },
+    { x: 62, y: 42, r: 3.4, type: 'buoy' },
+    { x: 76, y: 52, r: 2.8, type: 'net' },
+    { x: 30, y: 60, r: 3.2, type: 'rock' },
+  ],
+}
+
+// 기본(항만) — 하위호환
+export const obstacles = obstacleSets.harbor
 
 // 경로 시작(0%) / 목표(100%) — 기본(항만) 기준. 실제 표시는 현재 경로의 양 끝 사용.
 export const pathStart = patrolPath[0]

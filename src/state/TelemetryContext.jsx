@@ -1,5 +1,5 @@
 import { createContext, useContext, useReducer, useEffect, useRef, useCallback } from 'react'
-import { patrolPaths, heatmapPoints, obstacles, homeBase } from '../data/mapData.js'
+import { patrolPaths, heatmapPoints, obstacleSets, homeBase } from '../data/mapData.js'
 
 /* ============================================================
    ARK-FLUID 가상 텔레메트리 시뮬레이션 엔진
@@ -102,7 +102,7 @@ function relBearing(pos, heading, target) {
 
 /* 장애물 회피(OA): 소나/LiDAR 데이터 → 곡선형 우회 기동
    전방(±75°) 근접 장애물을 향한 반대 방향으로 조향각 산출 */
-function computeAvoidance(pos, heading) {
+function computeAvoidance(pos, heading, obstacles) {
   let avoiding = false
   let steer = 0
   let nearest = null
@@ -266,7 +266,7 @@ function reducer(state, action) {
       }
 
       // --- 장애물 회피(OA): 곡선형 우회 기동 ---
-      const oa = computeAvoidance(s.pos, s.heading)
+      const oa = computeAvoidance(s.pos, s.heading, obstacleSets[s.environment] || obstacleSets.harbor)
       s.avoiding = oa.avoiding
       s.nearObstacle = oa.nearest
       if (oa.avoiding && state.mode !== 'hold') {
@@ -471,7 +471,7 @@ export function TelemetryProvider({ children }) {
     gps: state.pos,
     heatmap: heatmapPoints,
     path: patrolPaths[state.environment] || patrolPaths.harbor,
-    obstacles,
+    obstacles: obstacleSets[state.environment] || obstacleSets.harbor,
     setThruster,
     setMode,
     setAutonomy,
