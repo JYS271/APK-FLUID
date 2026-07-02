@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useTelemetry } from '../state/TelemetryContext.jsx'
 
 /* 쓰레기 종류별 실루엣 (첨부 이미지 기반: 담뱃갑/캔/스마트폰/약병)
@@ -58,6 +58,148 @@ function DebrisShape({ kind }) {
   )
 }
 
+/* 해양생물 실루엣 — 물고기/해파리/거북이/치어 떼 */
+function CreatureSVG({ type }) {
+  if (type === 'jelly') {
+    return (
+      <svg viewBox="0 0 44 54" preserveAspectRatio="xMidYMid meet">
+        <path d="M6 21 Q6 5 22 5 Q38 5 38 21 Q38 25 34 25 L10 25 Q6 25 6 21 Z" />
+        <g stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round">
+          <path d="M12 25 Q10 40 13 52" />
+          <path d="M18 25 Q17 42 19 53" />
+          <path d="M24 25 Q25 42 23 53" />
+          <path d="M30 25 Q32 40 30 52" />
+        </g>
+      </svg>
+    )
+  }
+  if (type === 'turtle') {
+    return (
+      <svg viewBox="0 0 54 40" preserveAspectRatio="xMidYMid meet">
+        <ellipse cx="24" cy="20" rx="15" ry="11" />
+        <ellipse cx="43" cy="20" rx="5.5" ry="4" />
+        <ellipse cx="14" cy="7" rx="6" ry="3.4" transform="rotate(-28 14 7)" />
+        <ellipse cx="14" cy="33" rx="6" ry="3.4" transform="rotate(28 14 33)" />
+        <ellipse cx="33" cy="9" rx="5" ry="3" transform="rotate(30 33 9)" />
+        <ellipse cx="33" cy="31" rx="5" ry="3" transform="rotate(-30 33 31)" />
+      </svg>
+    )
+  }
+  if (type === 'school') {
+    // 치어 떼 (작은 물고기 여러 마리) — 오른쪽을 향함
+    const one = 'M16 6 Q11 1 4 5 L0 1 L2 6 L0 11 L4 7 Q11 11 16 6 Z'
+    return (
+      <svg viewBox="0 0 60 40" preserveAspectRatio="xMidYMid meet">
+        <path d={one} transform="translate(2 4) scale(1)" />
+        <path d={one} transform="translate(24 0) scale(1.1)" />
+        <path d={one} transform="translate(18 20) scale(0.85)" />
+        <path d={one} transform="translate(40 14) scale(1)" />
+      </svg>
+    )
+  }
+  // fish (기본) — 오른쪽(머리)을 향함
+  return (
+    <svg viewBox="0 0 64 34" preserveAspectRatio="xMidYMid meet">
+      <path d="M58 17 Q42 3 20 11 Q10 5 4 3 Q9 13 4 31 Q10 29 20 23 Q42 31 58 17 Z" />
+    </svg>
+  )
+}
+
+// 자율 유영 개체 (spd = %/s). swims=true면 진행 방향을 바라봄, false(해파리)는 부유
+const CREATURES = [
+  { type: 'fish', size: 62, op: 0.22, blur: 0.5, spd: 9 },
+  { type: 'school', size: 54, op: 0.16, blur: 1, spd: 11 },
+  { type: 'jelly', size: 38, op: 0.18, blur: 0.6, spd: 3 },
+  { type: 'fish', size: 48, op: 0.19, blur: 0.7, spd: 8 },
+  { type: 'turtle', size: 78, op: 0.2, blur: 0.9, spd: 4.5 },
+  { type: 'fish', size: 42, op: 0.14, blur: 1.2, spd: 7 },
+  { type: 'school', size: 46, op: 0.13, blur: 1.3, spd: 10 },
+  { type: 'fish', size: 34, op: 0.12, blur: 1.5, spd: 6 },
+  { type: 'jelly', size: 30, op: 0.14, blur: 1, spd: 2.5 },
+  { type: 'fish', size: 40, op: 0.13, blur: 1.1, spd: 8 },
+]
+
+const rand = (a, b) => a + Math.random() * (b - a)
+
+function MarineLife() {
+  const elsRef = useRef([])
+  const stateRef = useRef(null)
+  if (!stateRef.current) {
+    stateRef.current = CREATURES.map((c) => ({
+      ...c,
+      x: rand(8, 92),
+      y: rand(12, 88),
+      heading: rand(0, Math.PI * 2),
+      turn: rand(-0.5, 0.5),
+      phase: rand(0, Math.PI * 2),
+      swims: c.type !== 'jelly',
+    }))
+  }
+
+  useEffect(() => {
+    let raf
+    let last = null
+    const loop = (t) => {
+      if (last == null) last = t
+      let dt = (t - last) / 1000
+      last = t
+      if (dt > 0.05) dt = 0.05 // 탭 비활성 등으로 큰 점프 방지
+      const arr = stateRef.current
+      for (let i = 0; i < arr.length; i++) {
+        const c = arr[i]
+        // 자아: 방향을 서서히 무작위로 틀며 배회
+        c.turn += rand(-1, 1) * 1.8 * dt
+        c.turn = Math.max(-0.9, Math.min(0.9, c.turn))
+        c.heading += c.turn * dt * (c.swims ? 1.2 : 0.5)
+        const vx = Math.cos(c.heading)
+        const vy = Math.sin(c.heading)
+        c.x += vx * c.spd * dt
+        c.y += vy * c.spd * dt * (c.swims ? 1 : 0.6)
+        // 가장자리에서 방향 전환(반사)
+        if (c.x < 5 && vx < 0) (c.heading = Math.PI - c.heading), (c.turn *= -0.4)
+        if (c.x > 95 && vx > 0) (c.heading = Math.PI - c.heading), (c.turn *= -0.4)
+        if (c.y < 8 && vy < 0) (c.heading = -c.heading), (c.turn *= -0.4)
+        if (c.y > 92 && vy > 0) (c.heading = -c.heading), (c.turn *= -0.4)
+        c.x = Math.max(5, Math.min(95, c.x))
+        c.y = Math.max(8, Math.min(92, c.y))
+
+        const el = elsRef.current[i]
+        if (!el) continue
+        let tf = 'translate(-50%, -50%)'
+        if (c.swims) {
+          const deg = (c.heading * 180) / Math.PI
+          const flipY = Math.cos(c.heading) < 0 ? -1 : 1 // 좌향 시 상하 뒤집어 배가 아래로
+          tf += ` rotate(${deg}deg) scale(1, ${flipY})`
+        } else {
+          c.phase += dt * 2
+          tf += ` translateY(${Math.sin(c.phase) * 2.5}px)`
+        }
+        el.style.left = c.x + '%'
+        el.style.top = c.y + '%'
+        el.style.transform = tf
+      }
+      raf = requestAnimationFrame(loop)
+    }
+    raf = requestAnimationFrame(loop)
+    return () => cancelAnimationFrame(raf)
+  }, [])
+
+  return (
+    <div className="videofeed__life" aria-hidden="true">
+      {stateRef.current.map((c, i) => (
+        <div
+          key={i}
+          ref={(el) => (elsRef.current[i] = el)}
+          className="videofeed__creature"
+          style={{ width: `${c.size}px`, opacity: c.op, filter: `blur(${c.blur}px)` }}
+        >
+          <CreatureSVG type={c.type} />
+        </div>
+      ))}
+    </div>
+  )
+}
+
 /* 가상 카메라 피드 (RGB / 열화상)
    - AI 바운딩 박스: state.detections를 픽셀단위(%) 실시간 오버레이
    - 디헤이징: 탁도 보정 필터로 시인성 확보
@@ -85,6 +227,8 @@ export default function VideoFeed({ compact = false, thermal: thermalProp, showC
         <div className="videofeed__particle p1" />
         <div className="videofeed__particle p2" />
         <div className="videofeed__particle p3" />
+        {/* 지나다니는 해양생물 그림자 */}
+        <MarineLife />
       </div>
 
       {/* AI 바운딩 박스 오버레이 (탐지 결과) — 배율에 따라 축소/확대 */}

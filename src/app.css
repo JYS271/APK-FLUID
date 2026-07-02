@@ -318,6 +318,24 @@
     opacity: 0;
   }
 }
+/* 해양생물 그림자 — JS 자율 유영(이리저리 배회) */
+.videofeed__life {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.videofeed__creature {
+  position: absolute;
+  will-change: left, top, transform;
+}
+.videofeed__creature svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  fill: #05131f;
+  color: #05131f;
+}
 /* 수중 탁도 헤이즈 (디헤이징 OFF 시) */
 .videofeed__haze {
   position: absolute;
@@ -335,44 +353,27 @@
   transform-origin: center;
   transition: transform 0.25s var(--ease-swim);
 }
+/* 바운딩 박스 — 얇은 오렌지 아웃라인 · 라운드 · 필/글로우 없음 (미니멀) */
 .videofeed__bbox {
   position: absolute;
   border: 1.5px solid var(--orange-500);
-  border-radius: 4px;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25), inset 0 0 12px rgba(255, 106, 31, 0.25);
+  border-radius: 10px;
   transition: left 0.55s linear, top 0.55s linear;
 }
-.videofeed__bbox::before,
-.videofeed__bbox::after {
-  content: '';
-  position: absolute;
-  width: 7px;
-  height: 7px;
-  border: 2px solid var(--orange-400);
-}
-.videofeed__bbox::before {
-  top: -2px;
-  left: -2px;
-  border-right: none;
-  border-bottom: none;
-}
-.videofeed__bbox::after {
-  bottom: -2px;
-  right: -2px;
-  border-left: none;
-  border-top: none;
-}
+/* 좌상단 캡슐 라벨 — 오렌지 캡슐 위 화이트 타이포 */
 .videofeed__bbox-tag {
   position: absolute;
-  top: -15px;
-  left: -1.5px;
+  top: -11px;
+  left: 6px;
   font-size: 9px;
-  font-weight: 700;
+  font-weight: 600;
+  letter-spacing: 0.01em;
   background: var(--orange-500);
   color: #fff;
-  padding: 1px 5px;
-  border-radius: 3px;
+  padding: 2px 8px;
+  border-radius: 999px;
   white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(16, 33, 60, 0.2);
 }
 /* 박스 안 실제 쓰레기 객체 (종류별 실루엣) */
 .videofeed__obj {
@@ -388,16 +389,16 @@
 .videofeed__obj .debris__svg {
   width: 100%;
   height: 100%;
-  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.45));
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
 }
-/* 열화상: 쓰레기가 주변보다 뜨거운 열 신호로 또렷하게 보임 */
+/* 열화상: 차분한 웜톤 신호 (네온/글로우 지양, 미니멀) */
 .videofeed--thermal .videofeed__obj {
-  --dfill: rgba(255, 214, 92, 0.92);
-  --dstroke: #fff6cf;
-  --daccent: rgba(255, 120, 40, 0.95);
+  --dfill: rgba(255, 196, 110, 0.82);
+  --dstroke: rgba(255, 236, 200, 0.95);
+  --daccent: rgba(255, 138, 66, 0.9);
 }
 .videofeed--thermal .videofeed__obj .debris__svg {
-  filter: drop-shadow(0 0 7px rgba(255, 175, 60, 0.9)) drop-shadow(0 0 2px rgba(255, 240, 180, 0.8));
+  filter: drop-shadow(0 1px 3px rgba(60, 20, 0, 0.3));
 }
 .videofeed__hud {
   position: absolute;
