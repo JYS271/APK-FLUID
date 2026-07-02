@@ -1,5 +1,5 @@
 import { createContext, useContext, useReducer, useEffect, useRef, useCallback } from 'react'
-import { patrolPath, heatmapPoints, obstacles, homeBase } from '../data/mapData.js'
+import { patrolPath, heatmapPoints, obstacles, homeBase, ENV_PROFILE } from '../data/mapData.js'
 
 /* ============================================================
    ARK-FLUID 가상 텔레메트리 시뮬레이션 엔진
@@ -15,6 +15,15 @@ import { patrolPath, heatmapPoints, obstacles, homeBase } from '../data/mapData.
 const TICK_MS = 600
 const SENSOR_RANGE = 20 // LiDAR/소나 감지 반경(정규화)
 const BATTERY_DRAIN_PER_S = 1 / (10 * 60) // 배터리 소모 고정: 10분당 1%
+
+// 운용 환경 모드 — 환경별 탁도·유속·수온 기준값
+export const ENV_MODES = [
+  { key: 'harbor', label: '항만', icon: 'ti-anchor', turbidity: 40, currentSpeed: 0.5, temp: 21.5, desc: '복잡한 선박 동선 · 부유물 회피' },
+  { key: 'river', label: '하천', icon: 'ti-ripple', turbidity: 56, currentSpeed: 0.95, temp: 19, desc: '강한 유속 · 상류 유입물' },
+  { key: 'reservoir', label: '저수지', icon: 'ti-droplet', turbidity: 24, currentSpeed: 0.2, temp: 22.5, desc: '정체 수역 · 침적물 위주' },
+  { key: 'coast', label: '연안', icon: 'ti-beach', turbidity: 16, currentSpeed: 0.7, temp: 20, desc: '파도·조류 · 광역 순찰' },
+]
+const ENV_MAP = Object.fromEntries(ENV_MODES.map((m) => [m.key, m]))
 
 const initialState = {
   // 연결/통신
@@ -45,6 +54,9 @@ const initialState = {
   waterTemp: 21.4, // ℃
   turbidity: 32, // NTU
   current: { speed: 0.6, dir: 210 }, // 조류: knot / deg
+
+  // 운용 환경 (항만/하천/저수지/연안)
+  environment: 'harbor',
 
   // AI 자율항법
   mode: 'patrol', // patrol(auto) | manual | hold | estop
@@ -311,12 +323,13 @@ function reducer(state, action) {
         }
       }
 
-      // --- 환경값(동일 타임스탬프 s.ts로 동기화) ---
-      s.waterTemp = 21.4 + Math.sin(t * 0.12) * 0.6
-      s.turbidity = clamp(32 + Math.sin(t * 0.4) * 9, 12, 60)
+      // --- 환경값(운용 환경별 기준값, 동일 타임스탬프 s.ts로 동기화) ---
+      const env = ENV_MAP[s.environment] || ENV_MAP.harbor
+      s.waterTemp = env.temp + Math.sin(t * 0.12) * 0.6
+      s.turbidity = clamp(env.turbidity + Math.sin(t * 0.4) * 8, 8, 68)
       s.depth = clamp(1.8 + Math.sin(t * 0.33) * 0.5, 0.8, 3.2)
       s.current = {
-        speed: +(0.55 + Math.sin(t * 0.18) * 0.3).toFixed(2),
+        speed: +Math.max(0.05, env.currentSpeed + Math.sin(t * 0.18) * 0.2).toFixed(2),
         dir: Math.round((205 + Math.sin(t * 0.09) * 35 + 360) % 360),
       }
 
@@ -370,6 +383,16 @@ function reducer(state, action) {
 
     case 'TOGGLE_DEHAZE':
       return { ...state, dehaze: !state.dehaze }
+
+    case 'SET_ENVIRONMENT': {
+      if (state.environment === action.key) return state
+      const m = ENV_MAP[action.key]
+      return {
+        ...state,
+        environment: action.key,
+        toast: { id: state.missionTime, kind: 'info', text: `운용 환경 전환 · ${m ? m.label : action.key}` },
+      }
+    }
 
     case 'ESTOP':
       return {
@@ -426,6 +449,10 @@ export function TelemetryProvider({ children }) {
     if (navigator.vibrate) navigator.vibrate(10)
   }, [])
   const toggleDehaze = useCallback(() => dispatch({ type: 'TOGGLE_DEHAZE' }), [])
+  const setEnvironment = useCallback((key) => {
+    dispatch({ type: 'SET_ENVIRONMENT', key })
+    if (navigator.vibrate) navigator.vibrate(8)
+  }, [])
   const estop = useCallback(() => {
     dispatch({ type: 'ESTOP' })
     if (navigator.vibrate) navigator.vibrate([80, 40, 80, 40, 160])
@@ -449,6 +476,7 @@ export function TelemetryProvider({ children }) {
     setAutonomy,
     toggleAssist,
     toggleDehaze,
+    setEnvironment,
     estop,
     resetEstop,
     returnHome,

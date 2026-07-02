@@ -4,6 +4,7 @@ import MarineMap from '../components/MarineMap.jsx'
 import VideoFeed from '../components/VideoFeed.jsx'
 import NetGauge from '../components/NetGauge.jsx'
 import EnvOverlay from '../components/EnvOverlay.jsx'
+import EnvSelector from '../components/EnvSelector.jsx'
 
 // 실시간 원격 접속 링크 (첨부 파일)
 const REMOTE_URL = encodeURI(
@@ -48,6 +49,9 @@ export default function Dashboard({ onControl, onOpenWeb }) {
           <span>knot</span>
         </div>
       </header>
+
+      {/* 운용 환경 전환 */}
+      <EnvSelector />
 
       {/* 지도 카드 */}
       <section className="card card--map swim-in" style={{ animationDelay: '.04s' }}>

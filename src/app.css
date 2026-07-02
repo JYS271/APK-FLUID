@@ -6,8 +6,8 @@
   font-size: 15px;
   font-weight: 700;
   color: var(--text);
-  margin: 0 0 10px;
-  letter-spacing: -0.01em;
+  margin: 0 0 12px;
+  letter-spacing: -0.015em;
 }
 
 /* ---------- StatusBar ---------- */
@@ -123,15 +123,15 @@
   margin: 0;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-soft);
 }
 .dash__title {
-  margin: 4px 0 0;
-  font-size: 24px;
+  margin: 6px 0 0;
+  font-size: 25px;
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
   color: var(--navy-900);
   display: flex;
   align-items: center;
@@ -178,8 +178,9 @@
   border-radius: var(--card-radius);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--hairline);
-  padding: 14px;
-  margin-bottom: 14px;
+  padding: 16px;
+  margin-bottom: 16px;
+  transition: transform 0.2s var(--ease-swim), box-shadow 0.2s;
 }
 .card--map {
   padding: 0;
@@ -187,28 +188,32 @@
 }
 .card__map-wrap {
   position: relative;
-  height: 210px;
+  height: 216px;
   overflow: hidden;
 }
 .card__map-fs {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-control);
   background: var(--deep-glass);
   backdrop-filter: blur(6px);
   color: #fff;
   display: grid;
   place-items: center;
   font-size: 18px;
+  transition: transform 0.18s var(--ease-swim), background 0.18s;
+}
+.card__map-fs:active {
+  transform: scale(0.92);
 }
 .card__map-foot {
   display: flex;
   justify-content: space-around;
   padding: 12px 8px;
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--text-soft);
 }
 .card__map-foot span {
@@ -233,38 +238,40 @@
   margin: 0;
   font-size: 14px;
   font-weight: 700;
+  letter-spacing: -0.01em;
   color: var(--text);
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 .card__title .ti {
-  font-size: 17px;
+  font-size: 18px;
   color: var(--navy-500);
 }
 .card__sub {
   font-size: 11px;
+  font-weight: 500;
   color: var(--text-soft);
 }
 
 .dash__grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  margin-bottom: 14px;
+  gap: 16px;
+  margin-bottom: 16px;
 }
 .dash__grid .card {
   margin-bottom: 0;
 }
 .card--video {
-  padding: 12px;
+  padding: 16px;
 }
 .card--gauge {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 10px 8px 14px;
+  padding: 12px 8px 16px;
 }
 .card--gauge__sub {
   font-size: 12px;
@@ -275,7 +282,7 @@
 /* ---------- VideoFeed ---------- */
 .videofeed {
   position: relative;
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
   aspect-ratio: 4 / 3;
   background: #06263f;
@@ -368,25 +375,27 @@
 /* 추적 박스 — 떠다니는 쓰레기를 개별 추적(축은 고정, 라벨 부착) */
 .videofeed__track {
   position: absolute;
-  border: 1.5px solid var(--orange-500);
-  border-radius: 8px;
+  border: 1.25px solid var(--orange-500);
+  border-radius: 6px;
   box-sizing: border-box;
+  box-shadow: 0 0 0 1px rgba(16, 33, 60, 0.12); /* 배경 대비 미세 외곽 */
   will-change: left, top;
 }
-/* 좌상단 캡슐 라벨 — 오렌지 캡슐 위 화이트 타이포 */
+/* 좌상단 라벨 — 오렌지 배지 위 화이트 타이포(전문적) */
 .videofeed__bbox-tag {
   position: absolute;
-  top: -11px;
-  left: 4px;
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
+  top: -10px;
+  left: -1px;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
   background: var(--orange-500);
   color: #fff;
-  padding: 2px 8px;
-  border-radius: 999px;
+  padding: 2.5px 6px;
+  border-radius: 5px;
   white-space: nowrap;
-  box-shadow: 0 1px 3px rgba(16, 33, 60, 0.2);
+  box-shadow: 0 1px 2px rgba(16, 33, 60, 0.25);
 }
 /* 박스 안 쓰레기 — 단색 그림자 실루엣(박스 안에서 회전) */
 .videofeed__obj {
@@ -525,18 +534,22 @@
 .statgrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 16px;
 }
 .stat {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   background: var(--surface);
-  border-radius: 16px 16px 18px 18px;
-  padding: 12px 14px;
+  border-radius: var(--card-radius-sm);
+  padding: 14px 16px;
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--hairline);
+  transition: transform 0.18s var(--ease-swim);
+}
+.stat:active {
+  transform: scale(0.985);
 }
 .stat > .ti {
   font-size: 22px;
@@ -552,8 +565,9 @@
   line-height: 1.15;
 }
 .stat__value {
-  font-size: 19px;
+  font-size: 20px;
   font-weight: 800;
+  letter-spacing: -0.02em;
   color: var(--text);
 }
 .stat__value em {
@@ -561,29 +575,30 @@
   font-weight: 600;
   font-style: normal;
   color: var(--text-soft);
-  margin-left: 2px;
+  margin-left: 3px;
 }
 .stat__label {
   font-size: 11px;
+  font-weight: 500;
   color: var(--text-soft);
-  margin-top: 1px;
+  margin-top: 2px;
 }
 
 /* ---------- Battery card ---------- */
 .card--battery {
   margin-bottom: 16px;
-  padding: 14px 16px;
+  padding: 16px;
 }
 .battery__head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 .battery__title {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   font-size: 14px;
   font-weight: 700;
   color: var(--text);
@@ -644,8 +659,8 @@
 .quick__row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 14px;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 .quick__row--2 {
   grid-template-columns: 1fr 1fr;
@@ -654,20 +669,24 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 14px 6px;
+  gap: 8px;
+  padding: 16px 8px;
   background: var(--surface);
-  border-radius: 16px 16px 18px 18px;
+  border-radius: var(--card-radius-sm);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--hairline);
   font-size: 12px;
   font-weight: 600;
   color: var(--text);
-  transition: transform 0.15s var(--ease-swim);
+  transition: transform 0.15s var(--ease-swim), box-shadow 0.15s, border-color 0.15s;
 }
 .quick__btn .ti {
   font-size: 22px;
   color: var(--navy-600);
+}
+.quick__btn:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--line);
 }
 .quick__btn:active {
   transform: scale(0.96);
@@ -693,6 +712,10 @@
 }
 .cta .ti {
   font-size: 20px;
+}
+.cta:hover {
+  box-shadow: 0 10px 24px rgba(242, 101, 34, 0.34);
+  transform: translateY(-1px);
 }
 .cta:active {
   transform: scale(0.985);
@@ -734,12 +757,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   font-size: 10.5px;
   font-weight: 600;
   color: var(--text-soft);
   flex: 1;
   padding-top: 6px;
+  transition: color 0.18s;
 }
 .tabbar__item .ti {
   font-size: 24px;
@@ -1288,23 +1312,27 @@
 .kpigrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 16px;
 }
 .kpi {
   background: var(--surface);
-  border-radius: 16px 16px 20px 20px;
-  padding: 14px;
+  border-radius: var(--card-radius-sm);
+  padding: 16px;
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--hairline);
   display: flex;
   flex-direction: column;
   gap: 2px;
+  transition: transform 0.18s var(--ease-swim);
+}
+.kpi:active {
+  transform: scale(0.985);
 }
 .kpi > .ti {
   font-size: 22px;
   color: var(--navy-500);
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 .kpi--accent {
   background: linear-gradient(140deg, #fff, #fff5ee);
@@ -1315,6 +1343,7 @@
 .kpi__value {
   font-size: 24px;
   font-weight: 800;
+  letter-spacing: -0.02em;
   color: var(--text);
 }
 .kpi__value em {
@@ -1347,8 +1376,9 @@
   font-size: 11.5px;
   font-weight: 700;
   color: var(--text-soft);
-  padding: 5px 12px;
+  padding: 6px 12px;
   border-radius: 8px;
+  transition: color 0.18s, background 0.18s, box-shadow 0.18s;
 }
 .rangeToggle button.is-on {
   color: #fff;
@@ -1935,4 +1965,82 @@
   opacity: 0.4;
   filter: grayscale(0.4);
   pointer-events: none;
+}
+
+/* ============================================================
+   운용 환경 전환 (항만/하천/저수지/연안)
+   ============================================================ */
+.envsel {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--card-radius-sm);
+  box-shadow: var(--shadow-sm);
+  padding: 6px;
+  margin-bottom: 16px;
+}
+.envsel__btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 9px 4px;
+  border-radius: var(--r-control);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-soft);
+  transition: color 0.18s, background 0.18s, box-shadow 0.18s, transform 0.15s var(--ease-swim);
+}
+.envsel__btn .ti {
+  font-size: 18px;
+}
+.envsel__btn.is-on {
+  background: var(--orange-500);
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(242, 101, 34, 0.32);
+}
+.envsel__btn:not(.is-on):active {
+  transform: scale(0.95);
+  background: var(--surface-2);
+}
+
+/* 다크(제어) 변형 */
+.envsel--dark {
+  background: var(--deep-glass);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: none;
+  backdrop-filter: blur(8px);
+  margin-bottom: 0;
+}
+.envsel--dark .envsel__btn {
+  color: rgba(255, 255, 255, 0.62);
+}
+.envsel--dark .envsel__btn.is-on {
+  background: var(--orange-500);
+  color: #fff;
+}
+
+/* 컴팩트(가로) 변형 — 제어 화면 */
+.envsel--compact {
+  padding: 4px;
+  gap: 4px;
+}
+.envsel--compact .envsel__btn {
+  flex-direction: row;
+  gap: 6px;
+  padding: 7px 6px;
+  font-size: 11px;
+}
+.envsel--compact .envsel__btn .ti {
+  font-size: 15px;
+}
+
+/* 제어 레이어 환경 바 */
+.control__envbar {
+  position: relative;
+  z-index: 6;
+  padding: 6px 16px 0;
 }

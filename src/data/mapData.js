@@ -43,6 +43,15 @@ export const obstacles = [
   { x: 40, y: 60, r: 4.2, type: 'net' }, // 유령그물 뭉치
 ]
 
+// 운용 환경 모드 — 전환 시 수질(탁도·조류) 프로필 적용
+export const ENVIRONMENTS = [
+  { id: 'sea', label: '바다', icon: 'ti-anchor', turb: 1.0, cur: 1.0 },
+  { id: 'river', label: '하천', icon: 'ti-ripple', turb: 1.45, cur: 1.6 },
+  { id: 'riverside', label: '강가', icon: 'ti-plant-2', turb: 1.2, cur: 0.75 },
+  { id: 'lake', label: '호수', icon: 'ti-droplet', turb: 0.7, cur: 0.35 },
+]
+export const ENV_PROFILE = Object.fromEntries(ENVIRONMENTS.map((e) => [e.id, e]))
+
 // 경로 시작(0%) / 목표(100%) — 캐릭터 마커용
 export const pathStart = patrolPath[0]
 export const pathGoal = patrolPath[patrolPath.length - 1]

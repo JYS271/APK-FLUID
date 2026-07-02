@@ -3,6 +3,7 @@ import { useTelemetry } from '../state/TelemetryContext.jsx'
 import { latencyLevel } from '../components/StatusBar.jsx'
 import MarineMap from '../components/MarineMap.jsx'
 import VideoFeed from '../components/VideoFeed.jsx'
+import EnvSelector from '../components/EnvSelector.jsx'
 import SteeringWheel from '../components/SteeringWheel.jsx'
 import Throttle from '../components/Throttle.jsx'
 
@@ -110,6 +111,11 @@ export default function Control({ onExit }) {
           <i className="ti ti-focus-2" />
           어시스트{state.assist ? ' ON' : ''}
         </button>
+      </div>
+
+      {/* 운용 환경 전환 (딥 레이어용) */}
+      <div className="control__envbar">
+        <EnvSelector dark compact />
       </div>
 
       {laggyBanner(state.latency)}
