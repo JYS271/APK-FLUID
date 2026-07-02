@@ -73,18 +73,6 @@ function CreatureSVG({ type }) {
       </svg>
     )
   }
-  if (type === 'turtle') {
-    return (
-      <svg viewBox="0 0 54 40" preserveAspectRatio="xMidYMid meet">
-        <ellipse cx="24" cy="20" rx="15" ry="11" />
-        <ellipse cx="43" cy="20" rx="5.5" ry="4" />
-        <ellipse cx="14" cy="7" rx="6" ry="3.4" transform="rotate(-28 14 7)" />
-        <ellipse cx="14" cy="33" rx="6" ry="3.4" transform="rotate(28 14 33)" />
-        <ellipse cx="33" cy="9" rx="5" ry="3" transform="rotate(30 33 9)" />
-        <ellipse cx="33" cy="31" rx="5" ry="3" transform="rotate(-30 33 31)" />
-      </svg>
-    )
-  }
   if (type === 'school') {
     // 치어 떼 (작은 물고기 여러 마리) — 오른쪽을 향함
     const one = 'M16 6 Q11 1 4 5 L0 1 L2 6 L0 11 L4 7 Q11 11 16 6 Z'
@@ -111,7 +99,6 @@ const CREATURES = [
   { type: 'school', size: 54, op: 0.16, blur: 1, spd: 11 },
   { type: 'jelly', size: 38, op: 0.18, blur: 0.6, spd: 3 },
   { type: 'fish', size: 48, op: 0.19, blur: 0.7, spd: 8 },
-  { type: 'turtle', size: 78, op: 0.2, blur: 0.9, spd: 4.5 },
   { type: 'fish', size: 42, op: 0.14, blur: 1.2, spd: 7 },
   { type: 'school', size: 46, op: 0.13, blur: 1.3, spd: 10 },
   { type: 'fish', size: 34, op: 0.12, blur: 1.5, spd: 6 },
