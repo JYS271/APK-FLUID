@@ -1,9 +1,9 @@
 /* 곡선형 네트(가오리 입) 게이지 — SVG 아치
    value 0~100. 90%↑ 오렌지→레드 점멸(임계).
    head dot 위치는 SMIL 없이 JS로 계산. */
-export default function NetGauge({ value = 0, label = '수거함', size = 168 }) {
+export default function NetGauge({ value = 0, label = '수거함', size = 168, warn = 70, crit = 90 }) {
   const v = Math.max(0, Math.min(100, value))
-  const critical = v >= 90
+  const critical = v >= crit
 
   // 아치: 220° 스윕 (-200° → +20°)
   const startDeg = 160
@@ -28,7 +28,7 @@ export default function NetGauge({ value = 0, label = '수거함', size = 168 })
 
   const headPos = polar(startDeg + sweep * (v / 100))
 
-  const color = critical ? 'var(--danger)' : v >= 70 ? 'var(--orange-500)' : 'var(--success)'
+  const color = critical ? 'var(--danger)' : v >= warn ? 'var(--orange-500)' : 'var(--success)'
 
   return (
     <div className="netgauge" style={{ width: size }}>

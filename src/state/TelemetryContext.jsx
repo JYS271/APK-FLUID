@@ -280,6 +280,12 @@ function reducer(state, action) {
       s.battery = clamp(state.battery - dr, 0, 100)
       if (s.battery <= 0) s.mode = 'hold'
 
+      // --- 배터리 30% 미만 → 기지 자동 복귀 알람 (최초 1회) ---
+      if (state.battery > 30 && s.battery <= 30 && !state.returning) {
+        s.returning = true
+        s.toast = { id: t, kind: 'warning', text: '배터리 30% 미만 — 배터리 부족으로 기지 복귀' }
+      }
+
       // --- 수거함 적재 (복귀 중엔 수거 중단) ---
       if (s.speed > 0.3 && s.netLoad < 100 && !state.returning) {
         const gain = (0.16 + s.speed * 0.05) * dt
@@ -289,10 +295,10 @@ function reducer(state, action) {
         }
       }
 
-      // --- 수거함 80% → 기지 자동 복귀·배출 트리거 (자동 순찰 중) ---
-      if (!state.returning && state.mode === 'patrol' && s.netLoad >= 80) {
+      // --- 수거함 50kg → 가득 차기 전 기지 자동 복귀 알람 (최초 1회) ---
+      if (!state.returning && (s.netLoad / 100) * s.netCapacityKg >= 50) {
         s.returning = true
-        s.toast = { id: t, kind: 'warning', text: '수거함 80% — 기지로 자동 복귀·배출' }
+        s.toast = { id: t, kind: 'warning', text: '수거함 50kg — 가득 차기 전 기지로 자동 복귀' }
       }
 
       // --- 기지 도킹 시 자동 배출 ---

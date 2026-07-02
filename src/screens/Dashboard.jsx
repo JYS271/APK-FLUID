@@ -80,7 +80,7 @@ export default function Dashboard({ onControl, onOpenWeb }) {
         </section>
 
         <section className="card card--gauge swim-in" style={{ animationDelay: '.12s' }}>
-          <NetGauge value={state.netLoad} label="수거함 적재" size={150} />
+          <NetGauge value={state.netLoad} label="수거함 적재" size={150} warn={(50 / state.netCapacityKg) * 100} />
           <p className="card--gauge__sub num">
             {Math.round((state.netLoad / 100) * state.netCapacityKg)}kg / {state.netCapacityKg}kg
           </p>
@@ -139,12 +139,14 @@ function Stat({ icon, label, value, unit, accent }) {
 
 function BatteryCard({ battery, charging }) {
   const pct = Math.round(battery)
-  const color = pct <= 20 ? 'var(--danger)' : pct <= 40 ? 'var(--warning)' : 'var(--success)'
+  const low = pct <= 30 // 30% 미만 → 주황 경고
+  const critical = pct <= 12
+  const color = charging ? 'var(--success)' : critical ? 'var(--danger)' : low ? 'var(--warning)' : 'var(--success)'
   const icon = charging
     ? 'ti-battery-charging'
     : pct <= 15
     ? 'ti-battery-1'
-    : pct <= 40
+    : pct <= 30
     ? 'ti-battery-2'
     : pct <= 70
     ? 'ti-battery-3'
@@ -155,10 +157,10 @@ function BatteryCard({ battery, charging }) {
   const rm = runMin % 60
   const statusText = charging
     ? '충전 중'
-    : pct <= 20
-    ? '배터리 부족 — 복귀 권장'
-    : pct <= 40
-    ? '주의'
+    : critical
+    ? '배터리 위험'
+    : low
+    ? '배터리 부족 · 기지 복귀'
     : '정상'
 
   return (
@@ -174,7 +176,7 @@ function BatteryCard({ battery, charging }) {
       </div>
       <div className="battery__bar">
         <span
-          className={`battery__fill ${pct <= 20 ? 'is-low' : ''}`}
+          className={`battery__fill ${critical ? 'is-low' : ''}`}
           style={{ width: `${pct}%`, background: color }}
         />
       </div>
