@@ -371,31 +371,30 @@
   border-radius: 3px;
   white-space: nowrap;
 }
-/* 박스 안 실제 쓰레기 객체 (눈에 보이게) */
+/* 박스 안 실제 쓰레기 객체 (종류별 실루엣) */
 .videofeed__obj {
   position: absolute;
-  inset: 14%;
+  inset: 8%;
   display: grid;
   place-items: center;
-  border-radius: 46% 54% 50% 48% / 52% 46% 54% 48%;
-  /* RGB: 부유물처럼 보이는 어두운 실루엣 */
-  background: radial-gradient(circle at 42% 38%, rgba(230, 240, 250, 0.42), rgba(60, 90, 110, 0.5) 70%);
-  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.3), 0 0 6px rgba(0, 0, 0, 0.25);
-  color: rgba(255, 255, 255, 0.92);
-  font-size: clamp(14px, 4.5vw, 34px);
-  overflow: hidden;
+  /* RGB: 첨부 이미지처럼 반투명 흰 플라스틱 느낌 */
+  --dfill: rgba(232, 244, 254, 0.5);
+  --dstroke: rgba(255, 255, 255, 0.92);
+  --daccent: rgba(255, 255, 255, 0.5);
 }
-.videofeed__obj .ti {
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+.videofeed__obj .debris__svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.45));
 }
-/* 열화상: 쓰레기가 주변보다 뜨거운 신호로 또렷하게 보임 */
+/* 열화상: 쓰레기가 주변보다 뜨거운 열 신호로 또렷하게 보임 */
 .videofeed--thermal .videofeed__obj {
-  background: radial-gradient(circle at 45% 40%, #ffffff 0%, #ffe27a 32%, #ff8a1f 62%, rgba(214, 40, 90, 0.75) 100%);
-  box-shadow: 0 0 16px 3px rgba(255, 180, 60, 0.8), inset 0 0 8px rgba(255, 255, 255, 0.5);
-  color: #4a1400;
+  --dfill: rgba(255, 214, 92, 0.92);
+  --dstroke: #fff6cf;
+  --daccent: rgba(255, 120, 40, 0.95);
 }
-.videofeed--thermal .videofeed__obj .ti {
-  filter: drop-shadow(0 1px 1px rgba(255, 255, 255, 0.6));
+.videofeed--thermal .videofeed__obj .debris__svg {
+  filter: drop-shadow(0 0 7px rgba(255, 175, 60, 0.9)) drop-shadow(0 0 2px rgba(255, 240, 180, 0.8));
 }
 .videofeed__hud {
   position: absolute;
@@ -560,6 +559,77 @@
   font-size: 11px;
   color: var(--text-soft);
   margin-top: 1px;
+}
+
+/* ---------- Battery card ---------- */
+.card--battery {
+  margin-bottom: 16px;
+  padding: 14px 16px;
+}
+.battery__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.battery__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+.battery__title .ti {
+  font-size: 22px;
+}
+.battery__pct {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1;
+}
+.battery__pct em {
+  font-size: 13px;
+  font-weight: 700;
+  font-style: normal;
+  margin-left: 1px;
+}
+.battery__bar {
+  position: relative;
+  height: 14px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(14, 31, 58, 0.12);
+}
+.battery__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 8px;
+  transition: width 0.5s var(--ease-swim), background 0.3s;
+}
+.battery__fill.is-low {
+  animation: pulseDanger 1.2s ease-in-out infinite;
+}
+.battery__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 9px;
+  font-size: 12px;
+}
+.battery__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 700;
+}
+.battery__status .ti {
+  font-size: 10px;
+}
+.battery__run {
+  color: var(--text-soft);
+  font-weight: 600;
 }
 
 /* ---------- Quick actions ---------- */

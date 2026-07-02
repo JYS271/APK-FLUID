@@ -95,6 +95,9 @@ export default function Dashboard({ onControl, onOpenWeb }) {
         <Stat icon="ti-clock" label="가동" value={formatTime(state.missionTime)} unit="" />
       </section>
 
+      {/* 배터리 카드 */}
+      <BatteryCard battery={state.battery} charging={state.charging} />
+
       {/* 빠른 작업 */}
       <section className="quick swim-in" style={{ animationDelay: '.2s' }}>
         <h2 className="section-title">빠른 작업</h2>
@@ -131,6 +134,59 @@ function Stat({ icon, label, value, unit, accent }) {
         <span className="stat__label">{label}</span>
       </div>
     </div>
+  )
+}
+
+function BatteryCard({ battery, charging }) {
+  const pct = Math.round(battery)
+  const color = pct <= 20 ? 'var(--danger)' : pct <= 40 ? 'var(--warning)' : 'var(--success)'
+  const icon = charging
+    ? 'ti-battery-charging'
+    : pct <= 15
+    ? 'ti-battery-1'
+    : pct <= 40
+    ? 'ti-battery-2'
+    : pct <= 70
+    ? 'ti-battery-3'
+    : 'ti-battery-4'
+  // 예상 운용 시간 (완충 ≈ 6시간 기준)
+  const runMin = Math.round((battery / 100) * 6 * 60)
+  const rh = Math.floor(runMin / 60)
+  const rm = runMin % 60
+  const statusText = charging
+    ? '충전 중'
+    : pct <= 20
+    ? '배터리 부족 — 복귀 권장'
+    : pct <= 40
+    ? '주의'
+    : '정상'
+
+  return (
+    <section className="card card--battery swim-in" style={{ animationDelay: '.18s' }}>
+      <div className="battery__head">
+        <span className="battery__title">
+          <i className={`ti ${icon}`} style={{ color }} /> 배터리
+        </span>
+        <span className="battery__pct num" style={{ color }}>
+          {pct}
+          <em>%</em>
+        </span>
+      </div>
+      <div className="battery__bar">
+        <span
+          className={`battery__fill ${pct <= 20 ? 'is-low' : ''}`}
+          style={{ width: `${pct}%`, background: color }}
+        />
+      </div>
+      <div className="battery__meta">
+        <span className="battery__status" style={{ color }}>
+          <i className="ti ti-circle-filled" /> {statusText}
+        </span>
+        <span className="battery__run num">
+          {charging ? '—' : `약 ${rh}시간 ${String(rm).padStart(2, '0')}분`} 운용 가능
+        </span>
+      </div>
+    </section>
   )
 }
 

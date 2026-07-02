@@ -140,17 +140,20 @@ function computeDetections(t, turbidity, dehaze) {
   // 디헤이징 적용 시 탁도 영향 완화
   const effTurb = dehaze ? turbidity * 0.55 : turbidity
   const vis = clamp(1 - (effTurb - 18) / 60, 0.35, 1)
+  // kind: 형태 렌더용 (bottle=페트병 / bag=비닐봉지 / net=폐어망 / foam=스티로폼)
   const defs = [
-    { id: 'd1', label: '폐플라스틱', bx: 0.17, by: 0.44, w: 0.3, h: 0.26, fx: 0.05, fy: 0.03, base: 0.95 },
-    { id: 'd2', label: '폐어망', bx: 0.6, by: 0.2, w: 0.24, h: 0.22, fx: 0.035, fy: 0.05, base: 0.86 },
-    { id: 'd3', label: '스티로폼', bx: 0.42, by: 0.63, w: 0.18, h: 0.16, fx: 0.045, fy: 0.025, base: 0.78 },
+    { id: 'd1', label: '페트병', kind: 'bottle', bx: 0.13, by: 0.30, w: 0.16, h: 0.40, fx: 0.03, fy: 0.03, base: 0.96 },
+    { id: 'd2', label: '비닐봉지', kind: 'bag', bx: 0.58, by: 0.13, w: 0.26, h: 0.33, fx: 0.03, fy: 0.04, base: 0.9 },
+    { id: 'd3', label: '폐어망', kind: 'net', bx: 0.14, by: 0.60, w: 0.26, h: 0.30, fx: 0.04, fy: 0.03, base: 0.83 },
+    { id: 'd4', label: '스티로폼', kind: 'foam', bx: 0.60, by: 0.60, w: 0.22, h: 0.27, fx: 0.035, fy: 0.03, base: 0.78 },
   ]
   return defs
     .map((d, i) => ({
       id: d.id,
       label: d.label,
-      x: clamp(d.bx + Math.sin(t * 0.5 + i) * d.fx, 0.02, 0.74),
-      y: clamp(d.by + Math.cos(t * 0.4 + i) * d.fy, 0.05, 0.72),
+      kind: d.kind,
+      x: clamp(d.bx + Math.sin(t * 0.5 + i) * d.fx, 0.02, 0.78),
+      y: clamp(d.by + Math.cos(t * 0.4 + i) * d.fy, 0.04, 0.7),
       w: d.w,
       h: d.h,
       conf: +clamp(d.base * vis + Math.sin(t * 1.3 + i) * 0.03, 0.3, 0.99).toFixed(2),
