@@ -1,13 +1,26 @@
 import { useTelemetry } from '../state/TelemetryContext.jsx'
 import { coastline, homeBase, pathStart, pathGoal } from '../data/mapData.js'
 
-/* 만타레이 실루엣 (재사용) */
+/* 만타레이 실루엣 (재사용) — ARK-FLUID 브랜드 가오리 글리프
+   원본 viewBox 0..200 x 0..140(중심 100,70)을 원점 기준으로 축소·정렬 */
+const MANTA_S = 0.038
 function Manta({ fill, stroke = '#fff', sw = 0.35 }) {
   return (
-    <>
-      <path d="M0,-3.2 C2.6,-1.4 3,1.4 0,3.2 C-3,1.4 -2.6,-1.4 0,-3.2 Z" fill={fill} stroke={stroke} strokeWidth={sw} />
-      <circle cx="0" cy="-1.2" r="0.5" fill="#fff" />
-    </>
+    <g transform={`scale(${MANTA_S}) translate(-100 -70)`}>
+      <path
+        d="M100 12 C128 12 150 24 176 52 C190 67 198 78 198 86 C198 92 190 92 182 88
+           C168 81 150 74 138 74 C142 92 140 112 128 128 C122 136 116 132 114 122
+           C111 108 106 96 100 90 C94 96 89 108 86 122 C84 132 78 136 72 128
+           C60 112 58 92 62 74 C50 74 32 81 18 88 C10 92 2 92 2 86
+           C2 78 10 67 24 52 C50 24 72 12 100 12 Z"
+        fill={fill}
+        stroke={stroke}
+        strokeWidth={sw / MANTA_S}
+        strokeLinejoin="round"
+      />
+      <circle cx="86" cy="48" r="6.5" fill="#fff" />
+      <circle cx="114" cy="48" r="6.5" fill="#fff" />
+    </g>
   )
 }
 

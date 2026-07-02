@@ -332,6 +332,8 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
+  transform-origin: center;
+  transition: transform 0.25s var(--ease-swim);
 }
 .videofeed__bbox {
   position: absolute;
@@ -791,6 +793,20 @@
   transform-origin: center center;
   transition: transform 0.25s var(--ease-swim);
   will-change: transform;
+}
+/* 드래그 팬 레이어 — scale(1.2) 헤드룸 안에서 이동, 놓으면 중앙 복귀 */
+.control__pan {
+  position: absolute;
+  inset: 0;
+  transform-origin: center center;
+  transition: transform 0.4s var(--ease-swim);
+  will-change: transform;
+  touch-action: none;
+  cursor: grab;
+}
+.control__pan.is-panning {
+  transition: none;
+  cursor: grabbing;
 }
 .control__bg-map,
 .control__bg .videofeed {

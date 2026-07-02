@@ -170,10 +170,18 @@ const ZOOM_MIN = 0.5
 const ZOOM_MAX = 3
 const ZOOM_STEP = 0.5
 
+// 드래그 팬 이동 한계(px) — scale(1.2) 헤드룸 안에서 이동
+const PAN_MAX_X = 42
+const PAN_MAX_Y = 78
+const clampPan = (v, m) => Math.max(-m, Math.min(m, v))
+
 function ControlBackground() {
   const [mode, setMode] = useState('map') // map | video
   const [zoom, setZoom] = useState(1)
   const [thermal, setThermal] = useState(false)
+  const [pan, setPan] = useState({ x: 0, y: 0 })
+  const [panning, setPanning] = useState(false)
+  const panStart = useRef(null)
 
   const zoomIn = () => setZoom((z) => Math.min(ZOOM_MAX, +(z + ZOOM_STEP).toFixed(1)))
   const zoomOut = () => setZoom((z) => Math.max(ZOOM_MIN, +(z - ZOOM_STEP).toFixed(1)))
@@ -186,19 +194,51 @@ function ControlBackground() {
     if (navigator.vibrate) navigator.vibrate(10)
   }
 
+  // 드래그로 화면 이동, 놓으면 중앙 복귀
+  const onPanDown = (e) => {
+    panStart.current = { x: e.clientX, y: e.clientY }
+    setPanning(true)
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId)
+    } catch {
+      /* noop */
+    }
+  }
+  const onPanMove = (e) => {
+    if (!panStart.current) return
+    setPan({
+      x: clampPan(e.clientX - panStart.current.x, PAN_MAX_X),
+      y: clampPan(e.clientY - panStart.current.y, PAN_MAX_Y),
+    })
+  }
+  const onPanEnd = () => {
+    if (!panStart.current) return
+    panStart.current = null
+    setPanning(false)
+    setPan({ x: 0, y: 0 }) // 중앙 복귀
+  }
+
   return (
     <div className="control__bg">
-      {mode === 'map' ? (
-        // 지도: viewBox 배율 → 줌 아웃 시 바다가 그만큼 넓게 보임
-        <div className="control__bg-map">
-          <MarineMap compact zoom={zoom} />
-        </div>
-      ) : (
-        // 영상: 디지털 줌(transform scale)
-        <div className="control__bg-zoomwrap" style={{ transform: `scale(${zoom})` }}>
-          <VideoFeed compact thermal={thermal} showChips={false} />
-        </div>
-      )}
+      <div
+        className={`control__pan ${panning ? 'is-panning' : ''}`}
+        style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(1.2)` }}
+        onPointerDown={onPanDown}
+        onPointerMove={onPanMove}
+        onPointerUp={onPanEnd}
+        onPointerLeave={onPanEnd}
+        onPointerCancel={onPanEnd}
+      >
+        {mode === 'map' ? (
+          // 지도: viewBox 배율 → 줌 아웃 시 바다가 그만큼 넓게 보임
+          <div className="control__bg-map">
+            <MarineMap compact zoom={zoom} />
+          </div>
+        ) : (
+          // 영상/열화상: 장면은 꽉 채우고 탐지 객체만 배율 → 0.5배 시 더 넓게
+          <VideoFeed compact thermal={thermal} showChips={false} zoom={zoom} />
+        )}
+      </div>
 
       {/* 소스 전환 */}
       <div className="control__bg-switch">

@@ -62,7 +62,7 @@ function DebrisShape({ kind }) {
    - AI 바운딩 박스: state.detections를 픽셀단위(%) 실시간 오버레이
    - 디헤이징: 탁도 보정 필터로 시인성 확보
    실제 연동 시 WebRTC <video>로 교체. */
-export default function VideoFeed({ compact = false, thermal: thermalProp, showChips = true }) {
+export default function VideoFeed({ compact = false, thermal: thermalProp, showChips = true, zoom = 1 }) {
   const { state, toggleDehaze } = useTelemetry()
   const [thermalState, setThermalState] = useState(false)
   // thermalProp이 주어지면 제어(외부), 아니면 내부 상태 사용
@@ -87,8 +87,8 @@ export default function VideoFeed({ compact = false, thermal: thermalProp, showC
         <div className="videofeed__particle p3" />
       </div>
 
-      {/* AI 바운딩 박스 오버레이 (탐지 결과) */}
-      <div className="videofeed__dets">
+      {/* AI 바운딩 박스 오버레이 (탐지 결과) — 배율에 따라 축소/확대 */}
+      <div className="videofeed__dets" style={{ transform: `scale(${zoom})` }}>
         {state.detections.map((d) => (
           <div
             key={d.id}
