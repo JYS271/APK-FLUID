@@ -14,6 +14,7 @@ import { patrolPath, heatmapPoints, obstacles, homeBase } from '../data/mapData.
 
 const TICK_MS = 600
 const SENSOR_RANGE = 20 // LiDAR/소나 감지 반경(정규화)
+const BATTERY_DRAIN_PER_S = 1 / (10 * 60) // 배터리 소모 고정: 10분당 1%
 
 const initialState = {
   // 연결/통신
@@ -176,7 +177,7 @@ function reducer(state, action) {
         s.avoiding = false
         s.missionTime = state.missionTime + dt
         s.ts = now
-        s.battery = clamp(state.battery - 0.02 * dt, 0, 100)
+        s.battery = clamp(state.battery - BATTERY_DRAIN_PER_S * dt, 0, 100)
         if (state.connection === 'lost') {
           s.latency = clamp(state.latency + 60 * dt + 8, 0, 999)
           s.signal = clamp(state.signal - 10 * dt, 0, 100)
@@ -275,9 +276,8 @@ function reducer(state, action) {
       if (ny < 8 || ny > 92) s.heading = (180 - s.heading + 360) % 360
       s.pos = { x: clamp(nx, 6, 94), y: clamp(ny, 8, 92) }
 
-      // --- 배터리 소모 ---
-      const dr = (0.05 + Math.abs(thrust) * 0.14 + s.speed * 0.02) * dt
-      s.battery = clamp(state.battery - dr, 0, 100)
+      // --- 배터리 소모 (10분당 1% 고정) ---
+      s.battery = clamp(state.battery - BATTERY_DRAIN_PER_S * dt, 0, 100)
       if (s.battery <= 0) s.mode = 'hold'
 
       // --- 배터리 30% 미만 → 기지 자동 복귀 알람 (최초 1회) ---
