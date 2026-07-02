@@ -7,7 +7,7 @@ import EnvOverlay from '../components/EnvOverlay.jsx'
 
 // 실시간 원격 접속 링크 (첨부 파일)
 const REMOTE_URL = encodeURI(
-  'file:///C:/Users/VISION/Documents/카카오톡 받은 파일/index.html'
+  'file:///C:/Users/VISION/Documents/카카오톡 받은 파일/3/index.html'
 )
 
 /* 대시보드(Monitor) — 상태바·지도·영상·요약·빠른작업 */
