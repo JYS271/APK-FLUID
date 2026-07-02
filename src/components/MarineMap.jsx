@@ -48,6 +48,24 @@ export default function MarineMap({ compact = false, zoom = 1 }) {
   const warm = clamp01((state.waterTemp - 18) / 6) // 0(차가움/청록) ~ 1(따뜻함/갈색)
   const tint = `rgb(${lerp(38, 104, warm)}, ${lerp(96, 84, warm)}, ${lerp(84, 44, warm)})`
 
+  // 다른 ARK-FLUID 유닛(함대) — 미션 시간 기반 궤도 이동
+  const t = state.missionTime
+  const orbit = (cx, cy, rx, ry, w, ph) => {
+    const a = t * w + ph
+    const vx = -Math.sin(a) * rx * w
+    const vy = Math.cos(a) * ry * w
+    return {
+      x: cx + Math.cos(a) * rx,
+      y: cy + Math.sin(a) * ry,
+      heading: ((Math.atan2(vx, -vy) * 180) / Math.PI + 360) % 360,
+    }
+  }
+  const fleet = [
+    orbit(30, 34, 13, 10, 0.16, 0),
+    orbit(70, 60, 12, 13, -0.13, 2),
+    orbit(52, 46, 20, 15, 0.1, 4),
+  ]
+
   // 센서 FOV 부채꼴 (방위 기준 ±38°)
   const fovR = 26
   const half = 38
@@ -218,6 +236,15 @@ export default function MarineMap({ compact = false, zoom = 1 }) {
           </circle>
         )}
       </g>
+
+      {/* 다른 유닛(함대) — 작고 반투명한 네이비 가오리 */}
+      {fleet.map((u, i) => (
+        <g key={`u${i}`} transform={`translate(${u.x.toFixed(2)} ${u.y.toFixed(2)}) rotate(${u.heading.toFixed(1)})`} opacity="0.5">
+          <g transform="scale(0.64)">
+            <Manta fill="var(--navy-300)" stroke="rgba(200,220,255,0.6)" sw={0.55} />
+          </g>
+        </g>
+      ))}
 
       {/* 센서 FOV 부채꼴 */}
       <path d={`M${gps.x},${gps.y} L${fx1},${fy1} A${fovR},${fovR} 0 0 1 ${fx2},${fy2} Z`} fill="url(#fov)" opacity="0.85" />
