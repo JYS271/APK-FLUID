@@ -4,7 +4,9 @@ SHECO의 만타레이(가오리) 기반 모듈형 해양 쓰레기 수거 로봇
 모니터링·제어·분석하는 **모바일 관제 앱 프로토타입**입니다.
 실제 로봇 서버 없이 **가상 텔레메트리 시뮬레이션**으로 UI/UX 전체 흐름을 구현한 데모입니다.
 
-> AI Creative Challenge 팀 과제 프로토타입.
+**🔗 라이브 데모:** https://jys271.github.io/APK-FLUID/
+
+> AI Creative Challenge 팀 과제 프로토타입. `main` 브랜치 푸시 시 GitHub Pages로 자동 배포됩니다.
 
 ## 화면 (3-Tab)
 
