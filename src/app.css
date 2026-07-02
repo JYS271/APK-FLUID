@@ -353,18 +353,19 @@
   transform-origin: center;
   transition: transform 0.25s var(--ease-swim);
 }
-/* 바운딩 박스 — 얇은 오렌지 아웃라인 · 라운드 · 필/글로우 없음 (미니멀) */
-.videofeed__bbox {
+/* 추적 박스 — 떠다니는 쓰레기를 개별 추적(축은 고정, 라벨 부착) */
+.videofeed__track {
   position: absolute;
   border: 1.5px solid var(--orange-500);
-  border-radius: 10px;
-  transition: left 0.55s linear, top 0.55s linear;
+  border-radius: 8px;
+  box-sizing: border-box;
+  will-change: left, top;
 }
 /* 좌상단 캡슐 라벨 — 오렌지 캡슐 위 화이트 타이포 */
 .videofeed__bbox-tag {
   position: absolute;
   top: -11px;
-  left: 6px;
+  left: 4px;
   font-size: 9px;
   font-weight: 600;
   letter-spacing: 0.01em;
@@ -375,30 +376,20 @@
   white-space: nowrap;
   box-shadow: 0 1px 3px rgba(16, 33, 60, 0.2);
 }
-/* 박스 안 실제 쓰레기 객체 (종류별 실루엣) */
+/* 박스 안 쓰레기 — 단색 그림자 실루엣(박스 안에서 회전) */
 .videofeed__obj {
   position: absolute;
-  inset: 8%;
-  display: grid;
-  place-items: center;
-  /* RGB: 첨부 이미지처럼 반투명 흰 플라스틱 느낌 */
-  --dfill: rgba(232, 244, 254, 0.5);
-  --dstroke: rgba(255, 255, 255, 0.92);
-  --daccent: rgba(255, 255, 255, 0.5);
+  inset: 10%;
+  color: rgba(7, 20, 33, 0.8); /* 그림자 톤 */
 }
 .videofeed__obj .debris__svg {
   width: 100%;
   height: 100%;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.35));
 }
-/* 열화상: 차분한 웜톤 신호 (네온/글로우 지양, 미니멀) */
+/* 열화상에서도 어두운 그림자 실루엣 유지 */
 .videofeed--thermal .videofeed__obj {
-  --dfill: rgba(255, 196, 110, 0.82);
-  --dstroke: rgba(255, 236, 200, 0.95);
-  --daccent: rgba(255, 138, 66, 0.9);
-}
-.videofeed--thermal .videofeed__obj .debris__svg {
-  filter: drop-shadow(0 1px 3px rgba(60, 20, 0, 0.3));
+  color: rgba(24, 10, 3, 0.75);
 }
 .videofeed__hud {
   position: absolute;

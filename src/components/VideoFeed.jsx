@@ -1,59 +1,60 @@
 import { useState, useEffect, useRef } from 'react'
 import { useTelemetry } from '../state/TelemetryContext.jsx'
 
-/* 쓰레기 종류별 실루엣 (첨부 이미지 기반: 담뱃갑/캔/스마트폰/약병)
-   fill/stroke는 CSS 변수 → 열화상 모드에서 열 신호로 테마 전환 */
+const KIND_LABEL = { bottle: '페트병', can: '캔', glass: '유리병', cup: '종이컵' }
+// 실루엣 종횡비(viewBox H/W) — 박스가 실루엣을 감싸도록
+const KIND_ASPECT = { bottle: 78 / 44, can: 64 / 40, glass: 78 / 34, cup: 50 / 44 }
+
+// 물살을 타고 떠다니는 쓰레기 (각자 박스가 추적)
+const DEBRIS_INIT = [
+  { kind: 'bottle', bw: 42 },
+  { kind: 'can', bw: 36 },
+  { kind: 'glass', bw: 32 },
+  { kind: 'cup', bw: 40 },
+  { kind: 'bottle', bw: 30 },
+  { kind: 'can', bw: 34 },
+  { kind: 'glass', bw: 38 },
+  { kind: 'cup', bw: 32 },
+]
+// 화면 밖으로 완전히 나간 뒤에만 반대편에서 재진입(순간이동 방지)
+const WRAP_LO = -60
+const WRAP_HI = 160
+const DEBRIS_COUNT = DEBRIS_INIT.length
+
+/* 쓰레기 종류별 — 단색 그림자 실루엣만 (fill=currentColor) */
 function DebrisShape({ kind }) {
-  const common = {
-    fill: 'var(--dfill)',
-    stroke: 'var(--dstroke)',
-    strokeWidth: 1.6,
-    strokeLinejoin: 'round',
-  }
-  if (kind === 'cigpack') {
-    // 담뱃갑 (구겨진 사각 팩)
+  if (kind === 'bottle') {
+    // 페트병
     return (
-      <svg className="debris__svg" viewBox="0 0 46 54" preserveAspectRatio="xMidYMid meet">
-        <path
-          d="M9 13 L35 7 Q38 6 38.3 10 L40 44 Q40.2 48 37 49 L12 53 Q8 53 7.8 49 L6.7 17 Q6.6 14 9 13 Z"
-          {...common}
-        />
-        <path d="M9 13 L35 7 L36 15 L9.6 21 Z" fill="var(--daccent)" stroke="var(--dstroke)" strokeWidth="1.2" />
-        <ellipse cx="23" cy="35" rx="7" ry="7.5" fill="none" stroke="var(--daccent)" strokeWidth="1.8" />
+      <svg className="debris__svg" viewBox="0 0 44 78" preserveAspectRatio="xMidYMid meet" fill="currentColor">
+        <rect x="16" y="2" width="12" height="7" rx="1.6" />
+        <path d="M17 9 h10 v3.5 q0 1.8 1.4 3.2 q3.9 3.9 3.9 9.8 v39 q0 8.8-10.3 8.8 t-10.3-8.8 v-39 q0-5.9 3.9-9.8 q1.4-1.4 1.4-3.2 z" />
       </svg>
     )
   }
   if (kind === 'can') {
     // 알루미늄 캔
     return (
-      <svg className="debris__svg" viewBox="0 0 40 64" preserveAspectRatio="xMidYMid meet">
-        <path d="M8 9 v46 q0 4 12 4 t12-4 v-46 z" {...common} />
-        <ellipse cx="20" cy="9" rx="12" ry="4" {...common} />
-        <ellipse cx="20" cy="9" rx="8.6" ry="2.6" fill="none" stroke="var(--daccent)" strokeWidth="1.3" />
-        <circle cx="23.5" cy="9" r="1.6" fill="var(--daccent)" />
-        <path d="M8 18 h24 M8 47 h24" fill="none" stroke="var(--daccent)" strokeWidth="1.2" />
+      <svg className="debris__svg" viewBox="0 0 40 64" preserveAspectRatio="xMidYMid meet" fill="currentColor">
+        <path d="M8 9 v46 q0 4 12 4 t12-4 v-46 z" />
+        <ellipse cx="20" cy="9" rx="12" ry="4" />
       </svg>
     )
   }
-  if (kind === 'phone') {
-    // 스마트폰 (깨진 화면)
+  if (kind === 'glass') {
+    // 유리병
     return (
-      <svg className="debris__svg" viewBox="0 0 40 74" preserveAspectRatio="xMidYMid meet">
-        <rect x="6" y="4" width="28" height="66" rx="5.5" {...common} />
-        <rect x="9.5" y="10" width="21" height="50" rx="2" fill="var(--daccent)" stroke="var(--dstroke)" strokeWidth="1.2" />
-        <rect x="16" y="6.6" width="8" height="1.8" rx="0.9" fill="var(--dstroke)" />
-        <circle cx="20" cy="65" r="2.6" fill="none" stroke="var(--dstroke)" strokeWidth="1.4" />
-        <path d="M20 24 L14 36 L23 42 L16 55 M20 24 L27 33 L21 41" fill="none" stroke="var(--dstroke)" strokeWidth="1" />
+      <svg className="debris__svg" viewBox="0 0 34 78" preserveAspectRatio="xMidYMid meet" fill="currentColor">
+        <rect x="13" y="2" width="8" height="6" rx="1" />
+        <path d="M13.5 8 h7 v13 q0 2 1 3 q4.8 4 4.8 12.4 v33 q0 4.3-9.3 4.3 t-9.3-4.3 v-33 q0-8.4 4.8-12.4 q1-1 1-3 z" />
       </svg>
     )
   }
-  // pill (약병)
+  // cup (종이컵)
   return (
-    <svg className="debris__svg" viewBox="0 0 36 62" preserveAspectRatio="xMidYMid meet">
-      <rect x="9" y="3" width="18" height="8" rx="1.8" {...common} />
-      <path d="M8 11 h20 q1 0 1 3 v40 q0 3-2 3 H9 q-2 0-2-3 v-40 q0-3 1-3 z" {...common} />
-      <rect x="10.5" y="24" width="15" height="22" rx="1.5" fill="var(--daccent)" stroke="var(--dstroke)" strokeWidth="1" />
-      <path d="M13 30 h10 M13 35 h10 M13 40 h6" fill="none" stroke="var(--dstroke)" strokeWidth="1" />
+    <svg className="debris__svg" viewBox="0 0 44 50" preserveAspectRatio="xMidYMid meet" fill="currentColor">
+      <ellipse cx="22" cy="10" rx="13.5" ry="3.6" />
+      <path d="M9 10 L35 10 L31 45 Q22 49 13 45 Z" />
     </svg>
   )
 }
@@ -187,6 +188,95 @@ function MarineLife() {
   )
 }
 
+/* 떠다니는 쓰레기 + 추적 박스 — 조류(state.current)를 타고 흐르고
+   각 박스가 종류를 라벨링하며 개별 추적. rAF로 부드럽게 이동. */
+function DebrisField() {
+  const { state } = useTelemetry()
+  const curRef = useRef(state.current)
+  curRef.current = state.current
+  const elsRef = useRef([])
+  const objsRef = useRef([])
+  const tagsRef = useRef([])
+  const stRef = useRef(null)
+  if (!stRef.current) {
+    stRef.current = DEBRIS_INIT.map((d) => ({
+      ...d,
+      x: rand(8, 92),
+      y: rand(10, 90),
+      rot: rand(-25, 25),
+      rotSpd: rand(-10, 10), // 느린 회전(뒤척임)
+      phase: rand(0, Math.PI * 2),
+      dirOff: rand(-0.5, 0.5), // 물살 대비 개별 방향차
+      spdMul: rand(0.7, 1.3), // 개별 속도차
+      confBase: 0.82 + Math.random() * 0.15,
+    }))
+  }
+
+  useEffect(() => {
+    let raf
+    let last = null
+    const loop = (t) => {
+      if (last == null) last = t
+      let dt = (t - last) / 1000
+      last = t
+      if (dt > 0.05) dt = 0.05
+      const cur = curRef.current
+      const baseAng = (cur.dir * Math.PI) / 180
+      const spd = 2.4 + cur.speed * 3 // 물살 세기
+      const arr = stRef.current
+      for (let i = 0; i < arr.length; i++) {
+        const c = arr[i]
+        c.phase += dt * 0.7
+        // 물살을 타되 개별 방향차 + 완만한 방향 흔들림(자연스러운 배회)
+        c.dirOff += rand(-1, 1) * 0.35 * dt
+        c.dirOff = Math.max(-0.7, Math.min(0.7, c.dirOff))
+        const a = baseAng + c.dirOff
+        const sp = spd * c.spdMul
+        c.x += (Math.sin(a) * sp + Math.sin(c.phase) * 0.8) * dt
+        c.y += (-Math.cos(a) * sp + Math.cos(c.phase * 0.8) * 0.8) * dt
+        // 완전히 화면 밖으로 나간 뒤에만 반대편에서 재진입(순간이동 방지)
+        if (c.x < WRAP_LO) c.x = WRAP_HI
+        else if (c.x > WRAP_HI) c.x = WRAP_LO
+        if (c.y < WRAP_LO) c.y = WRAP_HI
+        else if (c.y > WRAP_HI) c.y = WRAP_LO
+        c.rot += c.rotSpd * dt
+
+        const el = elsRef.current[i]
+        if (!el) continue
+        el.style.left = c.x + '%'
+        el.style.top = c.y + '%'
+        const obj = objsRef.current[i]
+        if (obj) obj.style.transform = `rotate(${c.rot}deg)`
+        const tag = tagsRef.current[i]
+        if (tag) tag.textContent = `${KIND_LABEL[c.kind]} ${(c.confBase + Math.sin(c.phase * 1.6) * 0.03).toFixed(2)}`
+      }
+      raf = requestAnimationFrame(loop)
+    }
+    raf = requestAnimationFrame(loop)
+    return () => cancelAnimationFrame(raf)
+  }, [])
+
+  return (
+    <>
+      {stRef.current.map((c, i) => (
+        <div
+          key={i}
+          ref={(el) => (elsRef.current[i] = el)}
+          className="videofeed__track"
+          style={{ width: `${c.bw}px`, height: `${c.bw * KIND_ASPECT[c.kind]}px`, transform: 'translate(-50%, -50%)' }}
+        >
+          <span ref={(el) => (tagsRef.current[i] = el)} className="videofeed__bbox-tag num">
+            {KIND_LABEL[c.kind]}
+          </span>
+          <span ref={(el) => (objsRef.current[i] = el)} className="videofeed__obj">
+            <DebrisShape kind={c.kind} />
+          </span>
+        </div>
+      ))}
+    </>
+  )
+}
+
 /* 가상 카메라 피드 (RGB / 열화상)
    - AI 바운딩 박스: state.detections를 픽셀단위(%) 실시간 오버레이
    - 디헤이징: 탁도 보정 필터로 시인성 확보
@@ -218,28 +308,9 @@ export default function VideoFeed({ compact = false, thermal: thermalProp, showC
         <MarineLife />
       </div>
 
-      {/* AI 바운딩 박스 오버레이 (탐지 결과) — 배율에 따라 축소/확대 */}
+      {/* 떠다니는 쓰레기 + 추적 박스 — 배율에 따라 축소/확대 */}
       <div className="videofeed__dets" style={{ transform: `scale(${zoom})` }}>
-        {state.detections.map((d) => (
-          <div
-            key={d.id}
-            className="videofeed__bbox"
-            style={{
-              left: `${d.x * 100}%`,
-              top: `${d.y * 100}%`,
-              width: `${d.w * 100}%`,
-              height: `${d.h * 100}%`,
-            }}
-          >
-            {/* 실제 쓰레기 객체 — 종류별 실루엣으로 박스 안에 표시 */}
-            <span className="videofeed__obj">
-              <DebrisShape kind={d.kind} />
-            </span>
-            <span className="videofeed__bbox-tag num">
-              {d.label} {d.conf.toFixed(2)}
-            </span>
-          </div>
-        ))}
+        <DebrisField />
       </div>
 
       {/* HUD 오버레이 (제어 배경에선 숨김 — 상단 바와 겹침 방지) */}
@@ -249,7 +320,7 @@ export default function VideoFeed({ compact = false, thermal: thermalProp, showC
             <b className="dot" /> LIVE
           </span>
           <span className="videofeed__count num">
-            <i className="ti ti-viewfinder" /> {state.detections.length}
+            <i className="ti ti-viewfinder" /> {DEBRIS_COUNT}
           </span>
           <span className="num videofeed__depth">
             <i className="ti ti-arrow-down" /> {state.depth.toFixed(1)}m
