@@ -1,5 +1,8 @@
 import { useTelemetry } from '../state/TelemetryContext.jsx'
-import { coastline, homeBase, pathStart, pathGoal } from '../data/mapData.js'
+import { coastline, homeBase } from '../data/mapData.js'
+
+const clamp01 = (v) => Math.max(0, Math.min(1, v))
+const lerp = (a, b, t) => Math.round(a + (b - a) * t)
 
 /* 만타레이 실루엣 (재사용) — ARK-FLUID 브랜드 가오리 글리프
    원본 viewBox 0..200 x 0..140(중심 100,70)을 원점 기준으로 축소·정렬 */
@@ -37,6 +40,13 @@ export default function MarineMap({ compact = false, zoom = 1 }) {
   const viewBox = `${vOff} ${vOff} ${vs} ${vs}`
 
   const pathStr = path.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x},${p.y}`).join(' ') + ' Z'
+  const pathStart = path[0]
+  const pathGoal = path[path.length - 1]
+
+  // 수질 색조 — 탁도↑ → 탁한 오버레이 진해짐, 수온으로 청록↔갈색 이동(영상처럼 반응)
+  const murk = clamp01((state.turbidity - 16) / 56) * 0.6 // 오버레이 불투명도 0~0.6
+  const warm = clamp01((state.waterTemp - 18) / 6) // 0(차가움/청록) ~ 1(따뜻함/갈색)
+  const tint = `rgb(${lerp(38, 104, warm)}, ${lerp(96, 84, warm)}, ${lerp(84, 44, warm)})`
 
   // 센서 FOV 부채꼴 (방위 기준 ±38°)
   const fovR = 26
@@ -90,6 +100,17 @@ export default function MarineMap({ compact = false, zoom = 1 }) {
 
       {/* 바다 — 줌 아웃 시에도 화면을 채우도록 넓게 */}
       <rect x="-80" y="-80" width="260" height="260" fill="url(#sea)" />
+
+      {/* 수질 색조 오버레이 (탁도·수온 반응) */}
+      <rect
+        x="-80"
+        y="-80"
+        width="260"
+        height="260"
+        fill={tint}
+        opacity={murk}
+        style={{ transition: 'fill 0.6s ease, opacity 0.6s ease' }}
+      />
 
       {/* 등심선 그리드 (확장 범위) */}
       <g stroke="rgba(120,170,230,0.10)" strokeWidth="0.4">

@@ -1,5 +1,5 @@
 import { createContext, useContext, useReducer, useEffect, useRef, useCallback } from 'react'
-import { patrolPath, heatmapPoints, obstacles, homeBase, ENV_PROFILE } from '../data/mapData.js'
+import { patrolPaths, heatmapPoints, obstacles, homeBase } from '../data/mapData.js'
 
 /* ============================================================
    ARK-FLUID 가상 텔레메트리 시뮬레이션 엔진
@@ -235,10 +235,11 @@ function reducer(state, action) {
         thrust = 0.72
         s.speed = clamp(1.5 + Math.sin(t * 0.5) * 0.2, 0.6, 1.9)
       } else {
-        // patrol(auto): 순찰 경로 자동 추종
-        const nextIdx = (state.pathIndex + dt * 0.28) % patrolPath.length
+        // patrol(auto): 현재 운용 환경의 순찰 경로 자동 추종
+        const envPath = patrolPaths[s.environment] || patrolPaths.harbor
+        const nextIdx = (state.pathIndex + dt * 0.28) % envPath.length
         s.pathIndex = nextIdx
-        const wp = patrolPath[Math.floor(nextIdx) % patrolPath.length]
+        const wp = envPath[Math.floor(nextIdx) % envPath.length]
         targetHeading = (relBearing({ x: state.pos.x, y: state.pos.y }, 0, wp) + 360) % 360
         thrust = 0.6
         s.speed = clamp(1.05 + Math.sin(t * 0.5) * 0.25, 0.6, 1.8)
@@ -469,7 +470,7 @@ export function TelemetryProvider({ children }) {
     stateRef,
     gps: state.pos,
     heatmap: heatmapPoints,
-    path: patrolPath,
+    path: patrolPaths[state.environment] || patrolPaths.harbor,
     obstacles,
     setThruster,
     setMode,

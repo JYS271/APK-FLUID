@@ -3,18 +3,66 @@
    실제 로봇 연동 시 GPS 좌표계로 매핑.
    ============================================================ */
 
-// 순찰 경로 (부드러운 로프형 루프)
-export const patrolPath = [
-  { x: 26, y: 30 },
-  { x: 44, y: 22 },
-  { x: 64, y: 28 },
-  { x: 76, y: 44 },
-  { x: 72, y: 62 },
-  { x: 56, y: 72 },
-  { x: 38, y: 70 },
-  { x: 24, y: 56 },
-  { x: 20, y: 42 },
-]
+// 운용 환경별 수거 가능 구역(순찰 경로) — 좌표 0~100
+export const patrolPaths = {
+  // 항만: 선박 동선 사이 불규칙 루프
+  harbor: [
+    { x: 26, y: 30 },
+    { x: 44, y: 22 },
+    { x: 64, y: 28 },
+    { x: 76, y: 44 },
+    { x: 72, y: 62 },
+    { x: 56, y: 72 },
+    { x: 38, y: 70 },
+    { x: 24, y: 56 },
+    { x: 20, y: 42 },
+  ],
+  // 하천: 좁고 긴 사행(蛇行) 수로 밴드
+  river: [
+    { x: 14, y: 22 },
+    { x: 26, y: 30 },
+    { x: 38, y: 42 },
+    { x: 50, y: 52 },
+    { x: 64, y: 64 },
+    { x: 78, y: 78 },
+    { x: 72, y: 84 },
+    { x: 58, y: 70 },
+    { x: 46, y: 58 },
+    { x: 34, y: 48 },
+    { x: 22, y: 36 },
+    { x: 10, y: 28 },
+  ],
+  // 저수지: 정체 수역 — 둥근 폐곡선
+  reservoir: [
+    { x: 50, y: 24 },
+    { x: 66, y: 30 },
+    { x: 74, y: 46 },
+    { x: 70, y: 62 },
+    { x: 54, y: 74 },
+    { x: 36, y: 72 },
+    { x: 24, y: 56 },
+    { x: 26, y: 38 },
+    { x: 36, y: 28 },
+  ],
+  // 연안: 해안선을 따라 넓게 휘는 크레센트
+  coast: [
+    { x: 16, y: 60 },
+    { x: 28, y: 46 },
+    { x: 44, y: 38 },
+    { x: 62, y: 34 },
+    { x: 78, y: 38 },
+    { x: 86, y: 52 },
+    { x: 80, y: 64 },
+    { x: 66, y: 64 },
+    { x: 50, y: 62 },
+    { x: 36, y: 66 },
+    { x: 24, y: 74 },
+    { x: 16, y: 72 },
+  ],
+}
+
+// 기본 경로(항만) — 하위호환
+export const patrolPath = patrolPaths.harbor
 
 // 쓰레기 밀집 히트맵 (강도 0~1)
 export const heatmapPoints = [
@@ -43,15 +91,6 @@ export const obstacles = [
   { x: 40, y: 60, r: 4.2, type: 'net' }, // 유령그물 뭉치
 ]
 
-// 운용 환경 모드 — 전환 시 수질(탁도·조류) 프로필 적용
-export const ENVIRONMENTS = [
-  { id: 'sea', label: '바다', icon: 'ti-anchor', turb: 1.0, cur: 1.0 },
-  { id: 'river', label: '하천', icon: 'ti-ripple', turb: 1.45, cur: 1.6 },
-  { id: 'riverside', label: '강가', icon: 'ti-plant-2', turb: 1.2, cur: 0.75 },
-  { id: 'lake', label: '호수', icon: 'ti-droplet', turb: 0.7, cur: 0.35 },
-]
-export const ENV_PROFILE = Object.fromEntries(ENVIRONMENTS.map((e) => [e.id, e]))
-
-// 경로 시작(0%) / 목표(100%) — 캐릭터 마커용
+// 경로 시작(0%) / 목표(100%) — 기본(항만) 기준. 실제 표시는 현재 경로의 양 끝 사용.
 export const pathStart = patrolPath[0]
 export const pathGoal = patrolPath[patrolPath.length - 1]
