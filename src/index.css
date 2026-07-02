@@ -13,17 +13,17 @@
   --navy-300: #7f92ad;
   --navy-100: #d7dfec;
 
-  /* --- Action (Orange 10%) --- */
-  --orange-600: #e05a1a;
-  --orange-500: #ff6a1f;
-  --orange-400: #ff8a4c;
-  --orange-100: #ffe3d2;
+  /* --- Action (Orange 10%) — 채도를 낮춰 네이비와 조화 --- */
+  --orange-600: #d9531a;
+  --orange-500: #f26522;
+  --orange-400: #ff8f5c;
+  --orange-100: #ffe7d8;
 
   /* --- Surface (White 60%) --- */
-  --bg: #f4f7fb;
+  --bg: #f3f6fa;
   --surface: #ffffff;
-  --surface-2: #eef3f9;
-  --line: #e2e9f2;
+  --surface-2: #eff3f8;
+  --line: #e8edf4;
 
   /* --- Text --- */
   --text: #12233f;
@@ -45,15 +45,18 @@
   --deep-700: #0d1e3a;
   --deep-glass: rgba(11, 26, 51, 0.62);
 
-  /* --- Elevation --- */
-  --shadow-sm: 0 2px 8px rgba(14, 31, 58, 0.06);
-  --shadow-md: 0 8px 24px rgba(14, 31, 58, 0.1);
-  --shadow-lg: 0 16px 40px rgba(14, 31, 58, 0.16);
-  --shadow-cta: 0 10px 24px rgba(255, 106, 31, 0.36);
+  /* --- Elevation (부드러운 다층 그림자) --- */
+  --shadow-sm: 0 1px 2px rgba(16, 33, 60, 0.04), 0 4px 14px rgba(16, 33, 60, 0.05);
+  --shadow-md: 0 4px 12px rgba(16, 33, 60, 0.06), 0 12px 32px rgba(16, 33, 60, 0.08);
+  --shadow-lg: 0 12px 28px rgba(16, 33, 60, 0.1), 0 24px 56px rgba(16, 33, 60, 0.12);
+  --shadow-cta: 0 6px 18px rgba(242, 101, 34, 0.26);
 
-  /* --- Radius (비대칭 Manta-Ray) --- */
-  --r-top: 16px;
-  --r-bottom: 24px;
+  /* --- Hairline border (크리스프한 카드 엣지) --- */
+  --hairline: rgba(16, 33, 60, 0.06);
+
+  /* --- Radius (절제된 비대칭 Manta-Ray) --- */
+  --r-top: 18px;
+  --r-bottom: 22px;
   --card-radius: var(--r-top) var(--r-top) var(--r-bottom) var(--r-bottom);
 
   /* --- Motion --- */

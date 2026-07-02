@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useTelemetry } from '../state/TelemetryContext.jsx'
 
-/* 쓰레기 종류별 실루엣 (첨부 이미지 기반: 페트병/비닐봉지/폐어망/스티로폼)
+/* 쓰레기 종류별 실루엣 (첨부 이미지 기반: 담뱃갑/캔/스마트폰/약병)
    fill/stroke는 CSS 변수 → 열화상 모드에서 열 신호로 테마 전환 */
 function DebrisShape({ kind }) {
   const common = {
@@ -10,65 +10,50 @@ function DebrisShape({ kind }) {
     strokeWidth: 1.6,
     strokeLinejoin: 'round',
   }
-  if (kind === 'bottle') {
+  if (kind === 'cigpack') {
+    // 담뱃갑 (구겨진 사각 팩)
     return (
-      <svg className="debris__svg" viewBox="0 0 44 78" preserveAspectRatio="xMidYMid meet">
-        <rect x="17" y="2" width="10" height="6" rx="1.6" {...common} />
+      <svg className="debris__svg" viewBox="0 0 46 54" preserveAspectRatio="xMidYMid meet">
         <path
-          d="M17.5 8 h9 v3.4 q0 1.8 1.4 3.2 q3.8 3.8 3.8 9.6 v39 q0 8.6-9.7 8.6 t-9.7-8.6 v-39 q0-5.8 3.8-9.6 q1.4-1.4 1.4-3.2 z"
+          d="M9 13 L35 7 Q38 6 38.3 10 L40 44 Q40.2 48 37 49 L12 53 Q8 53 7.8 49 L6.7 17 Q6.6 14 9 13 Z"
           {...common}
         />
-        <path d="M12.5 50 h19 M12.5 57 h19" fill="none" stroke="var(--daccent)" strokeWidth="1.3" />
+        <path d="M9 13 L35 7 L36 15 L9.6 21 Z" fill="var(--daccent)" stroke="var(--dstroke)" strokeWidth="1.2" />
+        <ellipse cx="23" cy="35" rx="7" ry="7.5" fill="none" stroke="var(--daccent)" strokeWidth="1.8" />
       </svg>
     )
   }
-  if (kind === 'bag') {
+  if (kind === 'can') {
+    // 알루미늄 캔
     return (
-      <svg className="debris__svg" viewBox="0 0 56 60" preserveAspectRatio="xMidYMid meet">
-        <path d="M18 15 q1.5-9 10-9 M38 15 q-1.5-9-10-9" fill="none" stroke="var(--dstroke)" strokeWidth="1.6" />
-        <path
-          d="M11 15 q-3.5 3-1.5 7 q1 2.5 3 3.6 q-2.6 15 3 27.5 q3.2 7 12.5 7 t12.5-7 q5.6-12.5 3-27.5 q2-1.1 3-3.6 q2-4-1.5-7 q-14 5.5-28 0 z"
-          {...common}
-        />
-        <path d="M21 24 q3.5 12 1.5 22 M35 24 q-3.5 12-1.5 22" fill="none" stroke="var(--daccent)" strokeWidth="1.2" />
+      <svg className="debris__svg" viewBox="0 0 40 64" preserveAspectRatio="xMidYMid meet">
+        <path d="M8 9 v46 q0 4 12 4 t12-4 v-46 z" {...common} />
+        <ellipse cx="20" cy="9" rx="12" ry="4" {...common} />
+        <ellipse cx="20" cy="9" rx="8.6" ry="2.6" fill="none" stroke="var(--daccent)" strokeWidth="1.3" />
+        <circle cx="23.5" cy="9" r="1.6" fill="var(--daccent)" />
+        <path d="M8 18 h24 M8 47 h24" fill="none" stroke="var(--daccent)" strokeWidth="1.2" />
       </svg>
     )
   }
-  if (kind === 'net') {
-    const lines = []
-    for (let i = -7; i <= 13; i++) {
-      const o = i * 7
-      lines.push(<line key={`a${i}`} x1={o} y1="0" x2={o + 52} y2="52" />)
-      lines.push(<line key={`b${i}`} x1={o} y1="52" x2={o + 52} y2="0" />)
-    }
+  if (kind === 'phone') {
+    // 스마트폰 (깨진 화면)
     return (
-      <svg className="debris__svg" viewBox="0 0 52 52" preserveAspectRatio="xMidYMid meet">
-        <defs>
-          <clipPath id="netclip">
-            <ellipse cx="26" cy="26" rx="23" ry="21" />
-          </clipPath>
-        </defs>
-        <g clipPath="url(#netclip)" stroke="var(--dstroke)" strokeWidth="1.3" fill="none" opacity="0.95">
-          {lines}
-        </g>
-        <ellipse cx="26" cy="26" rx="23" ry="21" fill="none" stroke="var(--dstroke)" strokeWidth="2.2" />
+      <svg className="debris__svg" viewBox="0 0 40 74" preserveAspectRatio="xMidYMid meet">
+        <rect x="6" y="4" width="28" height="66" rx="5.5" {...common} />
+        <rect x="9.5" y="10" width="21" height="50" rx="2" fill="var(--daccent)" stroke="var(--dstroke)" strokeWidth="1.2" />
+        <rect x="16" y="6.6" width="8" height="1.8" rx="0.9" fill="var(--dstroke)" />
+        <circle cx="20" cy="65" r="2.6" fill="none" stroke="var(--dstroke)" strokeWidth="1.4" />
+        <path d="M20 24 L14 36 L23 42 L16 55 M20 24 L27 33 L21 41" fill="none" stroke="var(--dstroke)" strokeWidth="1" />
       </svg>
     )
   }
-  // foam (스티로폼)
+  // pill (약병)
   return (
-    <svg className="debris__svg" viewBox="0 0 54 50" preserveAspectRatio="xMidYMid meet">
-      <path
-        d="M11 32 q-5-11 6-14 q1.5-9 12-8.5 q6.5-5.5 15 0 q11-0.5 8.5 11 q6 6.5-2.5 12.5 q0.5 9-12.5 9 q-8.5 4.5-17-1 q-12.5 1-9.5-10.5 z"
-        {...common}
-      />
-      <g fill="var(--daccent)">
-        <circle cx="20" cy="23" r="2.6" />
-        <circle cx="31" cy="20" r="2.1" />
-        <circle cx="27" cy="31" r="2.8" />
-        <circle cx="38" cy="29" r="2.2" />
-        <circle cx="17" cy="33" r="1.9" />
-      </g>
+    <svg className="debris__svg" viewBox="0 0 36 62" preserveAspectRatio="xMidYMid meet">
+      <rect x="9" y="3" width="18" height="8" rx="1.8" {...common} />
+      <path d="M8 11 h20 q1 0 1 3 v40 q0 3-2 3 H9 q-2 0-2-3 v-40 q0-3 1-3 z" {...common} />
+      <rect x="10.5" y="24" width="15" height="22" rx="1.5" fill="var(--daccent)" stroke="var(--dstroke)" strokeWidth="1" />
+      <path d="M13 30 h10 M13 35 h10 M13 40 h6" fill="none" stroke="var(--dstroke)" strokeWidth="1" />
     </svg>
   )
 }

@@ -140,12 +140,12 @@ function computeDetections(t, turbidity, dehaze) {
   // 디헤이징 적용 시 탁도 영향 완화
   const effTurb = dehaze ? turbidity * 0.55 : turbidity
   const vis = clamp(1 - (effTurb - 18) / 60, 0.35, 1)
-  // kind: 형태 렌더용 (bottle=페트병 / bag=비닐봉지 / net=폐어망 / foam=스티로폼)
+  // kind: 형태 렌더용 (cigpack=담뱃갑 / can=캔 / phone=스마트폰 / pill=약병)
   const defs = [
-    { id: 'd1', label: '페트병', kind: 'bottle', bx: 0.13, by: 0.30, w: 0.16, h: 0.40, fx: 0.03, fy: 0.03, base: 0.96 },
-    { id: 'd2', label: '비닐봉지', kind: 'bag', bx: 0.58, by: 0.13, w: 0.26, h: 0.33, fx: 0.03, fy: 0.04, base: 0.9 },
-    { id: 'd3', label: '폐어망', kind: 'net', bx: 0.14, by: 0.60, w: 0.26, h: 0.30, fx: 0.04, fy: 0.03, base: 0.83 },
-    { id: 'd4', label: '스티로폼', kind: 'foam', bx: 0.60, by: 0.60, w: 0.22, h: 0.27, fx: 0.035, fy: 0.03, base: 0.78 },
+    { id: 'd1', label: '담뱃갑', kind: 'cigpack', bx: 0.1, by: 0.1, w: 0.2, h: 0.23, fx: 0.03, fy: 0.025, base: 0.94 },
+    { id: 'd2', label: '캔', kind: 'can', bx: 0.58, by: 0.1, w: 0.17, h: 0.27, fx: 0.03, fy: 0.03, base: 0.91 },
+    { id: 'd3', label: '스마트폰', kind: 'phone', bx: 0.13, by: 0.42, w: 0.15, h: 0.34, fx: 0.03, fy: 0.02, base: 0.88 },
+    { id: 'd4', label: '약병', kind: 'pill', bx: 0.6, by: 0.44, w: 0.15, h: 0.28, fx: 0.03, fy: 0.025, base: 0.82 },
   ]
   return defs
     .map((d, i) => ({
