@@ -1,5 +1,5 @@
 import { createContext, useContext, useReducer, useEffect, useRef, useCallback } from 'react'
-import { patrolPaths, heatmapPoints, obstacleSets, homeBase } from '../data/mapData.js'
+import { patrolPaths, heatmapSets, obstacleSets, homeBase } from '../data/mapData.js'
 
 /* ============================================================
    ARK-FLUID 가상 텔레메트리 시뮬레이션 엔진
@@ -469,7 +469,7 @@ export function TelemetryProvider({ children }) {
     state,
     stateRef,
     gps: state.pos,
-    heatmap: heatmapPoints,
+    heatmap: heatmapSets[state.environment] || heatmapSets.harbor,
     path: patrolPaths[state.environment] || patrolPaths.harbor,
     obstacles: obstacleSets[state.environment] || obstacleSets.harbor,
     setThruster,

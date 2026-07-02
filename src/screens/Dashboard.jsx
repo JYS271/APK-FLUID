@@ -80,7 +80,7 @@ export default function Dashboard({ onControl, onOpenWeb }) {
           <div className="card__title-row">
             <h2 className="card__title"><i className="ti ti-video" /> 실시간 영상</h2>
           </div>
-          <VideoFeed compact />
+          <VideoFeed compact hideBoxes />
         </section>
 
         <section className="card card--gauge swim-in" style={{ animationDelay: '.12s' }}>

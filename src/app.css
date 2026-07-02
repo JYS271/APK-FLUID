@@ -381,6 +381,14 @@
   box-shadow: 0 0 0 1px rgba(16, 33, 60, 0.12); /* 배경 대비 미세 외곽 */
   will-change: left, top;
 }
+/* 박스 숨김(대시보드 영상) — 쓰레기 실루엣만 표시 */
+.videofeed__dets.is-nobox .videofeed__track {
+  border: none;
+  box-shadow: none;
+}
+.videofeed__dets.is-nobox .videofeed__bbox-tag {
+  display: none;
+}
 /* 좌상단 라벨 — 오렌지 배지 위 화이트 타이포(전문적) */
 .videofeed__bbox-tag {
   position: absolute;

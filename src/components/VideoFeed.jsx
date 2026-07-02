@@ -281,7 +281,7 @@ function DebrisField() {
    - AI 바운딩 박스: state.detections를 픽셀단위(%) 실시간 오버레이
    - 디헤이징: 탁도 보정 필터로 시인성 확보
    실제 연동 시 WebRTC <video>로 교체. */
-export default function VideoFeed({ compact = false, thermal: thermalProp, showChips = true, zoom = 1 }) {
+export default function VideoFeed({ compact = false, thermal: thermalProp, showChips = true, zoom = 1, hideBoxes = false }) {
   const { state, toggleDehaze } = useTelemetry()
   const [thermalState, setThermalState] = useState(false)
   // thermalProp이 주어지면 제어(외부), 아니면 내부 상태 사용
@@ -308,8 +308,8 @@ export default function VideoFeed({ compact = false, thermal: thermalProp, showC
         <MarineLife />
       </div>
 
-      {/* 떠다니는 쓰레기 + 추적 박스 — 배율에 따라 축소/확대 */}
-      <div className="videofeed__dets" style={{ transform: `scale(${zoom})` }}>
+      {/* 떠다니는 쓰레기 (+ 추적 박스, hideBoxes면 실루엣만) — 배율에 따라 축소/확대 */}
+      <div className={`videofeed__dets ${hideBoxes ? 'is-nobox' : ''}`} style={{ transform: `scale(${zoom})` }}>
         <DebrisField />
       </div>
 
@@ -319,26 +319,12 @@ export default function VideoFeed({ compact = false, thermal: thermalProp, showC
           <span className="videofeed__rec">
             <b className="dot" /> LIVE
           </span>
-          <span className="videofeed__count num">
-            <i className="ti ti-viewfinder" /> {DEBRIS_COUNT}
-          </span>
-          <span className="num videofeed__depth">
-            <i className="ti ti-arrow-down" /> {state.depth.toFixed(1)}m
-          </span>
         </div>
       )}
 
-      {/* 하단 컨트롤: 디헤이징 · 카메라 모드 (제어 배경에선 숨김) */}
+      {/* 하단 컨트롤: 카메라 모드 (제어 배경에선 숨김) */}
       {showChips && (
         <div className="videofeed__ctl">
-          <button
-            className={`videofeed__chip ${dehaze ? 'is-on' : ''}`}
-            onClick={toggleDehaze}
-            title="수중 디헤이징"
-          >
-            <i className="ti ti-wand" />
-            디헤이징 {dehaze ? 'ON' : 'OFF'}
-          </button>
           <button className="videofeed__chip" onClick={() => setThermalState((v) => !v)}>
             <i className={`ti ${thermal ? 'ti-flame' : 'ti-camera'}`} />
             {thermal ? '열화상' : 'RGB'}
