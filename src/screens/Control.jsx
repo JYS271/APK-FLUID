@@ -177,7 +177,7 @@ const clampPan = (v, m) => Math.max(-m, Math.min(m, v))
 
 function ControlBackground() {
   const [mode, setMode] = useState('map') // map | video
-  const [zoom, setZoom] = useState(1)
+  const [zoom, setZoom] = useState(0.5)
   const [thermal, setThermal] = useState(false)
   const [pan, setPan] = useState({ x: 0, y: 0 })
   const [panning, setPanning] = useState(false)
@@ -185,7 +185,7 @@ function ControlBackground() {
 
   const zoomIn = () => setZoom((z) => Math.min(ZOOM_MAX, +(z + ZOOM_STEP).toFixed(1)))
   const zoomOut = () => setZoom((z) => Math.max(ZOOM_MIN, +(z - ZOOM_STEP).toFixed(1)))
-  const resetZoom = () => setZoom(1)
+  const resetZoom = () => setZoom(0.5)
 
   // 열화상: 영상 모드로 전환하며 토글 (지도에는 열화상 미적용)
   const toggleThermal = () => {
