@@ -399,6 +399,28 @@ function reducer(state, action) {
       }
     }
 
+    case 'SET_DRONE_DEPLOYED': {
+      // 멱등 — 같은 값이면 무변경(StrictMode 이중 호출·중복 디스패치 안전)
+      const deployed = !!action.value
+      if (state.drone.deployed === deployed) return state
+      return {
+        ...state,
+        drone: {
+          ...state.drone,
+          deployed,
+          mvx: 0,
+          mvy: 0,
+          x: deployed ? 50 : state.drone.x,
+          y: deployed ? 55 : state.drone.y,
+        },
+        toast: {
+          id: Math.floor(state.missionTime * 10),
+          kind: deployed ? 'info' : 'success',
+          text: deployed ? '미니 수중 드론 전개 · 해저 탐사 시작' : '미니 수중 드론 복귀 · 도킹',
+        },
+      }
+    }
+
     case 'SET_DRONE_MOVE':
       return { ...state, drone: { ...state.drone, mvx: action.x, mvy: action.y } }
 
@@ -506,6 +528,10 @@ export function TelemetryProvider({ children }) {
     if (navigator.vibrate) navigator.vibrate(12)
   }, [])
   const setDroneMove = useCallback((x, y) => dispatch({ type: 'SET_DRONE_MOVE', x, y }), [])
+  const setDroneDeployed = useCallback((value) => {
+    dispatch({ type: 'SET_DRONE_DEPLOYED', value })
+    if (navigator.vibrate) navigator.vibrate(12)
+  }, [])
   const toggleDroneLight = useCallback(() => dispatch({ type: 'TOGGLE_DRONE_LIGHT' }), [])
   const setMode = useCallback((mode) => dispatch({ type: 'SET_MODE', mode }), [])
   const setAutonomy = useCallback((value) => dispatch({ type: 'SET_AUTONOMY', value }), [])
@@ -552,6 +578,7 @@ export function TelemetryProvider({ children }) {
     setVertical,
     toggleDrone,
     setDroneMove,
+    setDroneDeployed,
     toggleDroneLight,
     setMode,
     setAutonomy,

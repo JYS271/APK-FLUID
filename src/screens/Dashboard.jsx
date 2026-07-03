@@ -12,7 +12,7 @@ const REMOTE_URL = encodeURI(
 )
 
 /* 대시보드(Monitor) — 상태바·지도·영상·요약·빠른작업 */
-export default function Dashboard({ onControl, onOpenWeb, onOpenIntro }) {
+export default function Dashboard({ onControl, onDroneMode, onOpenWeb, onOpenIntro }) {
   const { state, returnHome } = useTelemetry()
   const lat = latencyLevel(state.latency)
   const laggy = state.latency > 300
@@ -95,7 +95,7 @@ export default function Dashboard({ onControl, onOpenWeb, onOpenIntro }) {
       <BatteryCard battery={state.battery} charging={state.charging} />
 
       {/* 미니 드론 배터리 현황 — 도킹 시 활성, 미부착 시 회색 비활성 */}
-      <DroneStatusCard drone={state.drone} />
+      <DroneStatusCard drone={state.drone} onDroneMode={onDroneMode} />
 
       {/* 빠른 작업 */}
       <section className="quick swim-in" style={{ animationDelay: '.2s' }}>
@@ -188,7 +188,7 @@ function BatteryCard({ battery, charging }) {
   )
 }
 
-function DroneStatusCard({ drone }) {
+function DroneStatusCard({ drone, onDroneMode }) {
   const attached = !drone.deployed // 본체 도킹(부착) 여부
   const pct = Math.round(drone.battery)
   return (
@@ -214,6 +214,10 @@ function DroneStatusCard({ drone }) {
           {attached ? '도킹 · 충전 중 (모니터링 활성)' : '탐사 운용 중 (원격 · 모니터링 비활성)'}
         </span>
       </div>
+      <button className="drone__fpv" onClick={onDroneMode}>
+        <i className="ti ti-video" /> 1인칭 조종 모드
+        <i className="ti ti-chevron-right drone__fpv-arrow" />
+      </button>
     </section>
   )
 }

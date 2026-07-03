@@ -1508,6 +1508,32 @@
   font-size: 12px;
   color: var(--text-soft);
 }
+.drone__fpv {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  margin-top: 12px;
+  padding: 11px 14px;
+  border: 1px solid rgba(242, 101, 34, 0.4);
+  border-radius: var(--card-radius-sm, 14px);
+  background: rgba(242, 101, 34, 0.08);
+  color: var(--orange-500);
+  font-size: 13.5px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.drone__fpv .ti {
+  font-size: 18px;
+}
+.drone__fpv-arrow {
+  margin-left: auto;
+  font-size: 16px !important;
+  opacity: 0.7;
+}
+.drone__fpv:active {
+  background: rgba(242, 101, 34, 0.16);
+}
 
 /* ---------- Quick actions ---------- */
 .quick__row {
@@ -3612,4 +3638,620 @@
   position: relative;
   z-index: 6;
   padding: 6px 16px 0;
+}
+
+/* ============================================================
+   미니 수중 드론 1인칭(FPV) 조종 화면
+   ============================================================ */
+.dfpv {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  background: #030c16;
+  overflow: hidden;
+  animation: dfpvBoot 0.42s var(--ease-swim) both;
+}
+@keyframes dfpvBoot {
+  from {
+    opacity: 0;
+    filter: blur(10px) brightness(1.6);
+  }
+  55% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+    filter: none;
+  }
+}
+.dfpv-stage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(90deg);
+  transform-origin: center;
+  overflow: hidden;
+}
+
+/* ---- 카메라 영상(수중) ---- */
+.dfpv-cam {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.dfpv-water {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #0f5b76 0%, #0a3d55 34%, #062637 64%, #041722 100%);
+  filter: brightness(calc(1 - var(--depthk, 0.4) * 0.32)) saturate(1.05);
+  transition: filter 0.3s linear;
+}
+.dfpv-stage.is-lit .dfpv-water {
+  filter: brightness(calc(1.12 - var(--depthk, 0.4) * 0.28)) saturate(1.1);
+}
+.dfpv-rays {
+  position: absolute;
+  inset: -20% 0 30%;
+  background:
+    linear-gradient(100deg, transparent 30%, rgba(160, 224, 255, 0.09) 43%, transparent 53%),
+    linear-gradient(76deg, transparent 54%, rgba(160, 224, 255, 0.07) 66%, transparent 75%);
+  mix-blend-mode: screen;
+  animation: dfpvRays 9s ease-in-out infinite alternate;
+}
+@keyframes dfpvRays {
+  from {
+    transform: translateX(-4%) skewX(-2deg);
+  }
+  to {
+    transform: translateX(4%) skewX(2deg);
+  }
+}
+
+/* ---- 해저 지형(원근 컨베이어) ---- */
+.dfpv-world {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+.dfpv-floor {
+  position: absolute;
+  left: -20%;
+  right: -20%;
+  bottom: -6%;
+  height: 48%;
+  background: radial-gradient(120% 90% at 50% 100%, #7a6a44 0%, #4c4630 42%, transparent 78%);
+  opacity: 0.85;
+}
+.dfpv-feat {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 132px;
+  transform-origin: center bottom;
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+.dfpv-feat svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.35));
+}
+.ff-rock {
+  fill: #465562;
+}
+.ff-rock-hi {
+  fill: #566674;
+}
+.ff-weed-svg {
+  overflow: visible;
+}
+.ff-weed {
+  fill: none;
+  stroke: #2f9e6f;
+  stroke-width: 6;
+  stroke-linecap: round;
+  animation: dfpvWeed 3.4s ease-in-out infinite alternate;
+  transform-origin: bottom center;
+}
+.ff-weed--thin {
+  stroke: #46b986;
+  stroke-width: 4;
+}
+@keyframes dfpvWeed {
+  from {
+    transform: skewX(-6deg);
+  }
+  to {
+    transform: skewX(6deg);
+  }
+}
+.ff-struct {
+  fill: #56697a;
+}
+.ff-struct-top {
+  fill: #3f4f5d;
+}
+.ff-struct-win {
+  fill: #17323f;
+}
+.ff-obst {
+  fill: #c14e2a;
+}
+.ff-obst-in {
+  fill: #8f3418;
+}
+.ff-obst-mark {
+  fill: #ffd7a0;
+}
+.ff-sand {
+  fill: #b19a63;
+}
+.ff-sand-hi {
+  fill: #c9b47f;
+}
+
+/* ---- 부유물(마린 스노우) ---- */
+.dfpv-snow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.dfpv-snow span {
+  position: absolute;
+  top: -4%;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(222, 240, 255, 0.6);
+  left: calc(2% + var(--i) * 5.4%);
+  animation: dfpvSnow linear infinite;
+  animation-duration: calc(6s + var(--i) * 0.35s);
+  animation-delay: calc(var(--i) * -0.6s);
+}
+@keyframes dfpvSnow {
+  from {
+    transform: translate(0, -10px);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.65;
+  }
+  90% {
+    opacity: 0.5;
+  }
+  to {
+    transform: translate(-26px, 900px);
+    opacity: 0;
+  }
+}
+
+/* ---- 안개/라이트/비네트 ---- */
+.dfpv-haze {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 100% at 50% 40%, rgba(180, 210, 230, 0.5), rgba(120, 160, 190, 0.25) 55%, transparent 80%);
+  pointer-events: none;
+  transition: opacity 0.4s;
+}
+.dfpv-lightcone {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(60% 70% at 50% 92%, rgba(190, 234, 255, 0.22), rgba(190, 234, 255, 0.08) 42%, transparent 66%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+.dfpv-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 100% at 50% 45%, transparent 52%, rgba(2, 10, 20, 0.55) 100%);
+  pointer-events: none;
+}
+
+/* ---- AI 탐지 박스 ---- */
+.dfpv-ai {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.dfpv-box {
+  position: absolute;
+  border: 1.5px solid var(--orange-400);
+  border-radius: 6px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3), inset 0 0 12px rgba(255, 143, 92, 0.15);
+  transition: left 0.45s linear, top 0.45s linear, width 0.45s linear, height 0.45s linear;
+  animation: dfpvBoxPulse 1.6s ease-in-out infinite;
+}
+@keyframes dfpvBoxPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3), inset 0 0 12px rgba(255, 143, 92, 0.12);
+  }
+  50% {
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3), inset 0 0 16px rgba(255, 143, 92, 0.28);
+  }
+}
+.dfpv-box::before,
+.dfpv-box::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border: 2px solid var(--orange-400);
+}
+.dfpv-box::before {
+  top: -2px;
+  left: -2px;
+  border-right: 0;
+  border-bottom: 0;
+}
+.dfpv-box::after {
+  bottom: -2px;
+  right: -2px;
+  border-left: 0;
+  border-top: 0;
+}
+.dfpv-box__tag {
+  position: absolute;
+  top: -17px;
+  left: -1.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 6px;
+  border-radius: 5px 5px 5px 0;
+  background: var(--orange-500);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.dfpv-box__tag b {
+  font-weight: 800;
+  opacity: 0.92;
+}
+.dfpv-box--net {
+  border-color: #ff5a52;
+}
+.dfpv-box--net::before,
+.dfpv-box--net::after {
+  border-color: #ff5a52;
+}
+.dfpv-box--net .dfpv-box__tag {
+  background: #ff5a52;
+}
+
+/* ---- HUD 공통 ---- */
+.dfpv-hud {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  color: #eaf3fa;
+}
+.dfpv-chip,
+.dfpv-status,
+.dfpv-telemetry,
+.dfpv-detcount {
+  background: rgba(6, 18, 30, 0.5);
+  backdrop-filter: blur(9px);
+  -webkit-backdrop-filter: blur(9px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.dfpv-tl {
+  top: 14px;
+  left: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.dfpv-exit {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(6, 18, 30, 0.6);
+  backdrop-filter: blur(9px);
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+}
+.dfpv-exit:active {
+  transform: scale(0.94);
+}
+.dfpv-status {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 7px 13px;
+  border-radius: 12px;
+}
+.dfpv-status__live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #fff;
+}
+.dfpv-status__live .ti {
+  font-size: 9px;
+  color: #33d17a;
+  animation: dfpvBlink 1.4s ease-in-out infinite;
+}
+@keyframes dfpvBlink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+.dfpv-status__env {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: rgba(234, 243, 250, 0.72);
+}
+.dfpv-status__env .ti {
+  font-size: 13px;
+}
+.dfpv-tr {
+  top: 14px;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dfpv-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 11px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.dfpv-chip .ti {
+  font-size: 15px;
+}
+.dfpv-chip--auto {
+  color: #ffd7a0;
+  border-color: rgba(242, 101, 34, 0.5);
+  background: rgba(242, 101, 34, 0.22);
+}
+.dfpv-telemetry {
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 4px;
+  padding: 6px 8px;
+  border-radius: 12px;
+}
+.dfpv-metric {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 10px;
+}
+.dfpv-metric + .dfpv-metric {
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+}
+.dfpv-metric .ti {
+  font-size: 17px;
+  color: rgba(234, 243, 250, 0.66);
+}
+.dfpv-metric.is-up .ti {
+  color: #ff8f5c;
+}
+.dfpv-metric.is-down .ti {
+  color: #5cc8ff;
+}
+.dfpv-metric__body {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+.dfpv-metric__body em {
+  font-size: 9.5px;
+  font-style: normal;
+  color: rgba(234, 243, 250, 0.6);
+}
+.dfpv-metric__body b {
+  font-size: 14px;
+  font-weight: 800;
+  color: #fff;
+}
+.dfpv-detcount {
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.dfpv-detcount .ti {
+  font-size: 14px;
+  color: var(--orange-400);
+}
+.dfpv-detcount b {
+  color: var(--orange-400);
+  font-weight: 800;
+  margin: 0 1px;
+}
+.dfpv-cross {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 22px;
+}
+
+/* ---- 좌하단: 조이스틱 ---- */
+.dfpv-joy {
+  left: 22px;
+  bottom: 18px;
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.dfpv-joybase {
+  position: relative;
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  background: rgba(6, 18, 30, 0.42);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  touch-action: none;
+  cursor: grab;
+}
+.dfpv-joyring {
+  position: absolute;
+  inset: 16px;
+  border-radius: 50%;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+}
+.dfpv-joyknob {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 46px;
+  height: 46px;
+  margin: -23px 0 0 -23px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, var(--orange-400), var(--orange-600));
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 20px;
+  will-change: transform;
+}
+.dfpv-ctl-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(234, 243, 250, 0.8);
+  background: rgba(6, 18, 30, 0.5);
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+
+/* ---- 우하단: 카메라/상승하강/탐사등 ---- */
+.dfpv-right {
+  right: 22px;
+  bottom: 18px;
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+.dfpv-campad {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 34px);
+  grid-template-rows: repeat(3, 34px);
+  gap: 3px;
+}
+.dfpv-campad__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(6, 18, 30, 0.5);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: 16px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+.dfpv-campad__btn:active {
+  background: rgba(242, 101, 34, 0.5);
+}
+.dfpv-campad__btn.is-up {
+  grid-area: 1 / 2;
+}
+.dfpv-campad__btn.is-left {
+  grid-area: 2 / 1;
+}
+.dfpv-campad__btn.is-right {
+  grid-area: 2 / 3;
+}
+.dfpv-campad__btn.is-down {
+  grid-area: 3 / 2;
+}
+.dfpv-campad__hub {
+  grid-area: 2 / 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(234, 243, 250, 0.7);
+  font-size: 15px;
+}
+.dfpv-depth {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.dfpv-rbtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  width: 54px;
+  height: 50px;
+  justify-content: center;
+  border-radius: 13px;
+  background: rgba(6, 18, 30, 0.5);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #fff;
+  cursor: pointer;
+}
+.dfpv-rbtn .ti {
+  font-size: 20px;
+}
+.dfpv-rbtn em {
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 700;
+}
+.dfpv-rbtn:active {
+  background: rgba(242, 101, 34, 0.4);
+}
+.dfpv-lightbtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: 54px;
+  padding: 9px 0;
+  border-radius: 13px;
+  background: rgba(6, 18, 30, 0.5);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.dfpv-lightbtn .ti {
+  font-size: 20px;
+}
+.dfpv-lightbtn.is-on {
+  background: rgba(242, 101, 34, 0.28);
+  border-color: rgba(242, 101, 34, 0.55);
+  color: #ffd7a0;
 }

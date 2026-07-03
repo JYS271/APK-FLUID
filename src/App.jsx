@@ -7,6 +7,7 @@ import WebBridge from './components/WebBridge.jsx'
 import IntroSheet from './components/IntroSheet.jsx'
 import Dashboard from './screens/Dashboard.jsx'
 import Control from './screens/Control.jsx'
+import DroneFPV from './screens/DroneFPV.jsx'
 import Records from './screens/Records.jsx'
 
 /* 앱 셸: 탭 전환 + 제어 모드 + 웹모달 + 토스트
@@ -14,11 +15,14 @@ import Records from './screens/Records.jsx'
 export default function App() {
   const [tab, setTab] = useState('dashboard') // dashboard | records
   const [control, setControl] = useState(false)
+  const [droneMode, setDroneMode] = useState(false) // 미니 수중 드론 FPV 모드
   const [web, setWeb] = useState(null) // { url, title } | null
   const [intro, setIntro] = useState(false)
 
   const openControl = useCallback(() => setControl(true), [])
   const exitControl = useCallback(() => setControl(false), [])
+  const openDrone = useCallback(() => setDroneMode(true), [])
+  const exitDrone = useCallback(() => setDroneMode(false), [])
 
   const openWeb = useCallback((key) => {
     const map = {
@@ -37,12 +41,20 @@ export default function App() {
           <>
             <StatusBar />
             {tab === 'dashboard' && (
-              <Dashboard onControl={openControl} onOpenWeb={openWeb} onOpenIntro={() => setIntro(true)} />
+              <Dashboard
+                onControl={openControl}
+                onDroneMode={openDrone}
+                onOpenWeb={openWeb}
+                onOpenIntro={() => setIntro(true)}
+              />
             )}
             {tab === 'records' && <Records onOpenWeb={openWeb} />}
             <TabBar tab={tab} onTab={setTab} onControl={openControl} />
           </>
         )}
+
+        {/* 미니 수중 드론 FPV 모드 — 전용 조종 화면(최상위 오버레이) */}
+        {droneMode && <DroneFPV onExit={exitDrone} />}
 
         {/* 전역 오버레이 — .device 직속 */}
         <AlarmCenter />
