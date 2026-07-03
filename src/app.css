@@ -2495,53 +2495,112 @@
   padding: 16px 2px 12px;
 }
 
-.kpigrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+/* KPI 캐러셀 — 워치 카드 스타일(좌우 스와이프) */
+.kpicar {
   margin-bottom: 16px;
 }
-.kpi {
-  background: var(--surface);
+.kpicar__view {
+  position: relative;
+  height: 152px;
+  overflow: hidden;
   border-radius: var(--card-radius-sm);
-  padding: 16px;
-  box-shadow: var(--shadow-sm);
+  background: var(--surface);
   border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-sm);
+  touch-action: pan-y;
+  cursor: grab;
+}
+.kpicar__view:active {
+  cursor: grabbing;
+}
+.kpicar__track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.36s cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: transform;
+}
+.kpicar__track.is-drag {
+  transition: none;
+}
+.kpicar__slide {
+  flex: 0 0 100%;
+  height: 100%;
+}
+.kpicard {
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  transition: transform 0.18s var(--ease-swim);
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 16px;
+  text-align: center;
 }
-.kpi:active {
-  transform: scale(0.985);
-}
-.kpi > .ti {
-  font-size: 22px;
-  color: var(--navy-500);
-  margin-bottom: 6px;
-}
-.kpi--accent {
+.kpicard.is-accent {
   background: linear-gradient(140deg, #fff, #fff5ee);
 }
-.kpi--accent > .ti {
+.kpicard__ic {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: var(--surface-2);
+  color: var(--navy-500);
+  font-size: 21px;
+  margin-bottom: 5px;
+}
+.kpicard.is-accent .kpicard__ic {
+  background: rgba(242, 101, 34, 0.12);
   color: var(--orange-500);
 }
-.kpi__value {
-  font-size: 21.5px;
+.kpicard__val {
+  font-size: 38px;
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
+  line-height: 1;
   color: var(--text);
 }
-.kpi__value em {
-  font-size: 11px;
-  font-weight: 600;
+.kpicard__val em {
+  font-size: 16px;
+  font-weight: 700;
   font-style: normal;
   color: var(--text-soft);
-  margin-left: 2px;
+  margin-left: 3px;
 }
-.kpi__label {
+.kpicard__label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-top: 4px;
+}
+.kpicard__sub {
   font-size: 11.5px;
   color: var(--text-soft);
+}
+.kpicar__dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+.kpicar__dot {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--line);
+  cursor: pointer;
+  transition: width 0.25s, background 0.25s;
+}
+.kpicar__dot.is-on {
+  width: 18px;
+  border-radius: 4px;
+  background: var(--orange-500);
 }
 
 .card__donut-row {

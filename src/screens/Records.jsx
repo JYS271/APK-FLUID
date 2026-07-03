@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { BarChart, DonutChart, Legend } from '../components/Charts.jsx'
+import KpiCarousel from '../components/KpiCarousel.jsx'
 import {
   weeklyCollection,
   monthlyCollection,
   debrisTypes,
   badges,
   history,
-  kpi,
 } from '../data/analytics.js'
 
 /* 기록(Analyze) — KPI·히트맵·차트·배지·이력 */
@@ -22,13 +22,8 @@ export default function Records({ onOpenWeb }) {
         <h1 className="dash__title">수거 성과 분석</h1>
       </header>
 
-      {/* KPI 카드 */}
-      <section className="kpigrid swim-in" style={{ animationDelay: '.04s' }}>
-        <Kpi icon="ti-trash" label="오늘 수거" value={kpi.todayKg} unit="kg" accent />
-        <Kpi icon="ti-calendar-stats" label="주간 누적" value={kpi.weekKg} unit="kg" />
-        <Kpi icon="ti-target-arrow" label="수거 효율" value={kpi.efficiency} unit="%" />
-        <Kpi icon="ti-plug-connected" label="가동률" value={kpi.uptime} unit="%" />
-      </section>
+      {/* KPI — 하나로 정리, 좌우 스와이프(워치 카드 스타일) */}
+      <KpiCarousel />
 
       {/* 수거량 차트 (주간/월간 전환) */}
       <section className="card swim-in" style={{ animationDelay: '.08s' }}>
@@ -96,19 +91,6 @@ export default function Records({ onOpenWeb }) {
           전체 리포트 보기 <i className="ti ti-external-link" />
         </button>
       </section>
-    </div>
-  )
-}
-
-function Kpi({ icon, label, value, unit, accent }) {
-  return (
-    <div className={`kpi ${accent ? 'kpi--accent' : ''}`}>
-      <i className={`ti ${icon}`} />
-      <span className="kpi__value num">
-        {value}
-        <em>{unit}</em>
-      </span>
-      <span className="kpi__label">{label}</span>
     </div>
   )
 }
