@@ -1127,11 +1127,12 @@
 /* ---------- 통계 세그먼트(가로 4분할 탭 + 값 패널) ---------- */
 .statseg {
   margin-bottom: 16px;
+  border-radius: 999px; /* 흰 바탕도 끝이 둥근 알약(스타디움) 모양 */
 }
 .statseg__tabs {
   display: flex;
   background: var(--surface-2);
-  border-radius: var(--r-control, 12px); /* 사각형(살짝 둥근 모서리) */
+  border-radius: 999px; /* 회색 바도 끝이 둥근 알약(스타디움) 모양 */
   padding: 6px;
   gap: 2px;
 }
@@ -1189,8 +1190,10 @@
 .statseg__panel-inner {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
   gap: 2px;
-  padding: 14px 4px 2px;
+  padding: 14px 24px 6px;
 }
 .statseg__value {
   font-size: 30px;
