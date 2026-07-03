@@ -4316,6 +4316,68 @@
   pointer-events: none;
 }
 
+/* ---- 수면 위 부유 쓰레기 + 구별 박스 (상승 시) ---- */
+.dfpv-surface {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  pointer-events: none;
+  transition: height 0.25s ease, opacity 0.25s ease;
+}
+.dfpv-sky {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #afd6ea 0%, #cfe6f0 55%, #dff0f4 100%);
+}
+.dfpv-surf-glare {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 40%;
+  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.45));
+  mix-blend-mode: screen;
+}
+.dfpv-waterline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.2));
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+.dfpv-surf-item {
+  position: absolute;
+  bottom: 4px;
+  transform: translateX(-50%);
+  animation: dfpvBob 2.6s ease-in-out infinite;
+}
+@keyframes dfpvBob {
+  0%, 100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-3px);
+  }
+}
+.dfpv-box.dfpv-surfbox {
+  position: relative;
+  inset: auto;
+  display: grid;
+  place-items: center;
+  padding: 4px;
+  min-width: 30px;
+  min-height: 24px;
+}
+.dfpv-surf-shape {
+  display: block;
+  line-height: 0;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.25));
+}
+
 /* ---- AI 탐지 박스 ---- */
 .dfpv-ai {
   position: absolute;

@@ -49,6 +49,27 @@ function makeDet(i) {
   }
 }
 
+// 수면 뷰: 이 수심보다 얕으면 상단에 수면(하늘/수면 경계)이 등장(1.5m에서 최대)
+const SURFACE_DEPTH = 3.0
+// 수면 위 부유 쓰레기 종류(구별 박스 대상)
+const SURF_LABELS = [
+  { label: '스티로폼', kind: 'foam' },
+  { label: '종이 박스', kind: 'box' },
+  { label: '나뭇가지', kind: 'branch' },
+  { label: '페트병', kind: 'bottle' },
+]
+function makeSurf(i) {
+  const d = SURF_LABELS[i % SURF_LABELS.length] // 슬롯별 종류 고정(형태 안정)
+  return {
+    id: i,
+    label: d.label,
+    kind: d.kind,
+    x: 8 + Math.random() * 78, // 가로 위치 %
+    scale: 0.85 + Math.random() * 0.5,
+    conf: +(0.8 + Math.random() * 0.18).toFixed(2),
+  }
+}
+
 export default function DroneFPV({ onExit }) {
   const { state, stateRef, setDroneMove, toggleDroneLight, setAutonomy, setDroneDeployed } = useTelemetry()
   const env = ENV_MAP[state.environment] || ENV_MODES[0]
@@ -137,6 +158,22 @@ export default function DroneFPV({ onExit }) {
         })
       )
     }, 480)
+    return () => clearInterval(id)
+  }, [])
+
+  // --- 수면 위 부유 쓰레기(수면 상승 시 표시, 조류 타고 표류) ---
+  const [surfDets, setSurfDets] = useState(() => [0, 1, 2, 3].map(makeSurf))
+  useEffect(() => {
+    const id = setInterval(() => {
+      setSurfDets((prev) =>
+        prev.map((d) => {
+          let x = d.x + (Math.random() - 0.35) * 2.6 // 완만한 표류(약간 좌측)
+          if (x > 96) x = -6
+          else if (x < -8) x = 96
+          return { ...d, x, conf: +clamp(d.conf + (Math.random() - 0.5) * 0.04, 0.7, 0.98).toFixed(2) }
+        })
+      )
+    }, 520)
     return () => clearInterval(id)
   }, [])
 
@@ -239,6 +276,8 @@ export default function DroneFPV({ onExit }) {
   const signal = Math.round(state.signal)
   const distText = hud.dist >= 1000 ? `${(hud.dist / 1000).toFixed(2)}km` : `${Math.round(hud.dist)}m`
   const deltaUp = hud.delta >= 0
+  // 수면 근접도: 수심이 SURFACE_DEPTH↓ 이면 수면 밴드가 커짐(1.5m에서 최대 = 화면 절반)
+  const surfaceH = clamp((SURFACE_DEPTH - hud.depth) / (SURFACE_DEPTH - 1.5), 0, 1)
 
   return (
     <div className="dfpv" ref={rootRef}>
@@ -290,6 +329,31 @@ export default function DroneFPV({ onExit }) {
               </div>
             ))}
           </div>
+
+          {/* ===== 수면 상승 시: 수면 위 부유 쓰레기 + 구별 박스 ===== */}
+          {surfaceH > 0.03 && (
+            <div className="dfpv-surface" style={{ height: `${surfaceH * 50}%`, opacity: clamp(surfaceH * 2.5, 0, 1) }}>
+              <div className="dfpv-sky" />
+              <div className="dfpv-surf-glare" />
+              <div className="dfpv-waterline" />
+              {surfDets.map((d, i) => (
+                <div
+                  className="dfpv-surf-item"
+                  key={d.id}
+                  style={{ left: `${d.x}%`, animationDelay: `${i * 0.4}s` }}
+                >
+                  <div className="dfpv-box dfpv-surfbox">
+                    <span className="dfpv-box__tag">
+                      {d.label} <b className="num">{Math.round(d.conf * 100)}%</b>
+                    </span>
+                    <span className="dfpv-surf-shape" style={{ transform: `scale(${d.scale})` }}>
+                      <SurfShape kind={d.kind} />
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* ===== HUD 레이어(반투명) ===== */}
@@ -530,6 +594,46 @@ function HoldBtn({ children, onHold, onRelease, label, className }) {
       {children}
       <em>{label}</em>
     </button>
+  )
+}
+
+/* ---- 수면 위 부유 쓰레기 실루엣 (스티로폼/종이 박스/나뭇가지/페트병) ---- */
+function SurfShape({ kind }) {
+  if (kind === 'foam') {
+    return (
+      <svg viewBox="0 0 60 34" width="46" height="26">
+        <path d="M5 24 L2 13 L14 6 L31 4 L47 8 L58 15 L55 27 L39 31 L17 30 Z" fill="#eef2f5" stroke="#c9d4dc" strokeWidth="1.2" strokeLinejoin="round" />
+        <path d="M14 6 L31 4 L47 8 L36 16 L20 15 Z" fill="#f7fafc" opacity="0.7" />
+      </svg>
+    )
+  }
+  if (kind === 'box') {
+    return (
+      <svg viewBox="0 0 52 42" width="42" height="34">
+        <path d="M6 17 L26 9 L46 17 L46 34 L26 42 L6 34 Z" fill="#c79a63" />
+        <path d="M6 17 L26 9 L46 17 L26 25 Z" fill="#dcb582" />
+        <path d="M26 25 L46 17 L46 34 L26 42 Z" fill="#a67a45" />
+      </svg>
+    )
+  }
+  if (kind === 'branch') {
+    return (
+      <svg viewBox="0 0 82 28" width="58" height="20">
+        <g stroke="#7a5230" fill="none" strokeLinecap="round">
+          <path d="M3 18 Q28 12 48 15 Q66 17 79 11" strokeWidth="4" />
+          <path d="M30 15 L23 5" strokeWidth="2.4" />
+          <path d="M50 15 L59 7" strokeWidth="2.4" />
+          <path d="M50 15 L56 21" strokeWidth="2" />
+        </g>
+      </svg>
+    )
+  }
+  // 페트병
+  return (
+    <svg viewBox="0 0 24 40" width="20" height="34">
+      <rect x="9" y="1" width="6" height="4" rx="1" fill="#9fd8e8" />
+      <path d="M9.5 5 h5 v2 q0 1 0.8 1.8 q2.3 2.3 2.3 5.6 v20 q0 5-5.6 5 t-5.6-5 v-20 q0-3.3 2.3-5.6 q0.8-0.8 0.8-1.8 z" fill="#bfe6f0" stroke="#8fc9dc" strokeWidth="0.8" />
+    </svg>
   )
 }
 
