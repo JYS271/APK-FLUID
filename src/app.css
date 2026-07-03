@@ -1033,6 +1033,19 @@
   gap: 12px;
   padding: 15px 16px;
   min-width: 0;
+  width: 100%;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: background 0.15s;
+}
+.statbox__cell:active {
+  background: var(--surface-2);
 }
 /* 점선 구분선 (2×2 십자) */
 .statbox__cell:nth-child(1),
@@ -1051,8 +1064,16 @@
 .statbox__cell--accent > .ti {
   color: var(--orange-500);
 }
+/* 상세 보기 화살표(클릭 어포던스) */
+.statbox__cell .statbox__more {
+  flex-shrink: 0;
+  font-size: 16px;
+  color: var(--text-soft);
+  opacity: 0.5;
+}
 .statbox__body {
   display: flex;
+  flex: 1;
   flex-direction: column;
   line-height: 1.15;
   min-width: 0;
@@ -1075,6 +1096,133 @@
   font-weight: 500;
   color: var(--text-soft);
   margin-top: 2px;
+}
+
+/* ---------- 통계 상세 시트(바텀시트) ---------- */
+.statsheet-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 88;
+  background: rgba(6, 16, 33, 0.42);
+  animation: fadeScrim 0.25s ease both;
+}
+@keyframes fadeScrim {
+  from {
+    opacity: 0;
+  }
+}
+.statsheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 89;
+  background: var(--surface);
+  border-radius: 24px 24px 0 0;
+  padding: 10px 20px calc(24px + env(safe-area-inset-bottom));
+  box-shadow: 0 -12px 40px rgba(6, 16, 33, 0.28);
+  animation: sheetUp 0.32s var(--ease-swim) both;
+}
+@keyframes sheetUp {
+  from {
+    transform: translateY(100%);
+  }
+}
+.statsheet__grab {
+  display: block;
+  width: 40px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--line);
+  margin: 0 auto 14px;
+}
+.statsheet__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.statsheet__ic {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: var(--surface-2);
+  color: var(--navy-500);
+  font-size: 20px;
+}
+.statsheet__ic.is-accent {
+  background: rgba(242, 101, 34, 0.12);
+  color: var(--orange-500);
+}
+.statsheet__title {
+  flex: 1;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+}
+.statsheet__close {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: var(--text-muted);
+  display: grid;
+  place-items: center;
+  font-size: 17px;
+  cursor: pointer;
+}
+.statsheet__close:active {
+  background: var(--line);
+}
+.statsheet__hero {
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+.statsheet__hero em {
+  font-size: 18px;
+  font-weight: 700;
+  font-style: normal;
+  color: var(--text-soft);
+  margin-left: 4px;
+}
+.statsheet__rows {
+  display: flex;
+  flex-direction: column;
+  border-radius: 14px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.statsheet__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  font-size: 13.5px;
+}
+.statsheet__row + .statsheet__row {
+  border-top: 1px solid var(--line);
+}
+.statsheet__row span {
+  color: var(--text-muted);
+}
+.statsheet__row b {
+  font-weight: 700;
+  color: var(--text);
+}
+.statsheet__desc {
+  margin-top: 14px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-soft);
 }
 
 /* ---------- Battery card ---------- */

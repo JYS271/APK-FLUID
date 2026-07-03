@@ -5,6 +5,7 @@ import Toast from './components/Toast.jsx'
 import AlarmCenter from './components/AlarmCenter.jsx'
 import WebBridge from './components/WebBridge.jsx'
 import IntroSheet from './components/IntroSheet.jsx'
+import StatDetailSheet from './components/StatDetailSheet.jsx'
 import Dashboard from './screens/Dashboard.jsx'
 import Control from './screens/Control.jsx'
 import Records from './screens/Records.jsx'
@@ -16,6 +17,7 @@ export default function App() {
   const [control, setControl] = useState(false)
   const [web, setWeb] = useState(null) // { url, title } | null
   const [intro, setIntro] = useState(false)
+  const [statDetail, setStatDetail] = useState(null) // 'collected' | 'turbidity' | 'temp' | 'uptime'
 
   const openControl = useCallback(() => setControl(true), [])
   const exitControl = useCallback(() => setControl(false), [])
@@ -36,7 +38,9 @@ export default function App() {
         ) : (
           <>
             <StatusBar />
-            {tab === 'dashboard' && <Dashboard onControl={openControl} onOpenWeb={openWeb} onOpenIntro={() => setIntro(true)} />}
+            {tab === 'dashboard' && (
+              <Dashboard onControl={openControl} onOpenWeb={openWeb} onOpenIntro={() => setIntro(true)} onOpenStat={setStatDetail} />
+            )}
             {tab === 'records' && <Records onOpenWeb={openWeb} />}
             <TabBar tab={tab} onTab={setTab} onControl={openControl} />
           </>
@@ -45,6 +49,7 @@ export default function App() {
         {/* 전역 오버레이 — .device 직속 */}
         <AlarmCenter />
         <IntroSheet open={intro} onClose={() => setIntro(false)} />
+        <StatDetailSheet statKey={statDetail} onClose={() => setStatDetail(null)} />
         <Toast />
         <WebBridge
           open={!!web}
