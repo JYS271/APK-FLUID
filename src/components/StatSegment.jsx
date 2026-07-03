@@ -55,8 +55,10 @@ export default function StatSegment() {
             className={`statseg__tab ${sel === t.key ? 'is-on' : ''}`}
             onClick={() => setSel((prev) => (prev === t.key ? null : t.key))}
           >
-            <i className={`ti ${t.icon}`} />
-            <span>{t.label}</span>
+            <span className="statseg__ic">
+              <i className={`ti ${t.icon}`} />
+            </span>
+            <span className="statseg__lbl">{t.label}</span>
           </button>
         ))}
       </div>

@@ -1131,8 +1131,8 @@
 .statseg__tabs {
   display: flex;
   background: var(--surface-2);
-  border-radius: 12px;
-  padding: 4px;
+  border-radius: 999px; /* 끝만 둥근 알약(캡슐) 형태 */
+  padding: 6px;
   gap: 2px;
 }
 .statseg__tab {
@@ -1141,25 +1141,39 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
-  padding: 8px 4px;
+  gap: 4px;
+  padding: 6px 4px;
   border: 0;
   background: none;
-  border-radius: 9px;
   color: var(--text-soft);
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   -webkit-appearance: none;
   appearance: none;
-  transition: background 0.18s, color 0.18s;
+  transition: color 0.18s;
+}
+/* 아이콘을 감싸는 원 — 선택 시 연주황색 원으로 강조 */
+.statseg__ic {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  transition: background 0.18s;
 }
 .statseg__tab .ti {
   font-size: 18px;
 }
+.statseg__lbl {
+  line-height: 1;
+}
 .statseg__tab.is-on {
-  background: rgba(242, 101, 34, 0.16);
   color: var(--orange-500);
+}
+.statseg__tab.is-on .statseg__ic {
+  background: rgba(242, 101, 34, 0.16); /* 연주황색 원 */
 }
 /* 접힘/펼침 — 누르면 아래로 늘어남 */
 .statseg__panel {
