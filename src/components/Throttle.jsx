@@ -4,7 +4,7 @@ import { useRef, useState, useCallback, useEffect } from 'react'
    손을 떼도 위치 유지(순항). onChange(thrust) with thrust ∈ [-1,1].
    중앙 근처(±8%)는 중립 디텐트로 스냅.
    resetKey 변경 시 중립으로 리셋(E-STOP 등). */
-export default function Throttle({ label = '추력', onChange, resetKey }) {
+export default function Throttle({ label = '추력', onChange, resetKey, axis = 'y' }) {
   const trackRef = useRef(null)
   const [val, setVal] = useState(0) // -1..1
   const activeRef = useRef(false)
@@ -16,16 +16,23 @@ export default function Throttle({ label = '추력', onChange, resetKey }) {
   }, [resetKey])
 
   const update = useCallback(
-    (clientY) => {
+    (clientX, clientY) => {
       const r = trackRef.current.getBoundingClientRect()
-      const rel = (clientY - r.top) / r.height // 0(위) ~ 1(아래)
-      let v = 1 - rel * 2 // 위=+1, 중앙=0, 아래=-1
+      let v
+      if (axis === 'x') {
+        // 가로(90° 회전) 모드: 오른쪽=전진(+1) ~ 왼쪽=후진(-1)
+        const rel = (clientX - r.left) / r.width
+        v = rel * 2 - 1
+      } else {
+        const rel = (clientY - r.top) / r.height // 0(위) ~ 1(아래)
+        v = 1 - rel * 2 // 위=+1, 중앙=0, 아래=-1
+      }
       v = Math.max(-1, Math.min(1, v))
       if (Math.abs(v) < 0.08) v = 0 // 중립 디텐트
       setVal(v)
       onChange?.(+v.toFixed(3))
     },
-    [onChange]
+    [onChange, axis]
   )
 
   const onPointerDown = (e) => {
@@ -35,12 +42,12 @@ export default function Throttle({ label = '추력', onChange, resetKey }) {
     } catch {
       /* 합성 이벤트 등에서 무시 */
     }
-    update(e.clientY)
+    update(e.clientX, e.clientY)
     if (navigator.vibrate) navigator.vibrate(8)
   }
   const onPointerMove = (e) => {
     if (!activeRef.current) return
-    update(e.clientY)
+    update(e.clientX, e.clientY)
   }
   const end = () => {
     activeRef.current = false // 위치 유지(스냅백 없음)

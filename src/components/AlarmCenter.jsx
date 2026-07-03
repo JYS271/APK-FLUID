@@ -33,8 +33,16 @@ function beep(sev) {
 const SEV_ORDER = { critical: 0, warning: 1, info: 2 }
 const AUTO_HIDE = 5 // 경보 표시 후 5초 지나면 자동으로 사라짐(초)
 
+// 알림 시각 표기(HH:MM)
+function clockStr(ms) {
+  if (!ms) return ''
+  const d = new Date(ms)
+  const p = (n) => String(n).padStart(2, '0')
+  return `${p(d.getHours())}:${p(d.getMinutes())}`
+}
+
 export default function AlarmCenter() {
-  const { state } = useTelemetry()
+  const { state, pushNotification } = useTelemetry()
   const [dismissed, setDismissed] = useState({})
   const seenRef = useRef(new Set())
   const firstSeenRef = useRef({}) // key -> 최초 표시 시각(missionTime)
@@ -70,10 +78,15 @@ export default function AlarmCenter() {
 
   useEffect(() => {
     const cur = new Set(alarms.map((a) => a.key))
-    const newlyCritical = alarms.some((a) => a.sev === 'critical' && !seenRef.current.has(a.key))
-    const newlyAny = alarms.some((a) => !seenRef.current.has(a.key))
-    const beepWorthy = alarms.some((a) => a.key !== 'obstacle' && !seenRef.current.has(a.key))
+    const fresh = alarms.filter((a) => !seenRef.current.has(a.key)) // 새로 뜬 경보
+    const newlyCritical = fresh.some((a) => a.sev === 'critical')
+    const newlyAny = fresh.length > 0
+    const beepWorthy = fresh.some((a) => a.key !== 'obstacle')
     seenRef.current = cur
+    // 알림 기록에 적재(벨 클릭 시 확인)
+    fresh.forEach((a) =>
+      pushNotification({ sev: a.sev, icon: a.icon, title: a.title, desc: a.desc, time: clockStr(state.ts) })
+    )
     // 최초 표시 시각 기록(5초 자동 숨김용) · 조건 해제 시 기록 제거(재발생 시 다시 5초 표시)
     const fs = firstSeenRef.current
     for (const a of alarms) if (!(a.key in fs)) fs[a.key] = state.missionTime

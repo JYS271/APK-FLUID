@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, useEffect, useRef, useCallback } from 'react'
+import { createContext, useContext, useReducer, useEffect, useRef, useCallback, useState } from 'react'
 import { patrolPaths, heatmapSets, obstacleSets, homeBase } from '../data/mapData.js'
 
 /* ============================================================
@@ -15,6 +15,9 @@ import { patrolPaths, heatmapSets, obstacleSets, homeBase } from '../data/mapDat
 const TICK_MS = 600
 const SENSOR_RANGE = 20 // LiDAR/소나 감지 반경(정규화)
 const BATTERY_DRAIN_PER_S = 1 / (10 * 60) // 배터리 소모 고정: 10분당 1%
+const DEPTH_RATE = 1.5 // 상승·하강 속도(m/s)
+const DEPTH_MIN = 0 // 수면
+const DEPTH_MAX = 15 // 최대 수심(m)
 
 // 운용 환경 모드 — 환경별 탁도·유속·수온 기준값
 export const ENV_MODES = [
@@ -45,6 +48,7 @@ const initialState = {
   heading: 68, // deg (0=N)
   pos: { x: 34, y: 58 }, // 지도 정규화 좌표 0~100
   depth: 1.8, // m
+  vertical: 0, // 수직 명령: -1 상승(수면 위로) / +1 하강(수면 아래로) / 0 유지
 
   // 추진(듀얼: 좌/우 날개 differential thrust)
   thrusterL: 0,
@@ -186,6 +190,7 @@ function reducer(state, action) {
         s.speed = Math.max(0, state.speed - 1.4 * dt) // 관성 정지
         s.thrusterL = 0
         s.thrusterR = 0
+        s.vertical = 0 // 수직 이동 정지
         s.avoiding = false
         s.missionTime = state.missionTime + dt
         s.ts = now
@@ -328,7 +333,11 @@ function reducer(state, action) {
       const env = ENV_MAP[s.environment] || ENV_MAP.harbor
       s.waterTemp = env.temp + Math.sin(t * 0.12) * 0.6
       s.turbidity = clamp(env.turbidity + Math.sin(t * 0.4) * 8, 8, 68)
-      s.depth = clamp(1.8 + Math.sin(t * 0.33) * 0.5, 0.8, 3.2)
+      // 수심: 수직 명령(상승/하강)이 있으면 이동, 없으면 현재 수심 유지
+      s.depth =
+        state.vertical !== 0
+          ? clamp(state.depth + state.vertical * DEPTH_RATE * dt, DEPTH_MIN, DEPTH_MAX)
+          : state.depth
       s.current = {
         speed: +Math.max(0.05, env.currentSpeed + Math.sin(t * 0.18) * 0.2).toFixed(2),
         dir: Math.round((205 + Math.sin(t * 0.09) * 35 + 360) % 360),
@@ -347,6 +356,9 @@ function reducer(state, action) {
 
     case 'SET_THRUSTER':
       return { ...state, thrusterL: action.l, thrusterR: action.r }
+
+    case 'SET_VERTICAL':
+      return { ...state, vertical: action.value }
 
     case 'SET_MODE': {
       if (state.mode === 'estop' && action.mode !== 'estop') {
@@ -443,6 +455,7 @@ export function TelemetryProvider({ children }) {
   }, [])
 
   const setThruster = useCallback((l, r) => dispatch({ type: 'SET_THRUSTER', l, r }), [])
+  const setVertical = useCallback((value) => dispatch({ type: 'SET_VERTICAL', value }), [])
   const setMode = useCallback((mode) => dispatch({ type: 'SET_MODE', mode }), [])
   const setAutonomy = useCallback((value) => dispatch({ type: 'SET_AUTONOMY', value }), [])
   const toggleAssist = useCallback(() => {
@@ -465,6 +478,18 @@ export function TelemetryProvider({ children }) {
   const clearToast = useCallback(() => dispatch({ type: 'CLEAR_TOAST' }), [])
   const setConnection = useCallback((value) => dispatch({ type: 'SET_CONNECTION', value }), [])
 
+  // --- 알림 기록(경보가 울렸던 이력) ---
+  const [notifications, setNotifications] = useState([])
+  const notifIdRef = useRef(1)
+  const pushNotification = useCallback((n) => {
+    setNotifications((prev) => [{ id: notifIdRef.current++, read: false, ...n }, ...prev].slice(0, 50))
+  }, [])
+  const markNotificationsRead = useCallback(() => {
+    setNotifications((prev) => (prev.some((n) => !n.read) ? prev.map((n) => ({ ...n, read: true })) : prev))
+  }, [])
+  const clearNotifications = useCallback(() => setNotifications([]), [])
+  const notifUnread = notifications.reduce((c, n) => c + (n.read ? 0 : 1), 0)
+
   const value = {
     state,
     stateRef,
@@ -473,6 +498,7 @@ export function TelemetryProvider({ children }) {
     path: patrolPaths[state.environment] || patrolPaths.harbor,
     obstacles: obstacleSets[state.environment] || obstacleSets.harbor,
     setThruster,
+    setVertical,
     setMode,
     setAutonomy,
     toggleAssist,
@@ -485,6 +511,11 @@ export function TelemetryProvider({ children }) {
     toast,
     clearToast,
     setConnection,
+    notifications,
+    notifUnread,
+    pushNotification,
+    markNotificationsRead,
+    clearNotifications,
   }
 
   return <TelemetryContext.Provider value={value}>{children}</TelemetryContext.Provider>

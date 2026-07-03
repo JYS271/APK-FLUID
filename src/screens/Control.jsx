@@ -64,8 +64,12 @@ export default function Control({ onExit }) {
 
   return (
     <div className={`control ${estopped ? 'control--estop' : ''}`}>
-      {/* 배경: 지도 or 영상 스위처 */}
-      <ControlBackground />
+      {/* 배경: 지도 or 영상 스위처 (가로 모드 조종용 콜백 전달) */}
+      <ControlBackground
+        onSteer={onSteer}
+        onThrottle={onThrottle}
+        throttleResetKey={estopped ? 'stop' : 'run'}
+      />
 
       {/* 상단 HUD 바 */}
       <div className="control__topbar">
@@ -172,6 +176,56 @@ export default function Control({ onExit }) {
   )
 }
 
+/* 수심 제어 — 상승(수면 위로)/하강(수면 아래로) 눌러서 유지.
+   자체 telemetry 구독으로 수심 표시(레이어 리렌더 격리). */
+function DepthControls() {
+  const { state, setVertical } = useTelemetry()
+  const start = (dir) => (e) => {
+    e.preventDefault()
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId)
+    } catch {
+      /* noop */
+    }
+    setVertical(dir)
+    if (navigator.vibrate) navigator.vibrate(8)
+  }
+  const stop = () => setVertical(0)
+  const atSurface = state.depth <= 0.15
+
+  return (
+    <div className="landdepth">
+      <button
+        className="landdepth__btn"
+        onPointerDown={start(-1)}
+        onPointerUp={stop}
+        onPointerLeave={stop}
+        onPointerCancel={stop}
+        disabled={atSurface}
+        aria-label="수면 위로 상승"
+      >
+        <i className="ti ti-chevron-up" />
+        상승
+      </button>
+      <span className="landdepth__val num">
+        <i className="ti ti-arrow-bar-to-down" />
+        {atSurface ? '수면' : `${state.depth.toFixed(1)}m`}
+      </span>
+      <button
+        className="landdepth__btn"
+        onPointerDown={start(1)}
+        onPointerUp={stop}
+        onPointerLeave={stop}
+        onPointerCancel={stop}
+        aria-label="수면 아래로 하강"
+      >
+        <i className="ti ti-chevron-down" />
+        하강
+      </button>
+    </div>
+  )
+}
+
 const ZOOM_MIN = 0.5
 const ZOOM_MAX = 3
 const ZOOM_STEP = 0.5
@@ -181,7 +235,7 @@ const PAN_MAX_X = 42
 const PAN_MAX_Y = 78
 const clampPan = (v, m) => Math.max(-m, Math.min(m, v))
 
-function ControlBackground() {
+function ControlBackground({ onSteer, onThrottle, throttleResetKey }) {
   const [mode, setMode] = useState('map') // map | video
   const [zoom, setZoom] = useState(0.5)
   const [thermal, setThermal] = useState(false)
@@ -301,12 +355,38 @@ function ControlBackground() {
           >
             <VideoFeed compact thermal={thermal} showChips={false} zoom={zoom} />
           </div>
-          <button className="control__land-close" onClick={() => setLandscape(false)}>
+
+          {/* 가로에서도 조종 — 스테이지와 동일하게 90° 회전한 컨트롤 레이어 */}
+          <div
+            className="control__land-controls"
+            style={{ width: `${landDims.h}px`, height: `${landDims.w}px` }}
+          >
+            <div className="control__land-steer">
+              <SteeringWheel label="운전대" onChange={onSteer} />
+            </div>
+            <div className="control__land-throttle">
+              <Throttle label="스로틀" onChange={onThrottle} resetKey={throttleResetKey} axis="x" />
+            </div>
+            {/* 상승/하강(수심) — 하단 중앙 */}
+            <div className="control__land-depth">
+              <DepthControls />
+            </div>
+            <div className="control__land-hint">
+              <i className="ti ti-rotate-clockwise" /> 기기를 가로로 돌려 조종하세요
+            </div>
+          </div>
+
+          {/* 항상 눌러 나갈 수 있는 닫기(세로 프레임 기준) — 나갈 때 중립으로 */}
+          <button
+            className="control__land-close"
+            onClick={() => {
+              onThrottle?.(0)
+              onSteer?.(0)
+              setLandscape(false)
+            }}
+          >
             <i className="ti ti-x" /> 세로
           </button>
-          <div className="control__land-hint">
-            <i className="ti ti-rotate-clockwise" /> 기기를 가로로 돌려 전체 3D 지형을 확인하세요
-          </div>
         </div>
       )}
 

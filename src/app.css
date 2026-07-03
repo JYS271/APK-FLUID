@@ -82,6 +82,173 @@
   font-size: 16px;
 }
 
+/* ---------- 알림 벨 ---------- */
+.notif {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.notif__btn {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: none;
+  background: none;
+  border-radius: 9px;
+  color: var(--text);
+  cursor: pointer;
+}
+.notif__btn .ti {
+  font-size: 20px;
+}
+.notif__btn.is-open {
+  background: var(--surface-2);
+}
+.notif__badge {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 3px;
+  border-radius: 999px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 9.5px;
+  font-weight: 800;
+  line-height: 15px;
+  text-align: center;
+  box-shadow: 0 0 0 2px var(--surface);
+}
+.notif__scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 88;
+}
+.notif__panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: -6px;
+  z-index: 89;
+  width: min(300px, 84vw);
+  max-height: 62vh;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: notifIn 0.2s var(--ease-swim) both;
+}
+@keyframes notifIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.notif__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.notif__head b {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
+  font-weight: 800;
+}
+.notif__head b .ti {
+  font-size: 17px;
+  color: var(--orange-500);
+}
+.notif__clear {
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.notif__clear:active {
+  color: var(--text);
+}
+.notif__list {
+  overflow-y: auto;
+  padding: 6px;
+}
+.notif__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 30px 12px;
+  color: var(--text-soft);
+  font-size: 12.5px;
+}
+.notif__empty .ti {
+  font-size: 26px;
+  opacity: 0.7;
+}
+.notif__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 11px;
+}
+.notif__item + .notif__item {
+  margin-top: 2px;
+}
+.notif__ic {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  background: rgba(242, 101, 34, 0.12);
+  color: var(--orange-500);
+  font-size: 16px;
+}
+.notif__item--critical .notif__ic {
+  background: rgba(236, 61, 61, 0.14);
+  color: var(--danger);
+}
+.notif__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.notif__body b {
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.notif__body span {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.notif__time {
+  flex-shrink: 0;
+  font-size: 10.5px;
+  color: var(--text-soft);
+  margin-top: 1px;
+}
+
 /* ---------- Banner ---------- */
 .banner {
   display: flex;
@@ -1308,6 +1475,85 @@
   aspect-ratio: auto;
   border-radius: 0;
 }
+/* 회전된 조종 레이어 — 스테이지와 동일 회전, 컨테이너는 이벤트 통과 */
+.control__land-controls {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(90deg);
+  transform-origin: center;
+  pointer-events: none;
+  z-index: 2;
+}
+.control__land-controls > * {
+  pointer-events: auto;
+}
+.control__land-steer {
+  position: absolute;
+  left: 22px;
+  bottom: 18px;
+}
+.control__land-throttle {
+  position: absolute;
+  right: 22px;
+  bottom: 18px;
+}
+/* 상승/하강(수심) — 하단 중앙 */
+.control__land-depth {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+}
+.landdepth {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.landdepth__btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  width: 62px;
+  height: 52px;
+  justify-content: center;
+  border-radius: 14px;
+  background: var(--deep-glass);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.landdepth__btn .ti {
+  font-size: 22px;
+}
+.landdepth__btn:active {
+  background: var(--orange-500);
+  border-color: transparent;
+}
+.landdepth__btn:disabled {
+  opacity: 0.4;
+}
+.landdepth__val {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(6, 20, 34, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(200, 230, 255, 0.95);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.landdepth__val .ti {
+  font-size: 14px;
+  color: var(--orange-500);
+}
 .control__land-close {
   position: absolute;
   top: 14px;
@@ -1330,17 +1576,17 @@
 .control__land-close .ti {
   font-size: 18px;
 }
+/* 힌트 — 회전 레이어의 상단 중앙(가로 기준 상단) */
 .control__land-hint {
   position: absolute;
-  bottom: 20px;
+  top: 16px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 3;
   display: flex;
   align-items: center;
   gap: 7px;
   max-width: 86%;
-  padding: 10px 16px;
+  padding: 9px 15px;
   border-radius: 999px;
   background: rgba(6, 20, 34, 0.72);
   backdrop-filter: blur(8px);
@@ -1349,6 +1595,7 @@
   font-size: 12.5px;
   font-weight: 600;
   text-align: center;
+  white-space: nowrap;
 }
 .control__land-hint .ti {
   font-size: 17px;

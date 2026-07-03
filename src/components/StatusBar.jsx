@@ -1,4 +1,5 @@
 import { useTelemetry } from '../state/TelemetryContext.jsx'
+import NotificationBell from './NotificationBell.jsx'
 
 /* 지연 임계값 헬퍼 — 제어 화면도 재사용
    150ms↓ 원활(초록) / ~300ms 주의(오렌지) / 300ms↑ 지연(레드) */
@@ -54,6 +55,8 @@ export default function StatusBar({ dark = false }) {
           <i className={`ti ${batteryIcon(state.battery, state.charging)}`} />
           <span className="num">{Math.round(state.battery)}%</span>
         </span>
+
+        <NotificationBell />
       </div>
     </div>
   )
