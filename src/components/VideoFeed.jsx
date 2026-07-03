@@ -763,23 +763,118 @@ function SurfaceShape({ kind }) {
   )
 }
 
-// 수면 부유 쓰레기 배치
-const SURFACE_ITEMS = [
-  { kind: 'foam', l: '13%', w: 46, dur: 4.2, d: 0 },
-  { kind: 'box', l: '38%', w: 42, dur: 5, d: -1.4 },
-  { kind: 'branch', l: '62%', w: 64, dur: 4.6, d: -0.7 },
-  { kind: 'foam', l: '83%', w: 34, dur: 3.8, d: -2.1 },
-]
-function SurfaceDebris() {
+/* 환경별 지면(해안) 실루엣 — 다양한 지형 */
+const SHORE = {
+  harbor: 'M0 74 L0 58 L26 58 L26 42 L54 42 L54 64 L92 64 L92 32 L116 32 L116 60 L156 60 L156 50 L206 50 L206 68 L246 68 L246 40 L282 40 L282 62 L330 62 L330 52 L372 52 L372 66 L400 66 L400 100 L0 100 Z',
+  river: 'M0 74 Q46 60 96 67 Q150 75 200 61 Q258 45 318 63 Q360 73 400 66 L400 100 L0 100 Z',
+  reservoir: 'M0 76 L58 42 L104 68 L146 34 L206 72 L248 52 L300 74 L300 62 L400 62 L400 100 L0 100 Z',
+  coast: 'M0 30 L38 34 L68 60 Q108 78 158 74 Q220 70 280 78 Q342 84 400 80 L400 100 L0 100 Z',
+}
+// 지면 위 작은 지형지물(나무/바위/구조물)
+const SHORE_FEATS = {
+  harbor: (
+    <g fill="#2b4236">
+      <rect x="300" y="30" width="4" height="30" />
+      <rect x="296" y="30" width="34" height="4" />
+      <circle cx="332" cy="36" r="3" />
+    </g>
+  ),
+  river: (
+    <g fill="#28402f">
+      <path d="M60 66 l6 -16 l6 16 Z" />
+      <path d="M150 62 l7 -18 l7 18 Z" />
+      <path d="M300 64 l6 -15 l6 15 Z" />
+    </g>
+  ),
+  reservoir: (
+    <g fill="#243a2c">
+      <path d="M330 62 l6 -14 l6 14 Z" />
+      <path d="M356 62 l5 -12 l5 12 Z" />
+    </g>
+  ),
+  coast: (
+    <g fill="#2a3f39">
+      <ellipse cx="110" cy="74" rx="10" ry="5" />
+      <ellipse cx="230" cy="78" rx="8" ry="4" />
+      <rect x="40" y="18" width="6" height="16" />
+      <path d="M38 18 l3 -6 l3 6 Z" fill="#c25b3a" />
+    </g>
+  ),
+}
+function ShoreSilhouette() {
+  const { state } = useTelemetry()
+  const env = state.environment
+  return (
+    <svg className="videofeed__shore" viewBox="0 0 400 100" preserveAspectRatio="none" aria-hidden="true">
+      <path d={SHORE[env] || SHORE.harbor} className="videofeed__shore-land" />
+      {SHORE_FEATS[env] || SHORE_FEATS.harbor}
+    </svg>
+  )
+}
+
+/* 수면 부유 쓰레기 — 원근 스트리밍(전진 시 다가오며 커짐/멀어지며 작아짐, 파도에 흔들림) */
+const SURFACE_SEEDS = Array.from({ length: 6 }, (_, i) => ({
+  kind: ['foam', 'box', 'branch', 'foam', 'box', 'branch'][i],
+  lat: ((i * 0.7548776662) % 1) * 2 - 1,
+  z0: (i + 0.4) / 6,
+  bw: 40 + (i % 3) * 12,
+  ph: (i * 1.7) % (Math.PI * 2),
+}))
+function SurfaceDebris({ waterline }) {
+  const { state } = useTelemetry()
+  const driveRef = useRef(0)
+  driveRef.current = (state.thrusterL + state.thrusterR) / 2
+  const wlRef = useRef(waterline)
+  wlRef.current = waterline
+  const elsRef = useRef([])
+  const zRef = useRef(null)
+  if (!zRef.current) zRef.current = SURFACE_SEEDS.map((s) => s.z0)
+
+  useEffect(() => {
+    let raf
+    let last = null
+    const loop = (tms) => {
+      if (last == null) last = tms
+      let dt = (tms - last) / 1000
+      last = tms
+      if (dt > 0.05) dt = 0.05
+      const drive = driveRef.current
+      const wl = wlRef.current
+      const zs = zRef.current
+      for (let i = 0; i < zs.length; i++) {
+        let z = zs[i] + drive * 0.13 * dt
+        z = ((z % 1) + 1) % 1
+        zs[i] = z
+        const el = elsRef.current[i]
+        if (!el) continue
+        const s = SURFACE_SEEDS[i]
+        const persp = Math.pow(z, 1.7)
+        const y = wl + (110 - wl) * persp // 수면선(먼 곳) → 화면 아래(가까운 곳)
+        const scale = 0.28 + z * 1.3
+        const x = 50 + s.lat * 46 * (0.14 + z)
+        const bob = Math.sin(tms * 0.0016 + s.ph) * 1.1
+        let op = 1
+        if (z < 0.07) op = z / 0.07
+        else if (z > 0.93) op = (1 - z) / 0.07
+        op = Math.max(0, Math.min(1, op))
+        el.style.left = x + '%'
+        el.style.top = y + bob + '%'
+        el.style.transform = `translate(-50%, -100%) scale(${scale})`
+        el.style.opacity = String(op)
+        el.style.zIndex = String(Math.round(z * 100))
+        el.style.filter = z < 0.5 ? `blur(${(0.5 - z) * 1.5}px)` : 'none'
+      }
+      raf = requestAnimationFrame(loop)
+    }
+    raf = requestAnimationFrame(loop)
+    return () => cancelAnimationFrame(raf)
+  }, [])
+
   return (
     <div className="videofeed__sfc" aria-hidden="true">
-      {SURFACE_ITEMS.map((it, i) => (
-        <span
-          key={i}
-          className="sfc"
-          style={{ left: it.l, width: `${it.w}px`, animationDelay: `${it.d}s`, animationDuration: `${it.dur}s` }}
-        >
-          <SurfaceShape kind={it.kind} />
+      {SURFACE_SEEDS.map((s, i) => (
+        <span key={i} ref={(el) => (elsRef.current[i] = el)} className="sfc" style={{ width: `${s.bw}px` }}>
+          <SurfaceShape kind={s.kind} />
         </span>
       ))}
     </div>
@@ -837,14 +932,17 @@ export default function VideoFeed({ compact = false, thermal: thermalProp, showC
 
       {/* 수면 분할 — 수면 근처(수심↓)에서 상단은 하늘·지면, 경계에 부유 쓰레기 */}
       {surfaceBand > 1 && (
-        <div className="videofeed__surface" style={{ height: `${surfaceBand}%` }}>
-          <div className="videofeed__sky" />
-          <div className="videofeed__cloud c1" />
-          <div className="videofeed__cloud c2" />
-          <div className="videofeed__shore" />
-          <SurfaceDebris />
-          <div className="videofeed__waterline" />
-        </div>
+        <>
+          <div className="videofeed__surface" style={{ height: `${surfaceBand}%` }}>
+            <div className="videofeed__sky" />
+            <div className="videofeed__cloud c1" />
+            <div className="videofeed__cloud c2" />
+            <ShoreSilhouette />
+            <div className="videofeed__waterline" />
+          </div>
+          {/* 수면 부유 쓰레기 — 전체 프레임에 원근 스트리밍(수면선→가까이) */}
+          <SurfaceDebris waterline={surfaceBand} />
+        </>
       )}
 
       {/* HUD 오버레이 (제어 배경에선 숨김 — 상단 바와 겹침 방지) */}

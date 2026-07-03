@@ -655,19 +655,20 @@
   width: 44px;
   height: 11px;
 }
-/* 원경 해안(지면) */
+/* 원경 해안(지면) 실루엣 — 환경별 다양한 지형 */
 .videofeed__shore {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
-  height: 36%;
-  background: linear-gradient(
-    180deg,
-    rgba(74, 102, 86, 0) 0%,
-    rgba(60, 90, 72, 0.5) 52%,
-    rgba(44, 70, 55, 0.88) 100%
-  );
+  height: 46%;
+  display: block;
+}
+.videofeed__shore-land {
+  fill: #33503f;
+}
+.videofeed--thermal .videofeed__shore-land {
+  fill: #3a1246;
 }
 /* 수면 경계선(포말) */
 .videofeed__waterline {
@@ -679,31 +680,24 @@
   background: linear-gradient(180deg, rgba(232, 247, 255, 0.9), rgba(178, 218, 240, 0.15));
   filter: blur(0.4px);
 }
-/* 수면 부유 쓰레기 */
+/* 수면 부유 쓰레기 — 원근 스트리밍(전체 프레임) */
 .videofeed__sfc {
   position: absolute;
   inset: 0;
+  overflow: hidden;
+  z-index: 7;
+  pointer-events: none;
 }
 .videofeed__sfc .sfc {
   position: absolute;
-  bottom: -8px;
-  transform-origin: center bottom;
-  animation: sfcbob 4s ease-in-out infinite;
+  transform-origin: 50% 100%;
+  will-change: left, top, transform, opacity;
   filter: drop-shadow(0 2px 3px rgba(20, 40, 60, 0.28));
 }
 .videofeed__sfc .sfc svg {
   display: block;
   width: 100%;
   height: auto;
-}
-@keyframes sfcbob {
-  0%,
-  100% {
-    transform: translateY(0) rotate(-2.5deg);
-  }
-  50% {
-    transform: translateY(-3px) rotate(2.5deg);
-  }
 }
 .videofeed--thermal .videofeed__sky {
   background: linear-gradient(180deg, #3a1550 0%, #5a1f5e 60%, #7a2a4a 100%);
