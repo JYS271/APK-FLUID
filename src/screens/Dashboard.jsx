@@ -4,7 +4,7 @@ import MapCarousel from '../components/MapCarousel.jsx'
 import VideoFeed from '../components/VideoFeed.jsx'
 import NetGauge from '../components/NetGauge.jsx'
 import EnvOverlay from '../components/EnvOverlay.jsx'
-import StatSegment from '../components/StatSegment.jsx'
+import StatGauges from '../components/StatGauges.jsx'
 
 // 실시간 원격 접속 링크 (첨부 파일)
 const REMOTE_URL = encodeURI(
@@ -88,8 +88,8 @@ export default function Dashboard({ onControl, onDroneMode, onOpenWeb, onOpenInt
         </section>
       </div>
 
-      {/* 요약 스탯 — 가로 4분할 세그먼트(선택 시 연주황 + 값 표시) */}
-      <StatSegment />
+      {/* 요약 스탯 — 4개 원형 게이지(수거·탁도·수온·가동, 최대값 대비 주황 게이지) */}
+      <StatGauges />
 
       {/* 배터리 카드 */}
       <BatteryCard battery={state.battery} charging={state.charging} />
