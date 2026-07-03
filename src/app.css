@@ -30,11 +30,23 @@
   align-items: center;
   gap: 8px;
 }
-.statusbar__manta {
-  width: 26px;
-  height: auto;
+/* 브랜드 마크 — Apple 지도 '내 위치' 스타일 원형 점 */
+.statusbar__mark {
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
-  filter: drop-shadow(0 1px 2px rgba(16, 33, 60, 0.18));
+  border-radius: 50%;
+  background: rgba(10, 132, 255, 0.18);
+  display: grid;
+  place-items: center;
+}
+.statusbar__mark::after {
+  content: '';
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #0a84ff;
+  box-shadow: 0 0 0 2px #fff, 0 1px 3px rgba(10, 60, 140, 0.4);
 }
 .statusbar__brand-text {
   display: flex;
@@ -1247,6 +1259,100 @@
   color: #fff;
   background: var(--orange-500);
   border-color: transparent;
+}
+
+/* 가로 전환 버튼 (소스 스위치 아래) — 아이콘 전용 */
+.control__land-btn {
+  position: absolute;
+  top: 292px;
+  right: 14px;
+  z-index: 5;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--deep-glass);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+}
+.control__land-btn .ti {
+  font-size: 20px;
+}
+.control__land-btn:active {
+  background: var(--orange-500);
+  color: #fff;
+}
+
+/* 가로(landscape) 전체 3D 지형 오버레이 */
+.control__land {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  background: #04121f;
+  overflow: hidden;
+  animation: swimIn 0.3s var(--ease-swim) both;
+}
+.control__land-stage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(90deg);
+  transform-origin: center;
+}
+.control__land-stage .videofeed {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  border-radius: 0;
+}
+.control__land-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 38px;
+  padding: 0 14px 0 10px;
+  border-radius: 12px;
+  background: rgba(6, 20, 34, 0.72);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.control__land-close .ti {
+  font-size: 18px;
+}
+.control__land-hint {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  max-width: 86%;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: rgba(6, 20, 34, 0.72);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: center;
+}
+.control__land-hint .ti {
+  font-size: 17px;
+  color: var(--orange-500);
 }
 
 /* 줌 컨트롤 (좌측) */

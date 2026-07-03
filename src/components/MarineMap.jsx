@@ -4,29 +4,6 @@ import { coastline, homeBase } from '../data/mapData.js'
 const clamp01 = (v) => Math.max(0, Math.min(1, v))
 const lerp = (a, b, t) => Math.round(a + (b - a) * t)
 
-/* 만타레이 실루엣 (재사용) — ARK-FLUID 브랜드 가오리 글리프
-   원본 viewBox 0..200 x 0..140(중심 100,70)을 원점 기준으로 축소·정렬 */
-const MANTA_S = 0.038
-function Manta({ fill, stroke = '#fff', sw = 0.35 }) {
-  return (
-    <g transform={`scale(${MANTA_S}) translate(-100 -70)`}>
-      <path
-        d="M100 12 C128 12 150 24 176 52 C190 67 198 78 198 86 C198 92 190 92 182 88
-           C168 81 150 74 138 74 C142 92 140 112 128 128 C122 136 116 132 114 122
-           C111 108 106 96 100 90 C94 96 89 108 86 122 C84 132 78 136 72 128
-           C60 112 58 92 62 74 C50 74 32 81 18 88 C10 92 2 92 2 86
-           C2 78 10 67 24 52 C50 24 72 12 100 12 Z"
-        fill={fill}
-        stroke={stroke}
-        strokeWidth={sw / MANTA_S}
-        strokeLinejoin="round"
-      />
-      <circle cx="86" cy="48" r="6.5" fill="#fff" />
-      <circle cx="114" cy="48" r="6.5" fill="#fff" />
-    </g>
-  )
-}
-
 /* 스타일드 해양 SVG 지도
    - 순찰 경로(오렌지 점선) + 시작/목표 가오리 마커
    - 쓰레기 히트맵 · 장애물(소나 링) · OA 회피 아크
@@ -220,41 +197,42 @@ export default function MarineMap({ compact = false, zoom = 1 }) {
         )}
       </g>
 
-      {/* 경로 시작(0%) 가오리 마커 */}
-      <g transform={`translate(${pathStart.x} ${pathStart.y}) scale(0.8)`} opacity="0.85">
-        <circle r="3.6" fill="none" stroke="rgba(200,220,255,0.5)" strokeWidth="0.4" />
-        <Manta fill="rgba(215,230,255,0.9)" stroke="rgba(120,150,200,0.9)" />
+      {/* 경로 시작(0%) 마커 — 원형 점 */}
+      <g transform={`translate(${pathStart.x} ${pathStart.y})`} opacity="0.85">
+        <circle r="1.8" fill="none" stroke="rgba(200,220,255,0.55)" strokeWidth="0.5" />
+        <circle r="0.8" fill="rgba(215,230,255,0.9)" />
       </g>
-      {/* 경로 목표(100%) 가오리 마커 — 수거 임박 시 오렌지 */}
-      <g transform={`translate(${pathGoal.x} ${pathGoal.y}) scale(0.85)`}>
-        <circle r="3.8" fill="none" stroke={goalDone ? 'var(--orange-500)' : 'rgba(200,220,255,0.5)'} strokeWidth="0.5" />
-        <Manta fill={goalDone ? 'var(--orange-500)' : 'rgba(215,230,255,0.9)'} />
+      {/* 경로 목표(100%) 마커 — 수거 임박 시 오렌지 */}
+      <g transform={`translate(${pathGoal.x} ${pathGoal.y})`}>
+        <circle r="1.9" fill="none" stroke={goalDone ? 'var(--orange-500)' : 'rgba(200,220,255,0.55)'} strokeWidth="0.5" />
+        <circle r="0.9" fill={goalDone ? 'var(--orange-500)' : 'rgba(215,230,255,0.9)'} />
         {goalDone && (
-          <circle r="3.8" fill="none" stroke="var(--orange-500)" strokeWidth="0.4" opacity="0.7">
-            <animate attributeName="r" values="3.8;6;3.8" dur="1.6s" repeatCount="indefinite" />
+          <circle r="1.9" fill="none" stroke="var(--orange-500)" strokeWidth="0.4" opacity="0.7">
+            <animate attributeName="r" values="1.9;5;1.9" dur="1.6s" repeatCount="indefinite" />
             <animate attributeName="opacity" values="0.7;0;0.7" dur="1.6s" repeatCount="indefinite" />
           </circle>
         )}
       </g>
 
-      {/* 다른 유닛(함대) — 작고 반투명한 네이비 가오리 */}
+      {/* 다른 유닛(함대) — 작고 반투명한 원형 점 */}
       {fleet.map((u, i) => (
-        <g key={`u${i}`} transform={`translate(${u.x.toFixed(2)} ${u.y.toFixed(2)}) rotate(${u.heading.toFixed(1)})`} opacity="0.5">
-          <g transform="scale(0.64)">
-            <Manta fill="var(--navy-300)" stroke="rgba(200,220,255,0.6)" sw={0.55} />
-          </g>
+        <g key={`u${i}`} transform={`translate(${u.x.toFixed(2)} ${u.y.toFixed(2)})`} opacity="0.5">
+          <circle r="1.3" fill="var(--navy-300)" stroke="rgba(200,220,255,0.6)" strokeWidth="0.35" />
         </g>
       ))}
 
       {/* 센서 FOV 부채꼴 */}
       <path d={`M${gps.x},${gps.y} L${fx1},${fy1} A${fovR},${fovR} 0 0 1 ${fx2},${fy2} Z`} fill="url(#fov)" opacity="0.85" />
 
-      {/* 로봇 마커 (만타레이 · 방위 회전) */}
-      <g transform={`translate(${gps.x} ${gps.y}) rotate(${state.heading})`}>
-        <circle r="4.5" fill={state.avoiding ? 'rgba(245,166,35,0.22)' : 'rgba(255,106,31,0.18)'}>
-          <animate attributeName="r" values="4.5;6.5;4.5" dur="2.4s" repeatCount="indefinite" />
+      {/* 로봇 마커 — Apple 지도 '내 위치' 스타일 파란 점 + 맥동 헤일로 */}
+      <g transform={`translate(${gps.x} ${gps.y})`}>
+        {/* 정확도 헤일로(맥동) */}
+        <circle r="4.5" fill="rgba(10,132,255,0.16)" stroke="rgba(10,132,255,0.35)" strokeWidth="0.3">
+          <animate attributeName="r" values="3.4;7;3.4" dur="2.4s" repeatCount="indefinite" />
+          <animate attributeName="opacity" values="0.95;0.35;0.95" dur="2.4s" repeatCount="indefinite" />
         </circle>
-        <Manta fill={state.avoiding ? 'var(--warning)' : 'var(--orange-500)'} />
+        {/* 파란 위치 점(흰 테두리) */}
+        <circle r="2" fill="#0a84ff" stroke="#fff" strokeWidth="0.7" />
       </g>
 
       {!compact && (

@@ -5,22 +5,12 @@ import { useState } from 'react'
    파일이 없으면 브랜드 배너로 자동 대체된다. */
 const HERO_SRC = import.meta.env.BASE_URL + 'intro-hero.png'
 
-function MantaMark() {
+function LocationMark() {
   return (
-    <svg className="intro__manta" viewBox="0 0 200 140" aria-hidden="true">
-      <defs>
-        <linearGradient id="introRay" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#7fd7ff" />
-          <stop offset="0.5" stopColor="#2a7fd4" />
-          <stop offset="1" stopColor="#0b2f5e" />
-        </linearGradient>
-      </defs>
-      <path
-        d="M100 12 C128 12 150 24 176 52 C190 67 198 78 198 86 C198 92 190 92 182 88 C168 81 150 74 138 74 C142 92 140 112 128 128 C122 136 116 132 114 122 C111 108 106 96 100 90 C94 96 89 108 86 122 C84 132 78 136 72 128 C60 112 58 92 62 74 C50 74 32 81 18 88 C10 92 2 92 2 86 C2 78 10 67 24 52 C50 24 72 12 100 12 Z"
-        fill="url(#introRay)"
-      />
-      <circle cx="86" cy="46" r="5" fill="#eaf7ff" />
-      <circle cx="114" cy="46" r="5" fill="#eaf7ff" />
+    <svg className="intro__manta" viewBox="0 0 120 120" aria-hidden="true">
+      <circle cx="60" cy="60" r="52" fill="rgba(10,132,255,0.14)" />
+      <circle cx="60" cy="60" r="34" fill="rgba(10,132,255,0.22)" />
+      <circle cx="60" cy="60" r="18" fill="#0a84ff" stroke="#fff" strokeWidth="5" />
     </svg>
   )
 }
@@ -51,7 +41,7 @@ export default function IntroSheet({ open, onClose }) {
           />
           {!loaded && (
             <div className="intro__hero-fallback">
-              <MantaMark />
+              <LocationMark />
               <b className="num">ARK·FLUID</b>
               <span>모듈형 해양 정화 수중 로봇</span>
             </div>

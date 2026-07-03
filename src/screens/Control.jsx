@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback, useEffect } from 'react'
+import { useRef, useState, useCallback, useEffect, useLayoutEffect } from 'react'
 import { useTelemetry } from '../state/TelemetryContext.jsx'
 import { latencyLevel } from '../components/StatusBar.jsx'
 import MarineMap from '../components/MarineMap.jsx'
@@ -188,6 +188,22 @@ function ControlBackground() {
   const [pan, setPan] = useState({ x: 0, y: 0 })
   const [panning, setPanning] = useState(false)
   const panStart = useRef(null)
+  // 가로(landscape) 전체 3D 지형 보기
+  const [landscape, setLandscape] = useState(false)
+  const landRef = useRef(null)
+  const [landDims, setLandDims] = useState({ w: 0, h: 0 })
+
+  // 오버레이 크기를 측정해 90° 회전 스테이지를 화면에 꽉 채움(가로)
+  useLayoutEffect(() => {
+    if (!landscape) return
+    const measure = () => {
+      const el = landRef.current
+      if (el) setLandDims({ w: el.clientWidth, h: el.clientHeight })
+    }
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [landscape])
 
   const zoomIn = () => setZoom((z) => Math.min(ZOOM_MAX, +(z + ZOOM_STEP).toFixed(1)))
   const zoomOut = () => setZoom((z) => Math.max(ZOOM_MIN, +(z - ZOOM_STEP).toFixed(1)))
@@ -263,6 +279,36 @@ function ControlBackground() {
           <i className="ti ti-flame" />
         </button>
       </div>
+
+      {/* 가로 전환 — 영상 모드에서 전체 3D 지형 파노라마 */}
+      {mode === 'video' && (
+        <button
+          className="control__land-btn"
+          onClick={() => setLandscape(true)}
+          aria-label="가로 전체 지형 보기"
+          title="가로로 전환 · 전체 3D 지형"
+        >
+          <i className="ti ti-device-mobile-rotated" />
+        </button>
+      )}
+
+      {/* 가로(landscape) 전체 3D 지형 오버레이 — 스테이지를 90° 회전해 파노라마로 */}
+      {landscape && (
+        <div className="control__land" ref={landRef}>
+          <div
+            className="control__land-stage"
+            style={{ width: `${landDims.h}px`, height: `${landDims.w}px` }}
+          >
+            <VideoFeed compact thermal={thermal} showChips={false} zoom={zoom} />
+          </div>
+          <button className="control__land-close" onClick={() => setLandscape(false)}>
+            <i className="ti ti-x" /> 세로
+          </button>
+          <div className="control__land-hint">
+            <i className="ti ti-rotate-clockwise" /> 기기를 가로로 돌려 전체 3D 지형을 확인하세요
+          </div>
+        </div>
+      )}
 
       {/* 줌 컨트롤 */}
       <div className="control__zoom">
