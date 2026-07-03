@@ -1131,7 +1131,7 @@
 .statseg__tabs {
   display: flex;
   background: var(--surface-2);
-  border-radius: 999px; /* 끝만 둥근 알약(캡슐) 형태 */
+  border-radius: var(--r-control, 12px); /* 사각형(살짝 둥근 모서리) */
   padding: 6px;
   gap: 2px;
 }

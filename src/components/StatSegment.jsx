@@ -4,7 +4,7 @@ import { useTelemetry, ENV_MODES } from '../state/TelemetryContext.jsx'
 /* 대시보드 통계 세그먼트 — 가로 1줄 4분할 탭.
    탭 선택 시 그 칸만 연주황으로 강조되고, 아래에 해당 항목의 값·정보를 표시. */
 const TABS = [
-  { key: 'collected', icon: 'ti-trash', label: '오늘 수거' },
+  { key: 'collected', icon: 'ti-trash', label: '수거' },
   { key: 'turbidity', icon: 'ti-droplet', label: '탁도' },
   { key: 'temp', icon: 'ti-temperature', label: '수온' },
   { key: 'uptime', icon: 'ti-clock', label: '가동' },
