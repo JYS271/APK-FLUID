@@ -815,54 +815,58 @@
   animation: pulseDanger 0.9s ease-in-out infinite;
 }
 
-/* ---------- Stat grid ---------- */
-.statgrid {
+/* ---------- Stat box (한 카드 · 점선으로 4칸 분할) ---------- */
+.statbox {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  padding: 0;
+  overflow: hidden;
   margin-bottom: 16px;
 }
-.stat {
+.statbox__cell {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: var(--surface);
-  border-radius: var(--card-radius-sm);
-  padding: 14px 16px;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--hairline);
-  transition: transform 0.18s var(--ease-swim);
+  padding: 15px 16px;
+  min-width: 0;
 }
-.stat:active {
-  transform: scale(0.985);
+/* 점선 구분선 (2×2 십자) */
+.statbox__cell:nth-child(1),
+.statbox__cell:nth-child(3) {
+  border-right: 1.5px dashed var(--line);
 }
-.stat > .ti {
+.statbox__cell:nth-child(1),
+.statbox__cell:nth-child(2) {
+  border-bottom: 1.5px dashed var(--line);
+}
+.statbox__cell > .ti {
   font-size: 22px;
   color: var(--navy-500);
   flex-shrink: 0;
 }
-.stat--accent > .ti {
+.statbox__cell--accent > .ti {
   color: var(--orange-500);
 }
-.stat__body {
+.statbox__body {
   display: flex;
   flex-direction: column;
   line-height: 1.15;
+  min-width: 0;
 }
-.stat__value {
+.statbox__value {
   font-size: 20px;
   font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--text);
 }
-.stat__value em {
+.statbox__value em {
   font-size: 11px;
   font-weight: 600;
   font-style: normal;
   color: var(--text-soft);
   margin-left: 3px;
 }
-.stat__label {
+.statbox__label {
   font-size: 11px;
   font-weight: 500;
   color: var(--text-soft);

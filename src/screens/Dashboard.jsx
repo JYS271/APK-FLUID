@@ -91,11 +91,11 @@ export default function Dashboard({ onControl, onOpenWeb, onOpenIntro }) {
         </section>
       </div>
 
-      {/* 요약 스탯 */}
-      <section className="statgrid swim-in" style={{ animationDelay: '.16s' }}>
+      {/* 요약 스탯 — 한 카드, 점선으로 4칸 분할 */}
+      <section className="card statbox swim-in" style={{ animationDelay: '.16s' }}>
         <Stat icon="ti-trash" label="오늘 수거" value={state.collectedToday} unit="개" accent />
-        <Stat icon="ti-temperature" label="수온" value={state.waterTemp.toFixed(1)} unit="℃" />
         <Stat icon="ti-droplet" label="탁도" value={Math.round(state.turbidity)} unit="NTU" />
+        <Stat icon="ti-temperature" label="수온" value={state.waterTemp.toFixed(1)} unit="℃" />
         <Stat icon="ti-clock" label="가동" value={formatTime(state.missionTime)} unit="" />
       </section>
 
@@ -140,14 +140,14 @@ export default function Dashboard({ onControl, onOpenWeb, onOpenIntro }) {
 
 function Stat({ icon, label, value, unit, accent }) {
   return (
-    <div className={`stat ${accent ? 'stat--accent' : ''}`}>
+    <div className={`statbox__cell ${accent ? 'statbox__cell--accent' : ''}`}>
       <i className={`ti ${icon}`} />
-      <div className="stat__body">
-        <span className="stat__value num">
+      <div className="statbox__body">
+        <span className="statbox__value num">
           {value}
           {unit && <em>{unit}</em>}
         </span>
-        <span className="stat__label">{label}</span>
+        <span className="statbox__label">{label}</span>
       </div>
     </div>
   )
