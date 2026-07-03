@@ -1507,7 +1507,7 @@
 
 /* ---------- 미니 드론 배터리 카드 ---------- */
 .card--drone {
-  margin-bottom: 16px;
+  margin-bottom: 18px; /* '빠른 작업' 사이 간격 +2px */
   padding: 16px;
   transition: filter 0.3s;
 }
