@@ -18,7 +18,7 @@ function fmtClock() {
   return `${h}:${String(d.getMinutes()).padStart(2, '0')}`
 }
 
-export function IOSStatusBar() {
+export function IOSStatusBar({ dark = false }) {
   const [time, setTime] = useState(fmtClock)
   useEffect(() => {
     const id = setInterval(() => setTime(fmtClock()), 15000)
@@ -26,7 +26,7 @@ export function IOSStatusBar() {
   }, [])
 
   return (
-    <div className="ios-status" aria-hidden="true">
+    <div className={`ios-status ${dark ? 'ios-status--dark' : ''}`} aria-hidden="true">
       <span className="ios-status__time num">{time}</span>
       <div className="ios-status__icons">
         {/* 셀룰러 신호 */}
@@ -53,13 +53,13 @@ export function IOSStatusBar() {
   )
 }
 
-export function IPhoneChrome() {
+export function IPhoneChrome({ dark = false }) {
   return (
     <>
       <div className="ios-island" aria-hidden="true">
         <span className="ios-island__cam" />
       </div>
-      <div className="ios-home" aria-hidden="true" />
+      <div className={`ios-home ${dark ? 'ios-home--dark' : ''}`} aria-hidden="true" />
     </>
   )
 }

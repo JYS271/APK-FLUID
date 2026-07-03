@@ -69,8 +69,9 @@ export default function App() {
           onClose={() => setWeb(null)}
         />
 
-        {/* iPhone 하드웨어 크롬 — Dynamic Island + Home Indicator (홈 화면 모드에서만) */}
-        {!control && !droneMode && <IPhoneChrome />}
+        {/* iPhone 하드웨어 크롬 — Dynamic Island + Home Indicator
+            (드론 FPV 가로 몰입 모드만 제외 · 제어 화면은 다크 변형) */}
+        {!droneMode && <IPhoneChrome dark={control} />}
       </div>
     </div>
   )

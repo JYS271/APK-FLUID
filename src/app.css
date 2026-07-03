@@ -30,6 +30,28 @@
 .ios-ic {
   display: block;
   color: var(--text);
+  fill: currentColor;
+}
+/* 다크 변형(제어 화면 등 어두운 배경) — 흰색 시간·아이콘, 투명 배경 */
+.ios-status--dark {
+  background: transparent;
+  color: #fff;
+  z-index: 8;
+}
+.ios-status--dark .ios-status__time {
+  color: #fff;
+}
+.ios-status--dark .ios-ic {
+  color: #fff;
+}
+.ios-status--dark .ios-batt {
+  border-color: rgba(255, 255, 255, 0.55);
+}
+.ios-status--dark .ios-batt::after {
+  background: rgba(255, 255, 255, 0.55);
+}
+.ios-status--dark .ios-batt__lvl {
+  background: #fff;
 }
 .ios-batt {
   position: relative;
@@ -92,6 +114,9 @@
   background: rgba(0, 0, 0, 0.32);
   z-index: 300;
   pointer-events: none;
+}
+.ios-home--dark {
+  background: rgba(255, 255, 255, 0.55);
 }
 
 .section-title {
@@ -2549,7 +2574,7 @@
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  padding: 20px 22px 34px;
+  padding: 20px 22px calc(34px + var(--safe-bottom)); /* Home Indicator 영역 확보 */
 }
 .control__center {
   display: flex;

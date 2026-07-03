@@ -5,6 +5,7 @@ import MarineMap from '../components/MarineMap.jsx'
 import VideoFeed from '../components/VideoFeed.jsx'
 import SteeringWheel from '../components/SteeringWheel.jsx'
 import Throttle from '../components/Throttle.jsx'
+import { IOSStatusBar } from '../components/IPhoneChrome.jsx'
 
 /* 몰입형 HUD 제어 화면 — 딥네이비 레이어
    운전대(선회, 놓으면 중앙 복귀) + 세로 스로틀(추력, 위치 유지) → differential thrust
@@ -69,6 +70,9 @@ export default function Control({ onExit }) {
         onThrottle={onThrottle}
         throttleResetKey={estopped ? 'stop' : 'run'}
       />
+
+      {/* iOS 시스템 상태바(다크) — Dynamic Island 아래 Safe Area 확보 */}
+      <IOSStatusBar dark />
 
       {/* 상단 HUD 바 */}
       <div className="control__topbar">
