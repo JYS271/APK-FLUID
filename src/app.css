@@ -1724,102 +1724,176 @@
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
-/* 히어로 */
-.intro__hero {
+/* 콘텐츠 */
+.intro__content {
+  padding: 14px 16px calc(24px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+/* 미디어 캐러셀 (영상 → 사진) */
+.introcar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.introcar__view {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  background: linear-gradient(150deg, #0e2f52 0%, #0b2240 55%, #071a30 100%);
+  border-radius: var(--card-radius, 18px);
   overflow: hidden;
+  background: linear-gradient(150deg, #0e2f52 0%, #0b2240 55%, #071a30 100%);
+  box-shadow: var(--shadow-md, 0 8px 24px rgba(14, 31, 58, 0.12));
+  touch-action: pan-y;
 }
-.intro__hero-img {
-  position: absolute;
-  inset: 0;
+.introcar__track {
+  display: flex;
+  height: 100%;
+  transition: transform 0.34s var(--ease-swim);
+}
+.introcar__track.is-drag {
+  transition: none;
+}
+.introcar__slide {
+  position: relative;
+  flex: 0 0 100%;
+  width: 100%;
+  height: 100%;
+}
+.introcar__media {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: opacity 0.3s;
+  display: block;
+  -webkit-user-drag: none;
+  user-select: none;
 }
-.intro__hero-fallback {
+.introcar__cap {
   position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
+  left: 10px;
+  bottom: 10px;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 4px;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(6, 18, 30, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   color: #fff;
-}
-.intro__hero-fallback b {
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-}
-.intro__hero-fallback span {
   font-size: 11px;
-  color: rgba(220, 235, 255, 0.75);
+  font-weight: 700;
 }
-.intro__manta {
-  width: 84px;
-  height: auto;
-  margin-bottom: 6px;
-  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.3));
+.introcar__cap .ti {
+  font-size: 13px;
+  color: var(--orange-400);
 }
-/* 콘텐츠 */
-.intro__content {
-  padding: 18px 16px calc(24px + env(safe-area-inset-bottom));
+.introcar__hint {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 5px 8px 5px 11px;
+  border-radius: 999px;
+  background: rgba(242, 101, 34, 0.9);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  animation: introHint 1.8s ease-in-out infinite;
+}
+.introcar__hint .ti {
+  font-size: 14px;
+}
+@keyframes introHint {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+}
+.introcar__dots {
   display: flex;
-  flex-direction: column;
-  gap: 14px;
+  justify-content: center;
+  gap: 6px;
+}
+.introcar__dot {
+  width: 7px;
+  height: 7px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: var(--line);
+  cursor: pointer;
+  transition: width 0.25s, background 0.25s;
+}
+.introcar__dot.is-on {
+  width: 20px;
+  background: var(--orange-500);
 }
 .intro__head {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 7px;
 }
 .intro__eyebrow {
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
+  font-weight: 800;
+  letter-spacing: 0.12em;
   color: var(--orange-500);
 }
 .intro__title {
-  font-size: 19px;
+  font-size: 20px;
   font-weight: 800;
   line-height: 1.3;
   letter-spacing: -0.02em;
   color: var(--text);
 }
 .intro__lead {
-  font-size: 12px;
-  line-height: 1.6;
+  font-size: 12.5px;
+  line-height: 1.65;
   color: var(--text-muted);
 }
 .intro__card {
   padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
+}
+.intro__card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text);
+}
+.intro__card-title .ti {
+  font-size: 19px;
+  color: var(--orange-500);
 }
 .intro__list {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 11px;
 }
 .intro__list li {
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  font-size: 11.5px;
-  line-height: 1.5;
+  font-size: 12px;
+  line-height: 1.55;
   color: var(--text);
 }
 .intro__list li .ti {
   flex-shrink: 0;
   font-size: 18px;
   margin-top: 1px;
-  color: var(--orange-500);
+  color: var(--text-soft);
 }
 .intro__steps {
   list-style: none;
