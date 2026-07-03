@@ -337,6 +337,134 @@
     opacity: 0;
   }
 }
+/* 해저 지형 — 원경 능선/모래 언덕/바위 + 수초(원근 레이어) */
+.videofeed__seabed {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 58%;
+  pointer-events: none;
+}
+.videofeed__seabed svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.videofeed__seabed .sb {
+  fill: #063049;
+}
+.videofeed__seabed .sb--far {
+  fill: rgba(9, 58, 82, 0.55);
+}
+.videofeed__seabed .sb--mid {
+  fill: rgba(6, 42, 62, 0.8);
+}
+.videofeed__seabed .sb--near {
+  fill: #05263a;
+}
+.videofeed__seabed .sb--rock {
+  fill: #041d2e;
+}
+.videofeed__seabed .sb--boulder {
+  fill: #03131f;
+}
+.videofeed--thermal .videofeed__seabed .sb {
+  fill: #3a0838;
+}
+.videofeed--thermal .videofeed__seabed .sb--far {
+  fill: rgba(90, 20, 74, 0.5);
+}
+.videofeed--thermal .videofeed__seabed .sb--near {
+  fill: #240426;
+}
+/* 전경 바위 실루엣 */
+.videofeed__rocks {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.videofeed__rocks .rock {
+  position: absolute;
+  bottom: 22%;
+}
+.videofeed__rocks .rock svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: #041a29;
+  opacity: 0.9;
+}
+.videofeed--thermal .videofeed__rocks .rock svg {
+  fill: #220326;
+}
+/* 흔들리는 해초 실루엣(바닥에서 화면 안까지) */
+.videofeed__weeds {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.videofeed__weeds .weed {
+  position: absolute;
+  bottom: 26%;
+  width: 24px;
+  transform-origin: bottom center;
+  animation: weedsway 6s ease-in-out infinite alternate;
+}
+.videofeed__weeds .weed svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: #051a29;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.82;
+}
+/* 덤불형 수초(저수지) — 채움 실루엣 */
+.videofeed__weeds .weed svg.pl--fill {
+  fill: #051a29;
+  stroke: none;
+}
+.videofeed--thermal .videofeed__weeds .weed svg {
+  stroke: #2b0530;
+}
+.videofeed--thermal .videofeed__weeds .weed svg.pl--fill {
+  fill: #2b0530;
+}
+@keyframes weedsway {
+  from {
+    transform: rotate(-6deg);
+  }
+  to {
+    transform: rotate(6deg);
+  }
+}
+/* 전진/후진 광학 흐름 — 추력에 반응하는 마린스노우 스트리크 */
+.videofeed__flow {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.videofeed__flow .flowstreak {
+  position: absolute;
+  width: 16px;
+  height: 2.5px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, rgba(200, 240, 255, 0) 0%, rgba(200, 240, 255, 0.85) 100%);
+  opacity: 0;
+  transform-origin: center;
+  will-change: left, top, transform, opacity;
+}
+.videofeed--thermal .videofeed__flow .flowstreak {
+  background: linear-gradient(90deg, rgba(255, 210, 170, 0) 0%, rgba(255, 190, 140, 0.9) 100%);
+}
 /* 해양생물 그림자 — JS 자율 유영(이리저리 배회) */
 .videofeed__life {
   position: absolute;
