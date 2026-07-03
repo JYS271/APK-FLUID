@@ -4,6 +4,7 @@ import MapCarousel from '../components/MapCarousel.jsx'
 import VideoFeed from '../components/VideoFeed.jsx'
 import NetGauge from '../components/NetGauge.jsx'
 import EnvOverlay from '../components/EnvOverlay.jsx'
+import StatSegment from '../components/StatSegment.jsx'
 
 // 실시간 원격 접속 링크 (첨부 파일)
 const REMOTE_URL = encodeURI(
@@ -11,7 +12,7 @@ const REMOTE_URL = encodeURI(
 )
 
 /* 대시보드(Monitor) — 상태바·지도·영상·요약·빠른작업 */
-export default function Dashboard({ onControl, onOpenWeb, onOpenIntro, onOpenStat, activeStat }) {
+export default function Dashboard({ onControl, onOpenWeb, onOpenIntro }) {
   const { state, returnHome } = useTelemetry()
   const lat = latencyLevel(state.latency)
   const laggy = state.latency > 300
@@ -87,13 +88,8 @@ export default function Dashboard({ onControl, onOpenWeb, onOpenIntro, onOpenSta
         </section>
       </div>
 
-      {/* 요약 스탯 — 한 카드, 점선으로 4칸 분할. 누르면 상세 시트 */}
-      <section className="card statbox swim-in" style={{ animationDelay: '.16s' }}>
-        <Stat icon="ti-trash" label="오늘 수거" value={state.collectedToday} unit="개" accent active={activeStat === 'collected'} onClick={() => onOpenStat('collected')} />
-        <Stat icon="ti-droplet" label="탁도" value={Math.round(state.turbidity)} unit="NTU" active={activeStat === 'turbidity'} onClick={() => onOpenStat('turbidity')} />
-        <Stat icon="ti-temperature" label="수온" value={state.waterTemp.toFixed(1)} unit="℃" active={activeStat === 'temp'} onClick={() => onOpenStat('temp')} />
-        <Stat icon="ti-clock" label="가동" value={formatTime(state.missionTime)} unit="" active={activeStat === 'uptime'} onClick={() => onOpenStat('uptime')} />
-      </section>
+      {/* 요약 스탯 — 가로 4분할 세그먼트(선택 시 연주황 + 값 표시) */}
+      <StatSegment />
 
       {/* 배터리 카드 */}
       <BatteryCard battery={state.battery} charging={state.charging} />
@@ -131,26 +127,6 @@ export default function Dashboard({ onControl, onOpenWeb, onOpenIntro, onOpenSta
         </a>
       </section>
     </div>
-  )
-}
-
-function Stat({ icon, label, value, unit, accent, active, onClick }) {
-  return (
-    <button
-      type="button"
-      className={`statbox__cell ${accent ? 'statbox__cell--accent' : ''} ${active ? 'is-active' : ''}`}
-      onClick={onClick}
-    >
-      <i className={`ti ${icon}`} />
-      <div className="statbox__body">
-        <span className="statbox__value num">
-          {value}
-          {unit && <em>{unit}</em>}
-        </span>
-        <span className="statbox__label">{label}</span>
-      </div>
-      <i className="ti ti-chevron-right statbox__more" />
-    </button>
   )
 }
 
@@ -207,10 +183,4 @@ function BatteryCard({ battery, charging }) {
       </div>
     </section>
   )
-}
-
-function formatTime(s) {
-  const m = Math.floor(s / 60)
-  const sec = Math.floor(s % 60)
-  return `${m}:${String(sec).padStart(2, '0')}`
 }

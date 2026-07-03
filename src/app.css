@@ -1124,6 +1124,75 @@
   margin-top: 2px;
 }
 
+/* ---------- 통계 세그먼트(가로 4분할 탭 + 값 패널) ---------- */
+.statseg {
+  margin-bottom: 16px;
+}
+.statseg__tabs {
+  display: flex;
+  background: var(--surface-2);
+  border-radius: 12px;
+  padding: 4px;
+  gap: 2px;
+  margin-bottom: 14px;
+}
+.statseg__tab {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 8px 4px;
+  border: 0;
+  background: none;
+  border-radius: 9px;
+  color: var(--text-soft);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: background 0.18s, color 0.18s;
+}
+.statseg__tab .ti {
+  font-size: 18px;
+}
+.statseg__tab.is-on {
+  background: rgba(242, 101, 34, 0.16);
+  color: var(--orange-500);
+}
+.statseg__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 2px 4px;
+}
+.statseg__value {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: var(--text);
+}
+.statseg__value em {
+  font-size: 14px;
+  font-weight: 700;
+  font-style: normal;
+  color: var(--text-soft);
+  margin-left: 3px;
+}
+.statseg__title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-top: 4px;
+}
+.statseg__sub {
+  font-size: 12px;
+  color: var(--text-soft);
+}
+
 /* ---------- 통계 상세 시트(바텀시트) ---------- */
 .statsheet-scrim {
   position: absolute;
