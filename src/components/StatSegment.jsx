@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useTelemetry, ENV_MODES } from '../state/TelemetryContext.jsx'
 
 /* 대시보드 통계 세그먼트 — 가로 1줄 4분할 탭.
@@ -36,20 +36,24 @@ function content(key, state) {
 
 export default function StatSegment() {
   const { state } = useTelemetry()
-  const [sel, setSel] = useState('collected')
-  const c = content(sel, state)
+  const [sel, setSel] = useState(null) // null이면 접힘(정보 숨김)
+  const lastRef = useRef('collected') // 접힐 때도 마지막 내용 유지(부드러운 수축)
+  if (sel) lastRef.current = sel
+  const open = sel !== null
+  const c = content(lastRef.current, state)
 
   return (
     <section className="card statseg swim-in" style={{ animationDelay: '.16s' }}>
-      {/* 가로 4분할 탭 */}
+      {/* 가로 4분할 탭 — 누르면 아래로 펼쳐지고, 다시 누르면 접힘 */}
       <div className="statseg__tabs" role="tablist">
         {TABS.map((t) => (
           <button
             key={t.key}
             role="tab"
             aria-selected={sel === t.key}
+            aria-expanded={sel === t.key}
             className={`statseg__tab ${sel === t.key ? 'is-on' : ''}`}
-            onClick={() => setSel(t.key)}
+            onClick={() => setSel((prev) => (prev === t.key ? null : t.key))}
           >
             <i className={`ti ${t.icon}`} />
             <span>{t.label}</span>
@@ -57,14 +61,16 @@ export default function StatSegment() {
         ))}
       </div>
 
-      {/* 선택 항목 값·정보 */}
-      <div className="statseg__panel">
-        <span className="statseg__value num">
-          {c.value}
-          {c.unit && <em>{c.unit}</em>}
-        </span>
-        <span className="statseg__title">{c.title}</span>
-        <span className="statseg__sub">{c.sub}</span>
+      {/* 선택 시에만 펼쳐지는 값·정보 */}
+      <div className={`statseg__panel ${open ? 'is-open' : ''}`}>
+        <div className="statseg__panel-inner">
+          <span className="statseg__value num">
+            {c.value}
+            {c.unit && <em>{c.unit}</em>}
+          </span>
+          <span className="statseg__title">{c.title}</span>
+          <span className="statseg__sub">{c.sub}</span>
+        </div>
       </div>
     </section>
   )

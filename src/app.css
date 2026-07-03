@@ -1134,7 +1134,6 @@
   border-radius: 12px;
   padding: 4px;
   gap: 2px;
-  margin-bottom: 14px;
 }
 .statseg__tab {
   flex: 1;
@@ -1162,11 +1161,22 @@
   background: rgba(242, 101, 34, 0.16);
   color: var(--orange-500);
 }
+/* 접힘/펼침 — 누르면 아래로 늘어남 */
 .statseg__panel {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: max-height 0.32s ease, opacity 0.22s ease;
+}
+.statseg__panel.is-open {
+  max-height: 240px;
+  opacity: 1;
+}
+.statseg__panel-inner {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: 2px 4px;
+  padding: 14px 4px 2px;
 }
 .statseg__value {
   font-size: 30px;
