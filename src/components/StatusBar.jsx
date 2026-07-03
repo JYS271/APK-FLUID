@@ -1,5 +1,6 @@
 import { useTelemetry } from '../state/TelemetryContext.jsx'
 import NotificationBell from './NotificationBell.jsx'
+import DeviceSwitcher from './DeviceSwitcher.jsx'
 
 /* 지연 임계값 헬퍼 — 제어 화면도 재사용
    150ms↓ 원활(초록) / ~300ms 주의(오렌지) / 300ms↑ 지연(레드) */
@@ -34,10 +35,7 @@ export default function StatusBar({ dark = false }) {
     <div className={`statusbar ${dark ? 'statusbar--dark' : ''}`}>
       <div className="statusbar__brand">
         <span className="statusbar__mark" aria-hidden="true" />
-        <div className="statusbar__brand-text">
-          <span className="statusbar__logo num">ARK<b>·</b>C</span>
-          <span className="statusbar__unit">NET MODULE Ver.A</span>
-        </div>
+        <DeviceSwitcher />
       </div>
 
       <div className="statusbar__stats">

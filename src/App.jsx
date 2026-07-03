@@ -6,6 +6,7 @@ import Toast from './components/Toast.jsx'
 import AlarmCenter from './components/AlarmCenter.jsx'
 import WebBridge from './components/WebBridge.jsx'
 import IntroSheet from './components/IntroSheet.jsx'
+import DevicePairModal from './components/DevicePairModal.jsx'
 import Dashboard from './screens/Dashboard.jsx'
 import Control from './screens/Control.jsx'
 import DroneFPV from './screens/DroneFPV.jsx'
@@ -59,6 +60,7 @@ export default function App() {
         {droneMode && <DroneFPV onExit={exitDrone} />}
 
         {/* 전역 오버레이 — .device 직속 */}
+        <DevicePairModal />
         <AlarmCenter />
         <IntroSheet open={intro} onClose={() => setIntro(false)} />
         <Toast />
