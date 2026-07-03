@@ -1,0 +1,17 @@
+{
+  "name": "ARK-FLUID 관제",
+  "short_name": "ARK-FLUID",
+  "description": "만타레이 기반 해양 쓰레기 수거 로봇 모바일 관제 앱",
+  "lang": "ko",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0e1f3a",
+  "theme_color": "#0e1f3a",
+  "icons": [
+    { "src": "./icon.svg", "sizes": "192x192", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "./icon.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
