@@ -26,7 +26,7 @@ export default function Records({ onOpenWeb }) {
       <KpiCarousel />
 
       {/* 수거량 차트 (주간/월간 전환) */}
-      <section className="card swim-in" style={{ animationDelay: '.08s' }}>
+      <section className="card card--weekly swim-in" style={{ animationDelay: '.08s' }}>
         <div className="card__title-row">
           <h2 className="card__title">
             <i className="ti ti-chart-bar" /> {range === 'week' ? '주간' : '월간'} 수거량

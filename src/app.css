@@ -361,6 +361,9 @@
   margin-bottom: 16px;
   transition: transform 0.2s var(--ease-swim), box-shadow 0.2s;
 }
+.card--weekly {
+  padding-bottom: 6px;
+}
 .card--map {
   padding: 0;
   overflow: hidden;
@@ -496,6 +499,9 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
+}
+.dash .card__title {
+  font-size: 15.5px;
 }
 .card__title .ti {
   font-size: 18px;
@@ -1011,7 +1017,7 @@
   font-weight: 800;
 }
 .netgauge__label {
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 600;
   fill: var(--text-soft);
 }
@@ -1260,7 +1266,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 12.5px;
+  font-size: 15.5px;
   font-weight: 700;
   color: var(--text);
 }
