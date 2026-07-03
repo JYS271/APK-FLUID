@@ -3,12 +3,11 @@
    ============================================================ */
 
 .section-title {
-  font-size: 22px;
+  font-size: 15px;
   font-weight: 700;
-  line-height: 1.25;
   color: var(--text);
   margin: 0 0 12px;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.015em;
 }
 
 /* ---------- StatusBar ---------- */
@@ -490,10 +489,9 @@
 }
 .card__title {
   margin: 0;
-  font-size: 20px;
+  font-size: 14px;
   font-weight: 700;
-  line-height: 1.3;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
   color: var(--text);
   display: inline-flex;
   align-items: center;
@@ -529,8 +527,7 @@
   padding: 12px 8px 16px;
 }
 .card--gauge__sub {
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 12px;
   color: var(--text-soft);
   margin-top: -6px;
 }
@@ -1010,13 +1007,12 @@
   overflow: visible;
 }
 .netgauge__value {
-  font-size: 54px;
+  font-size: 40px;
   font-weight: 800;
-  letter-spacing: -0.02em;
 }
 .netgauge__label {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 600;
   fill: var(--text-soft);
 }
 .blink {
@@ -1062,24 +1058,23 @@
   min-width: 0;
 }
 .statbox__value {
-  font-size: 30px;
+  font-size: 20px;
   font-weight: 800;
-  line-height: 1.05;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.02em;
   color: var(--text);
 }
 .statbox__value em {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 600;
   font-style: normal;
   color: var(--text-soft);
   margin-left: 3px;
 }
 .statbox__label {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 500;
   color: var(--text-soft);
-  margin-top: 3px;
+  margin-top: 2px;
 }
 
 /* ---------- Battery card ---------- */
@@ -1097,7 +1092,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 20px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--text);
 }
@@ -1105,13 +1100,12 @@
   font-size: 22px;
 }
 .battery__pct {
-  font-size: 38px;
+  font-size: 26px;
   font-weight: 800;
   line-height: 1;
-  letter-spacing: -0.02em;
 }
 .battery__pct em {
-  font-size: 17px;
+  font-size: 13px;
   font-weight: 700;
   font-style: normal;
   margin-left: 1px;
@@ -1138,8 +1132,7 @@
   align-items: center;
   justify-content: space-between;
   margin-top: 9px;
-  font-size: 13px;
-  line-height: 1.4;
+  font-size: 12px;
 }
 .battery__status {
   display: inline-flex;
@@ -1152,7 +1145,7 @@
 }
 .battery__run {
   color: var(--text-soft);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 /* ---------- Quick actions ---------- */
@@ -1278,16 +1271,13 @@
   gap: 2px;
 }
 .introcard__body b {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 700;
-  line-height: 1.3;
   color: var(--text);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 .introcard__body span {
-  font-size: 13px;
-  font-weight: 500;
-  line-height: 1.4;
+  font-size: 11.5px;
   color: var(--text-muted);
 }
 .introcard__arrow {
