@@ -48,11 +48,11 @@ export default function NetGauge({ value = 0, label = '수거함', size = 168, w
         <circle cx={headPos.x} cy={headPos.y} r="7" fill="#fff" stroke={color} strokeWidth="3.5" />
 
         {/* 중앙 수치 */}
-        <text x="100" y="96" textAnchor="middle" className="num netgauge__value" fill={color}>
+        <text x="100" y="92" textAnchor="middle" className="num netgauge__value" fill={color}>
           {Math.round(v)}
-          <tspan fontSize="16" dy="-14">%</tspan>
+          <tspan fontSize="22" dy="-22">%</tspan>
         </text>
-        <text x="100" y="118" textAnchor="middle" className="netgauge__label">
+        <text x="100" y="126" textAnchor="middle" className="netgauge__label">
           {label}
         </text>
       </svg>
