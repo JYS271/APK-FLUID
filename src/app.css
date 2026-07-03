@@ -2,6 +2,98 @@
    ARK-C — 컴포넌트 스타일
    ============================================================ */
 
+/* ---------- iPhone 크롬: Dynamic Island · 시스템 상태바 · 홈 인디케이터 ---------- */
+/* 시스템 상태바 — Safe Area 상단을 차지(플로우 자식 → 콘텐츠를 아래로 민다) */
+.ios-status {
+  flex-shrink: 0;
+  height: var(--safe-top);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 26px 0;
+  background: var(--surface);
+  color: var(--text);
+  position: relative;
+  z-index: 20;
+}
+.ios-status__time {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  min-width: 54px;
+}
+.ios-status__icons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ios-ic {
+  display: block;
+  color: var(--text);
+}
+.ios-batt {
+  position: relative;
+  width: 24px;
+  height: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.35);
+  border-radius: 3.5px;
+  padding: 1.5px;
+}
+.ios-batt::after {
+  content: '';
+  position: absolute;
+  right: -3px;
+  top: 3.5px;
+  width: 2px;
+  height: 4px;
+  border-radius: 0 2px 2px 0;
+  background: rgba(0, 0, 0, 0.35);
+}
+.ios-batt__lvl {
+  display: block;
+  height: 100%;
+  width: 82%;
+  background: var(--text);
+  border-radius: 1.5px;
+}
+/* Dynamic Island — 검은 알약, 하드웨어처럼 최상단에 겹쳐 그림 */
+.ios-island {
+  position: absolute;
+  top: 11px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: var(--island-w);
+  height: var(--island-h);
+  background: #000;
+  border-radius: 999px;
+  z-index: 300;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 14px;
+}
+.ios-island__cam {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #1b2740, #05070c 70%);
+  box-shadow: 0 0 0 1px rgba(60, 90, 140, 0.35);
+}
+/* Home Indicator — 하단 중앙 막대 */
+.ios-home {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 140px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.32);
+  z-index: 300;
+  pointer-events: none;
+}
+
 .section-title {
   font-size: 18.5px;
   font-weight: 700;
@@ -1693,8 +1785,8 @@
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  height: 52px;
-  padding: 0 12px;
+  height: calc(52px + var(--safe-top));
+  padding: var(--safe-top) 12px 0; /* Dynamic Island 아래에서 시작 */
   background: var(--surface);
   border-bottom: 1px solid var(--line);
 }
@@ -1716,7 +1808,8 @@
 .intro__bar-title {
   position: absolute;
   left: 50%;
-  transform: translateX(-50%);
+  top: calc(var(--safe-top) + 26px);
+  transform: translate(-50%, -50%);
   font-size: 12.5px;
   font-weight: 700;
   color: var(--text);
@@ -1729,7 +1822,7 @@
 }
 /* 콘텐츠 */
 .intro__content {
-  padding: 14px 16px calc(24px + env(safe-area-inset-bottom));
+  padding: 14px 16px calc(24px + var(--safe-bottom));
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -1960,13 +2053,13 @@
   bottom: 0;
   left: 0;
   right: 0;
-  height: var(--tabbar-h);
+  height: calc(var(--tabbar-h) + var(--safe-bottom));
   background: var(--surface);
   border-top: 1px solid var(--line);
   display: flex;
   align-items: center;
   justify-content: space-around;
-  padding-bottom: env(safe-area-inset-bottom, 0);
+  padding-bottom: var(--safe-bottom); /* Home Indicator 영역 확보 */
   box-shadow: 0 -4px 20px rgba(14, 31, 58, 0.06);
   z-index: 40;
 }
@@ -3138,7 +3231,7 @@
    ============================================================ */
 .toast {
   position: absolute;
-  bottom: calc(var(--tabbar-h) + 16px);
+  bottom: calc(var(--tabbar-h) + var(--safe-bottom) + 16px);
   left: 50%;
   transform: translateX(-50%);
   z-index: 80;
@@ -3183,7 +3276,7 @@
    ============================================================ */
 .alarms {
   position: absolute;
-  top: 50px;
+  top: calc(var(--safe-top) + 50px);
   left: 12px;
   right: 12px;
   z-index: 85;
@@ -3295,7 +3388,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 14px 14px 10px;
+  padding: calc(var(--safe-top) + 4px) 14px 10px; /* Dynamic Island 아래에서 시작 */
   background: var(--surface-2);
   border-bottom: 1px solid var(--line);
 }

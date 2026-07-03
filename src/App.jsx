@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import StatusBar from './components/StatusBar.jsx'
+import { IOSStatusBar, IPhoneChrome } from './components/IPhoneChrome.jsx'
 import TabBar from './components/TabBar.jsx'
 import Toast from './components/Toast.jsx'
 import AlarmCenter from './components/AlarmCenter.jsx'
@@ -39,6 +40,7 @@ export default function App() {
           <Control onExit={exitControl} />
         ) : (
           <>
+            <IOSStatusBar />
             <StatusBar />
             {tab === 'dashboard' && (
               <Dashboard
@@ -66,6 +68,9 @@ export default function App() {
           title={web?.title}
           onClose={() => setWeb(null)}
         />
+
+        {/* iPhone 하드웨어 크롬 — Dynamic Island + Home Indicator (홈 화면 모드에서만) */}
+        {!control && !droneMode && <IPhoneChrome />}
       </div>
     </div>
   )

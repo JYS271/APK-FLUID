@@ -69,6 +69,12 @@
   /* --- Layout --- */
   --device-w: 430px;
   --tabbar-h: 76px;
+  /* iOS Safe Area — 실기기는 env() 실측값, 데스크톱 목업은 폴백값 사용.
+     max()로 최소 여백(Dynamic Island·Home Indicator 영역)을 항상 확보. */
+  --safe-top: max(env(safe-area-inset-top, 0px), 54px);
+  --safe-bottom: max(env(safe-area-inset-bottom, 0px), 22px);
+  --island-w: 125px;
+  --island-h: 37px;
 }
 
 * {
@@ -138,7 +144,7 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  margin-bottom: var(--tabbar-h);
+  margin-bottom: calc(var(--tabbar-h) + var(--safe-bottom));
   padding-bottom: 20px;
 }
 .screen::-webkit-scrollbar {
