@@ -10,7 +10,7 @@ import { IOSStatusBar } from '../components/IPhoneChrome.jsx'
 /* 몰입형 HUD 제어 화면 — 딥네이비 레이어
    운전대(선회, 놓으면 중앙 복귀) + 세로 스로틀(추력, 위치 유지) → differential thrust
    E-STOP: 길게 눌러(600ms) 확정 */
-export default function Control({ onExit }) {
+export default function Control({ onExit, onDroneMode }) {
   const { state, setThruster, setMode, setAutonomy, toggleAssist, estop, resetEstop } = useTelemetry()
   const lat = latencyLevel(state.latency)
   const auto = state.mode === 'patrol'
@@ -69,6 +69,7 @@ export default function Control({ onExit }) {
         onSteer={onSteer}
         onThrottle={onThrottle}
         throttleResetKey={estopped ? 'stop' : 'run'}
+        onDroneMode={onDroneMode}
       />
 
       {/* iOS 시스템 상태바(다크) — Dynamic Island 아래 Safe Area 확보 */}
@@ -225,57 +226,21 @@ function DepthControls() {
   )
 }
 
-/* 미니 수중 드론 조종 — 전개/복귀 · 방향 패드(눌러서 이동) · 탐사등 */
-function DroneControls() {
-  const { state, toggleDrone, setDroneMove, toggleDroneLight } = useTelemetry()
-  const dep = state.drone.deployed
-  const hold = (x, y) => (e) => {
-    e.preventDefault()
-    try {
-      e.currentTarget.setPointerCapture(e.pointerId)
-    } catch {
-      /* noop */
-    }
-    setDroneMove(x, y)
-    if (navigator.vibrate) navigator.vibrate(5)
+/* 미니 수중 드론 '전개' → 즉시 1인칭(FPV) 모드 진입.
+   전개 실행(본체 AUTO 유지 + 드론 전개)은 DroneFPV 마운트가 처리하므로
+   버튼 한 번으로 전개 → FPV가 끊김 없이 이어진다(중간 UI 없음).
+   FPV 화면·컨트롤·데이터 오버레이는 대시보드에서 여는 것과 동일 컴포넌트라 UI/UX 동일. */
+function DroneControls({ onDroneMode }) {
+  const deployToFpv = () => {
+    if (navigator.vibrate) navigator.vibrate(8)
+    onDroneMode?.()
   }
-  const release = () => setDroneMove(0, 0)
-  const padBtn = (x, y, icon, extra) => (
-    <button
-      className={`dpad__btn ${extra}`}
-      onPointerDown={hold(x, y)}
-      onPointerUp={release}
-      onPointerLeave={release}
-      onPointerCancel={release}
-      aria-label="드론 이동"
-    >
-      <i className={`ti ${icon}`} />
-    </button>
-  )
-
   return (
     <div className="dronectl">
-      <button className={`dronectl__deploy ${dep ? 'is-on' : ''}`} onClick={toggleDrone}>
+      <button className="dronectl__deploy" onClick={deployToFpv}>
         <i className="ti ti-drone" />
-        {dep ? '드론 복귀' : '드론 전개'}
+        드론 전개 · FPV
       </button>
-      {dep && (
-        <>
-          <div className="dpad">
-            {padBtn(0, -1, 'ti-chevron-up', 'dpad__up')}
-            {padBtn(-1, 0, 'ti-chevron-left', 'dpad__left')}
-            {padBtn(1, 0, 'ti-chevron-right', 'dpad__right')}
-            {padBtn(0, 1, 'ti-chevron-down', 'dpad__down')}
-            <span className="dpad__hub">
-              <i className="ti ti-drone" />
-            </span>
-          </div>
-          <button className={`dronectl__light ${state.drone.light ? 'is-on' : ''}`} onClick={toggleDroneLight}>
-            <i className="ti ti-bulb" />
-            탐사등
-          </button>
-        </>
-      )}
     </div>
   )
 }
@@ -289,7 +254,7 @@ const PAN_MAX_X = 42
 const PAN_MAX_Y = 78
 const clampPan = (v, m) => Math.max(-m, Math.min(m, v))
 
-function ControlBackground({ onSteer, onThrottle, throttleResetKey }) {
+function ControlBackground({ onSteer, onThrottle, throttleResetKey, onDroneMode }) {
   const [mode, setMode] = useState('map') // map | video
   const [zoom, setZoom] = useState(0.5)
   const [thermal, setThermal] = useState(false)
@@ -425,9 +390,9 @@ function ControlBackground({ onSteer, onThrottle, throttleResetKey }) {
             <div className="control__land-depth">
               <DepthControls />
             </div>
-            {/* 미니 수중 드론 조종 — 좌상단 */}
+            {/* 미니 수중 드론 전개 → 즉시 FPV 진입 — 좌상단 */}
             <div className="control__land-drone">
-              <DroneControls />
+              <DroneControls onDroneMode={onDroneMode} />
             </div>
             <div className="control__land-hint">
               <i className="ti ti-rotate-clockwise" /> 기기를 가로로 돌려 조종하세요

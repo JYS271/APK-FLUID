@@ -37,7 +37,7 @@ export default function App() {
       <div className="device">
         {/* 제어 모드: 딥 레이어가 전체를 덮음 */}
         {control ? (
-          <Control onExit={exitControl} />
+          <Control onExit={exitControl} onDroneMode={openDrone} />
         ) : (
           <>
             <IOSStatusBar />
