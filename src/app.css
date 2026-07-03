@@ -577,6 +577,142 @@
   );
   border-color: rgba(255, 210, 170, 0.35);
 }
+/* 미니 수중 드론(전개 시 영상에 등장) */
+.videofeed__drone {
+  position: absolute;
+  width: 62px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 4;
+  transition: left 0.12s linear, top 0.12s linear;
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.4));
+}
+.videofeed__drone-craft {
+  display: block;
+}
+.videofeed__drone-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.videofeed__drone-beam {
+  animation: dronebeam 2.4s ease-in-out infinite;
+}
+@keyframes dronebeam {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+.videofeed__drone-tag {
+  position: absolute;
+  top: -13px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 1.5px 6px;
+  border-radius: 5px;
+  background: rgba(10, 132, 255, 0.9);
+  color: #fff;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+/* 수면 분할 — 수심 얕을 때 상단은 하늘·지면, 경계에 부유 쓰레기 */
+.videofeed__surface {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  overflow: visible;
+  z-index: 6;
+  transition: height 0.4s ease;
+}
+.videofeed__sky {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #6fabdc 0%, #a2caea 52%, #d0e3f0 100%);
+}
+.videofeed__cloud {
+  position: absolute;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.8);
+  filter: blur(4px);
+}
+.videofeed__cloud.c1 {
+  top: 16%;
+  left: 12%;
+  width: 62px;
+  height: 14px;
+}
+.videofeed__cloud.c2 {
+  top: 36%;
+  right: 16%;
+  width: 44px;
+  height: 11px;
+}
+/* 원경 해안(지면) */
+.videofeed__shore {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 36%;
+  background: linear-gradient(
+    180deg,
+    rgba(74, 102, 86, 0) 0%,
+    rgba(60, 90, 72, 0.5) 52%,
+    rgba(44, 70, 55, 0.88) 100%
+  );
+}
+/* 수면 경계선(포말) */
+.videofeed__waterline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 7px;
+  background: linear-gradient(180deg, rgba(232, 247, 255, 0.9), rgba(178, 218, 240, 0.15));
+  filter: blur(0.4px);
+}
+/* 수면 부유 쓰레기 */
+.videofeed__sfc {
+  position: absolute;
+  inset: 0;
+}
+.videofeed__sfc .sfc {
+  position: absolute;
+  bottom: -8px;
+  transform-origin: center bottom;
+  animation: sfcbob 4s ease-in-out infinite;
+  filter: drop-shadow(0 2px 3px rgba(20, 40, 60, 0.28));
+}
+.videofeed__sfc .sfc svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+@keyframes sfcbob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-2.5deg);
+  }
+  50% {
+    transform: translateY(-3px) rotate(2.5deg);
+  }
+}
+.videofeed--thermal .videofeed__sky {
+  background: linear-gradient(180deg, #3a1550 0%, #5a1f5e 60%, #7a2a4a 100%);
+}
+/* HUD/카메라칩은 수면 밴드 위에 표시 */
+.videofeed__hud,
+.videofeed__ctl {
+  z-index: 8;
+}
 /* 전진/후진 광학 흐름 — 추력에 반응하는 마린스노우 스트리크 */
 .videofeed__flow {
   position: absolute;
@@ -1557,6 +1693,97 @@
 .landdepth__val .ti {
   font-size: 14px;
   color: var(--orange-500);
+}
+/* 미니 드론 조종 — 좌상단 */
+.control__land-drone {
+  position: absolute;
+  left: 22px;
+  top: 18px;
+}
+.dronectl {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+.dronectl__deploy,
+.dronectl__light {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 12px;
+  background: var(--deep-glass);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.dronectl__deploy .ti,
+.dronectl__light .ti {
+  font-size: 18px;
+}
+.dronectl__deploy.is-on {
+  background: rgba(10, 132, 255, 0.85);
+  border-color: transparent;
+}
+.dronectl__light.is-on {
+  background: var(--orange-500);
+  border-color: transparent;
+}
+/* 방향 패드 (십자) */
+.dpad {
+  position: relative;
+  width: 116px;
+  height: 116px;
+}
+.dpad__btn {
+  position: absolute;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: var(--deep-glass);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+}
+.dpad__btn:active {
+  background: rgba(10, 132, 255, 0.85);
+  border-color: transparent;
+}
+.dpad__up {
+  top: 0;
+  left: 39px;
+}
+.dpad__down {
+  bottom: 0;
+  left: 39px;
+}
+.dpad__left {
+  left: 0;
+  top: 39px;
+}
+.dpad__right {
+  right: 0;
+  top: 39px;
+}
+.dpad__hub {
+  position: absolute;
+  left: 39px;
+  top: 39px;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  color: rgba(150, 200, 255, 0.6);
+  font-size: 17px;
 }
 .control__land-close {
   position: absolute;

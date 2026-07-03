@@ -226,6 +226,61 @@ function DepthControls() {
   )
 }
 
+/* 미니 수중 드론 조종 — 전개/복귀 · 방향 패드(눌러서 이동) · 탐사등 */
+function DroneControls() {
+  const { state, toggleDrone, setDroneMove, toggleDroneLight } = useTelemetry()
+  const dep = state.drone.deployed
+  const hold = (x, y) => (e) => {
+    e.preventDefault()
+    try {
+      e.currentTarget.setPointerCapture(e.pointerId)
+    } catch {
+      /* noop */
+    }
+    setDroneMove(x, y)
+    if (navigator.vibrate) navigator.vibrate(5)
+  }
+  const release = () => setDroneMove(0, 0)
+  const padBtn = (x, y, icon, extra) => (
+    <button
+      className={`dpad__btn ${extra}`}
+      onPointerDown={hold(x, y)}
+      onPointerUp={release}
+      onPointerLeave={release}
+      onPointerCancel={release}
+      aria-label="드론 이동"
+    >
+      <i className={`ti ${icon}`} />
+    </button>
+  )
+
+  return (
+    <div className="dronectl">
+      <button className={`dronectl__deploy ${dep ? 'is-on' : ''}`} onClick={toggleDrone}>
+        <i className="ti ti-drone" />
+        {dep ? '드론 복귀' : '드론 전개'}
+      </button>
+      {dep && (
+        <>
+          <div className="dpad">
+            {padBtn(0, -1, 'ti-chevron-up', 'dpad__up')}
+            {padBtn(-1, 0, 'ti-chevron-left', 'dpad__left')}
+            {padBtn(1, 0, 'ti-chevron-right', 'dpad__right')}
+            {padBtn(0, 1, 'ti-chevron-down', 'dpad__down')}
+            <span className="dpad__hub">
+              <i className="ti ti-drone" />
+            </span>
+          </div>
+          <button className={`dronectl__light ${state.drone.light ? 'is-on' : ''}`} onClick={toggleDroneLight}>
+            <i className="ti ti-bulb" />
+            탐사등
+          </button>
+        </>
+      )}
+    </div>
+  )
+}
+
 const ZOOM_MIN = 0.5
 const ZOOM_MAX = 3
 const ZOOM_STEP = 0.5
@@ -370,6 +425,10 @@ function ControlBackground({ onSteer, onThrottle, throttleResetKey }) {
             {/* 상승/하강(수심) — 하단 중앙 */}
             <div className="control__land-depth">
               <DepthControls />
+            </div>
+            {/* 미니 수중 드론 조종 — 좌상단 */}
+            <div className="control__land-drone">
+              <DroneControls />
             </div>
             <div className="control__land-hint">
               <i className="ti ti-rotate-clockwise" /> 기기를 가로로 돌려 조종하세요

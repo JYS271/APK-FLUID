@@ -695,6 +695,97 @@ function ApproachingDebris() {
   )
 }
 
+/* 탈부착형 미니 수중 드론 — 전개 시 영상에 등장, 조종으로 이동 · 탐사등(라이트) */
+function MiniDrone() {
+  const { state } = useTelemetry()
+  const d = state.drone
+  if (!d || !d.deployed) return null
+  const flip = d.mvx < -0.05 ? -1 : 1
+  return (
+    <div className="videofeed__drone" style={{ left: `${d.x}%`, top: `${d.y}%` }}>
+      <span className="videofeed__drone-craft" style={{ transform: `scaleX(${flip})` }}>
+        <svg viewBox="0 0 122 60" className="videofeed__drone-svg" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <linearGradient id="dBeam" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stopColor="rgba(150,230,255,0.55)" />
+              <stop offset="1" stopColor="rgba(150,230,255,0)" />
+            </linearGradient>
+            <linearGradient id="dBody" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#e6eef6" />
+              <stop offset="1" stopColor="#9fb2c4" />
+            </linearGradient>
+          </defs>
+          {d.light && <polygon className="videofeed__drone-beam" points="82,30 122,6 122,54" fill="url(#dBeam)" />}
+          <circle cx="18" cy="30" r="6.5" fill="#7f93a6" />
+          <rect x="30" y="12" width="26" height="9" rx="4" fill="#b3c2d1" />
+          <path d="M28 30 Q28 18 44 17 L74 17 Q86 18 86 30 Q86 42 74 43 L44 43 Q28 42 28 30 Z" fill="url(#dBody)" stroke="rgba(20,40,66,0.35)" strokeWidth="1" />
+          <circle cx="80" cy="26" r="3.2" fill="#8fe6ff" />
+          <circle cx="80" cy="34" r="3.2" fill="#8fe6ff" />
+        </svg>
+      </span>
+      <span className="videofeed__drone-tag num">MINI DRONE</span>
+    </div>
+  )
+}
+
+/* 수면 부유 쓰레기 종류별 (수면 위 밝은 톤) — 스티로폼/박스/나뭇가지 */
+function SurfaceShape({ kind }) {
+  if (kind === 'foam') {
+    // 스티로폼 조각
+    return (
+      <svg viewBox="0 0 60 34" preserveAspectRatio="xMidYMid meet">
+        <path d="M5 24 L2 13 L14 6 L31 4 L47 8 L58 15 L55 27 L39 31 L17 30 Z" fill="#eef2f5" stroke="#c9d4dc" strokeWidth="1.2" strokeLinejoin="round" />
+        <path d="M14 6 L31 4 L47 8 L36 16 L20 15 Z" fill="#f7fafc" opacity="0.7" />
+      </svg>
+    )
+  }
+  if (kind === 'box') {
+    // 종이 박스(젖은 골판지)
+    return (
+      <svg viewBox="0 0 52 42" preserveAspectRatio="xMidYMid meet">
+        <path d="M6 17 L26 9 L46 17 L46 34 L26 42 L6 34 Z" fill="#c79a63" />
+        <path d="M6 17 L26 9 L46 17 L26 25 Z" fill="#dcb582" />
+        <path d="M26 25 L46 17 L46 34 L26 42 Z" fill="#a67a45" />
+        <path d="M26 25 L26 42" stroke="#8f6636" strokeWidth="1" />
+      </svg>
+    )
+  }
+  // branch (나뭇가지)
+  return (
+    <svg viewBox="0 0 82 28" preserveAspectRatio="xMidYMid meet">
+      <g stroke="#7a5230" fill="none" strokeLinecap="round">
+        <path d="M3 18 Q28 12 48 15 Q66 17 79 11" strokeWidth="4" />
+        <path d="M30 15 L23 5" strokeWidth="2.4" />
+        <path d="M50 15 L59 7" strokeWidth="2.4" />
+        <path d="M50 15 L56 21" strokeWidth="2" />
+      </g>
+    </svg>
+  )
+}
+
+// 수면 부유 쓰레기 배치
+const SURFACE_ITEMS = [
+  { kind: 'foam', l: '13%', w: 46, dur: 4.2, d: 0 },
+  { kind: 'box', l: '38%', w: 42, dur: 5, d: -1.4 },
+  { kind: 'branch', l: '62%', w: 64, dur: 4.6, d: -0.7 },
+  { kind: 'foam', l: '83%', w: 34, dur: 3.8, d: -2.1 },
+]
+function SurfaceDebris() {
+  return (
+    <div className="videofeed__sfc" aria-hidden="true">
+      {SURFACE_ITEMS.map((it, i) => (
+        <span
+          key={i}
+          className="sfc"
+          style={{ left: it.l, width: `${it.w}px`, animationDelay: `${it.d}s`, animationDuration: `${it.dur}s` }}
+        >
+          <SurfaceShape kind={it.kind} />
+        </span>
+      ))}
+    </div>
+  )
+}
+
 /* 가상 카메라 피드 (RGB / 열화상)
    - AI 바운딩 박스: state.detections를 픽셀단위(%) 실시간 오버레이
    - 디헤이징: 탁도 보정 필터로 시인성 확보
@@ -713,6 +804,9 @@ export default function VideoFeed({ compact = false, thermal: thermalProp, showC
     ? `contrast(${1 + clarity * 0.35}) brightness(${1 + clarity * 0.14}) saturate(${1 + clarity * 0.4})`
     : 'none'
 
+  // 수면 분할: 수심이 얕아질수록(1.5m→0) 상단에 하늘·지면 밴드가 커짐. 수면(0m)에서 절반.
+  const surfaceBand = Math.max(0, Math.min(50, 50 * (1 - state.depth / 1.5)))
+
   return (
     <div className={`videofeed ${thermal ? 'videofeed--thermal' : ''}`}>
       {/* 가상 수중 장면 */}
@@ -730,6 +824,8 @@ export default function VideoFeed({ compact = false, thermal: thermalProp, showC
         <MotionFlow />
         {/* 전진 시 공기 방울 */}
         <BubbleField />
+        {/* 탈부착형 미니 수중 드론 */}
+        <MiniDrone />
       </div>
 
       {/* 떠다니는 쓰레기 (+ 추적 박스, hideBoxes면 실루엣만) — 배율에 따라 축소/확대 */}
@@ -738,6 +834,18 @@ export default function VideoFeed({ compact = false, thermal: thermalProp, showC
         {/* 전진 시 멀리서 다가오는 쓰레기 + 종류 분류 박스 */}
         <ApproachingDebris />
       </div>
+
+      {/* 수면 분할 — 수면 근처(수심↓)에서 상단은 하늘·지면, 경계에 부유 쓰레기 */}
+      {surfaceBand > 1 && (
+        <div className="videofeed__surface" style={{ height: `${surfaceBand}%` }}>
+          <div className="videofeed__sky" />
+          <div className="videofeed__cloud c1" />
+          <div className="videofeed__cloud c2" />
+          <div className="videofeed__shore" />
+          <SurfaceDebris />
+          <div className="videofeed__waterline" />
+        </div>
+      )}
 
       {/* HUD 오버레이 (제어 배경에선 숨김 — 상단 바와 겹침 방지) */}
       {showChips && (

@@ -18,6 +18,7 @@ const BATTERY_DRAIN_PER_S = 1 / (10 * 60) // 배터리 소모 고정: 10분당 1
 const DEPTH_RATE = 1.5 // 상승·하강 속도(m/s)
 const DEPTH_MIN = 0 // 수면
 const DEPTH_MAX = 15 // 최대 수심(m)
+const DRONE_SPEED = 16 // 미니 드론 이동 속도(영상 % / s)
 
 // 운용 환경 모드 — 환경별 탁도·유속·수온 기준값
 export const ENV_MODES = [
@@ -49,6 +50,9 @@ const initialState = {
   pos: { x: 34, y: 58 }, // 지도 정규화 좌표 0~100
   depth: 1.8, // m
   vertical: 0, // 수직 명령: -1 상승(수면 위로) / +1 하강(수면 아래로) / 0 유지
+
+  // 탈부착형 미니 수중 드론(해저 탐사)
+  drone: { deployed: false, x: 50, y: 55, light: true, mvx: 0, mvy: 0 },
 
   // 추진(듀얼: 좌/우 날개 differential thrust)
   thrusterL: 0,
@@ -338,6 +342,16 @@ function reducer(state, action) {
         state.vertical !== 0
           ? clamp(state.depth + state.vertical * DEPTH_RATE * dt, DEPTH_MIN, DEPTH_MAX)
           : state.depth
+
+      // --- 미니 수중 드론 이동(전개 시) ---
+      if (state.drone.deployed) {
+        const dr = state.drone
+        s.drone = {
+          ...dr,
+          x: clamp(dr.x + dr.mvx * DRONE_SPEED * dt, 6, 94),
+          y: clamp(dr.y + dr.mvy * DRONE_SPEED * dt + Math.sin(t * 0.9) * 0.12, 30, 94),
+        }
+      }
       s.current = {
         speed: +Math.max(0.05, env.currentSpeed + Math.sin(t * 0.18) * 0.2).toFixed(2),
         dir: Math.round((205 + Math.sin(t * 0.09) * 35 + 360) % 360),
@@ -359,6 +373,32 @@ function reducer(state, action) {
 
     case 'SET_VERTICAL':
       return { ...state, vertical: action.value }
+
+    case 'TOGGLE_DRONE': {
+      const deployed = !state.drone.deployed
+      return {
+        ...state,
+        drone: {
+          ...state.drone,
+          deployed,
+          mvx: 0,
+          mvy: 0,
+          x: deployed ? 50 : state.drone.x,
+          y: deployed ? 55 : state.drone.y,
+        },
+        toast: {
+          id: Math.floor(state.missionTime * 10),
+          kind: deployed ? 'info' : 'success',
+          text: deployed ? '미니 수중 드론 전개 · 해저 탐사 시작' : '미니 수중 드론 복귀 · 도킹',
+        },
+      }
+    }
+
+    case 'SET_DRONE_MOVE':
+      return { ...state, drone: { ...state.drone, mvx: action.x, mvy: action.y } }
+
+    case 'TOGGLE_DRONE_LIGHT':
+      return { ...state, drone: { ...state.drone, light: !state.drone.light } }
 
     case 'SET_MODE': {
       if (state.mode === 'estop' && action.mode !== 'estop') {
@@ -456,6 +496,12 @@ export function TelemetryProvider({ children }) {
 
   const setThruster = useCallback((l, r) => dispatch({ type: 'SET_THRUSTER', l, r }), [])
   const setVertical = useCallback((value) => dispatch({ type: 'SET_VERTICAL', value }), [])
+  const toggleDrone = useCallback(() => {
+    dispatch({ type: 'TOGGLE_DRONE' })
+    if (navigator.vibrate) navigator.vibrate(12)
+  }, [])
+  const setDroneMove = useCallback((x, y) => dispatch({ type: 'SET_DRONE_MOVE', x, y }), [])
+  const toggleDroneLight = useCallback(() => dispatch({ type: 'TOGGLE_DRONE_LIGHT' }), [])
   const setMode = useCallback((mode) => dispatch({ type: 'SET_MODE', mode }), [])
   const setAutonomy = useCallback((value) => dispatch({ type: 'SET_AUTONOMY', value }), [])
   const toggleAssist = useCallback(() => {
@@ -499,6 +545,9 @@ export function TelemetryProvider({ children }) {
     obstacles: obstacleSets[state.environment] || obstacleSets.harbor,
     setThruster,
     setVertical,
+    toggleDrone,
+    setDroneMove,
+    toggleDroneLight,
     setMode,
     setAutonomy,
     toggleAssist,
