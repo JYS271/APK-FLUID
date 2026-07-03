@@ -1,20 +1,20 @@
 import { useState, useEffect, useRef } from 'react'
 import { useTelemetry } from '../state/TelemetryContext.jsx'
 
-const KIND_LABEL = { bottle: '페트병', can: '캔', glass: '유리병', cup: '종이컵' }
+const KIND_LABEL = { bottle: '페트병', box: '종이 박스', branch: '나뭇가지', can: '캔', glass: '유리병', cup: '종이컵' }
 // 실루엣 종횡비(viewBox H/W) — 박스가 실루엣을 감싸도록
-const KIND_ASPECT = { bottle: 78 / 44, can: 64 / 40, glass: 78 / 34, cup: 50 / 44 }
+const KIND_ASPECT = { bottle: 78 / 44, box: 42 / 52, branch: 28 / 82, can: 64 / 40, glass: 78 / 34, cup: 50 / 44 }
 
-// 물살을 타고 떠다니는 쓰레기 (각자 박스가 추적)
+// 물살을 타고 떠다니는 쓰레기 (각자 박스가 추적) — 페트병 + 종이 박스 + 나뭇가지 확장
 const DEBRIS_INIT = [
   { kind: 'bottle', bw: 42 },
+  { kind: 'box', bw: 46 },
+  { kind: 'branch', bw: 54 },
   { kind: 'can', bw: 36 },
-  { kind: 'glass', bw: 32 },
-  { kind: 'cup', bw: 40 },
   { kind: 'bottle', bw: 30 },
-  { kind: 'can', bw: 34 },
-  { kind: 'glass', bw: 38 },
-  { kind: 'cup', bw: 32 },
+  { kind: 'box', bw: 40 },
+  { kind: 'branch', bw: 48 },
+  { kind: 'glass', bw: 34 },
 ]
 // 화면 밖으로 완전히 나간 뒤에만 반대편에서 재진입(순간이동 방지)
 const WRAP_LO = -60
@@ -47,6 +47,29 @@ function DebrisShape({ kind }) {
       <svg className="debris__svg" viewBox="0 0 34 78" preserveAspectRatio="xMidYMid meet" fill="currentColor">
         <rect x="13" y="2" width="8" height="6" rx="1" />
         <path d="M13.5 8 h7 v13 q0 2 1 3 q4.8 4 4.8 12.4 v33 q0 4.3-9.3 4.3 t-9.3-4.3 v-33 q0-8.4 4.8-12.4 q1-1 1-3 z" />
+      </svg>
+    )
+  }
+  if (kind === 'box') {
+    // 종이 박스(젖은 골판지) 실루엣
+    return (
+      <svg className="debris__svg" viewBox="0 0 52 42" preserveAspectRatio="xMidYMid meet" fill="currentColor">
+        <path d="M6 17 L26 9 L46 17 L46 34 L26 42 L6 34 Z" />
+        <path d="M6 17 L26 25 L46 17" fill="none" stroke="currentColor" strokeWidth="1.4" opacity="0.45" />
+        <path d="M26 25 L26 42" fill="none" stroke="currentColor" strokeWidth="1.4" opacity="0.45" />
+      </svg>
+    )
+  }
+  if (kind === 'branch') {
+    // 나뭇가지 실루엣
+    return (
+      <svg className="debris__svg" viewBox="0 0 82 28" preserveAspectRatio="xMidYMid meet">
+        <g stroke="currentColor" fill="none" strokeLinecap="round">
+          <path d="M3 18 Q28 12 48 15 Q66 17 79 11" strokeWidth="4.5" />
+          <path d="M30 15 L23 5" strokeWidth="2.8" />
+          <path d="M50 15 L59 7" strokeWidth="2.8" />
+          <path d="M50 15 L56 21" strokeWidth="2.2" />
+        </g>
       </svg>
     )
   }
@@ -598,7 +621,7 @@ function DebrisField() {
 
 /* 전진 시 멀리서 다가오는 쓰레기 — 소실점에서 그림자로 등장, 가까워지면 박스가 종류를 분류.
    전진(양수)일 때만 나타나 다가옴(z 증가) · 지나가면 소실점으로 재순환하며 다음 쓰레기 감지. */
-const APPROACH_KINDS = ['bottle', 'can', 'glass', 'cup']
+const APPROACH_KINDS = ['bottle', 'box', 'branch', 'can']
 const AP_HORIZON = 42
 const AP_BOTTOM = 118
 const AP_SPREAD = 44

@@ -26,12 +26,13 @@ const FEATURE_TYPES = [
   'rock', 'obstacle', 'weed', 'rock', 'structure', 'sand', 'rock', 'weed',
 ]
 const DET_LABELS = [
-  { label: '플라스틱병', kind: 'bottle' },
+  { label: '페트병', kind: 'bottle' },
+  { label: '종이 박스', kind: 'box' },
+  { label: '나뭇가지', kind: 'branch' },
   { label: '비닐봉지', kind: 'bag' },
   { label: '캔', kind: 'can' },
   { label: '폐어구', kind: 'net' },
   { label: '스티로폼', kind: 'foam' },
-  { label: '유리병', kind: 'glass' },
 ]
 
 function makeDet(i) {
