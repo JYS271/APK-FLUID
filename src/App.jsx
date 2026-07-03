@@ -39,7 +39,13 @@ export default function App() {
           <>
             <StatusBar />
             {tab === 'dashboard' && (
-              <Dashboard onControl={openControl} onOpenWeb={openWeb} onOpenIntro={() => setIntro(true)} onOpenStat={setStatDetail} />
+              <Dashboard
+                onControl={openControl}
+                onOpenWeb={openWeb}
+                onOpenIntro={() => setIntro(true)}
+                onOpenStat={setStatDetail}
+                activeStat={statDetail}
+              />
             )}
             {tab === 'records' && <Records onOpenWeb={openWeb} />}
             <TabBar tab={tab} onTab={setTab} onControl={openControl} />

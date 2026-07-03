@@ -1028,6 +1028,7 @@
   margin-bottom: 16px;
 }
 .statbox__cell {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -1042,10 +1043,29 @@
   cursor: pointer;
   -webkit-appearance: none;
   appearance: none;
-  transition: background 0.15s;
 }
-.statbox__cell:active {
-  background: var(--surface-2);
+/* 누름/선택 시 연주황 라운드 사각형 하이라이트 (칸 안쪽에 표시) */
+.statbox__cell::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border-radius: 12px;
+  background: transparent;
+  transition: background 0.18s ease;
+  pointer-events: none;
+}
+.statbox__cell > * {
+  position: relative;
+  z-index: 1;
+}
+.statbox__cell:active::before,
+.statbox__cell.is-active::before {
+  background: rgba(242, 101, 34, 0.16);
+}
+.statbox__cell.is-active > .ti,
+.statbox__cell.is-active .statbox__more {
+  color: var(--orange-500);
+  opacity: 1;
 }
 /* 점선 구분선 (2×2 십자) */
 .statbox__cell:nth-child(1),

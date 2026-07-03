@@ -11,7 +11,7 @@ const REMOTE_URL = encodeURI(
 )
 
 /* 대시보드(Monitor) — 상태바·지도·영상·요약·빠른작업 */
-export default function Dashboard({ onControl, onOpenWeb, onOpenIntro, onOpenStat }) {
+export default function Dashboard({ onControl, onOpenWeb, onOpenIntro, onOpenStat, activeStat }) {
   const { state, returnHome } = useTelemetry()
   const lat = latencyLevel(state.latency)
   const laggy = state.latency > 300
@@ -89,10 +89,10 @@ export default function Dashboard({ onControl, onOpenWeb, onOpenIntro, onOpenSta
 
       {/* 요약 스탯 — 한 카드, 점선으로 4칸 분할. 누르면 상세 시트 */}
       <section className="card statbox swim-in" style={{ animationDelay: '.16s' }}>
-        <Stat icon="ti-trash" label="오늘 수거" value={state.collectedToday} unit="개" accent onClick={() => onOpenStat('collected')} />
-        <Stat icon="ti-droplet" label="탁도" value={Math.round(state.turbidity)} unit="NTU" onClick={() => onOpenStat('turbidity')} />
-        <Stat icon="ti-temperature" label="수온" value={state.waterTemp.toFixed(1)} unit="℃" onClick={() => onOpenStat('temp')} />
-        <Stat icon="ti-clock" label="가동" value={formatTime(state.missionTime)} unit="" onClick={() => onOpenStat('uptime')} />
+        <Stat icon="ti-trash" label="오늘 수거" value={state.collectedToday} unit="개" accent active={activeStat === 'collected'} onClick={() => onOpenStat('collected')} />
+        <Stat icon="ti-droplet" label="탁도" value={Math.round(state.turbidity)} unit="NTU" active={activeStat === 'turbidity'} onClick={() => onOpenStat('turbidity')} />
+        <Stat icon="ti-temperature" label="수온" value={state.waterTemp.toFixed(1)} unit="℃" active={activeStat === 'temp'} onClick={() => onOpenStat('temp')} />
+        <Stat icon="ti-clock" label="가동" value={formatTime(state.missionTime)} unit="" active={activeStat === 'uptime'} onClick={() => onOpenStat('uptime')} />
       </section>
 
       {/* 배터리 카드 */}
@@ -134,9 +134,13 @@ export default function Dashboard({ onControl, onOpenWeb, onOpenIntro, onOpenSta
   )
 }
 
-function Stat({ icon, label, value, unit, accent, onClick }) {
+function Stat({ icon, label, value, unit, accent, active, onClick }) {
   return (
-    <button type="button" className={`statbox__cell ${accent ? 'statbox__cell--accent' : ''}`} onClick={onClick}>
+    <button
+      type="button"
+      className={`statbox__cell ${accent ? 'statbox__cell--accent' : ''} ${active ? 'is-active' : ''}`}
+      onClick={onClick}
+    >
       <i className={`ti ${icon}`} />
       <div className="statbox__body">
         <span className="statbox__value num">
