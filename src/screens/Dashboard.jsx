@@ -1,10 +1,9 @@
 import { useTelemetry } from '../state/TelemetryContext.jsx'
 import { latencyLevel } from '../components/StatusBar.jsx'
-import MarineMap from '../components/MarineMap.jsx'
+import MapCarousel from '../components/MapCarousel.jsx'
 import VideoFeed from '../components/VideoFeed.jsx'
 import NetGauge from '../components/NetGauge.jsx'
 import EnvOverlay from '../components/EnvOverlay.jsx'
-import EnvSelector from '../components/EnvSelector.jsx'
 
 // 실시간 원격 접속 링크 (첨부 파일)
 const REMOTE_URL = encodeURI(
@@ -50,13 +49,10 @@ export default function Dashboard({ onControl, onOpenWeb, onOpenIntro }) {
         </div>
       </header>
 
-      {/* 운용 환경 전환 */}
-      <EnvSelector />
-
-      {/* 지도 카드 */}
+      {/* 지도 카드 — 좌우 스와이프로 운용 환경 전환(캐러셀) */}
       <section className="card card--map swim-in" style={{ animationDelay: '.04s' }}>
         <div className="card__map-wrap">
-          <MarineMap />
+          <MapCarousel />
           <EnvOverlay />
           {state.avoiding && (
             <div className="oa-badge">

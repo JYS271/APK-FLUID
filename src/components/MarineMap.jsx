@@ -1,15 +1,25 @@
-import { useTelemetry } from '../state/TelemetryContext.jsx'
-import { coastline, homeBase } from '../data/mapData.js'
+import { useTelemetry, ENV_MODES } from '../state/TelemetryContext.jsx'
+import { coastline, homeBase, patrolPaths, heatmapSets, obstacleSets } from '../data/mapData.js'
 
 const clamp01 = (v) => Math.max(0, Math.min(1, v))
 const lerp = (a, b, t) => Math.round(a + (b - a) * t)
 
 /* 스타일드 해양 SVG 지도
-   - 순찰 경로(오렌지 점선) + 시작/목표 가오리 마커
-   - 쓰레기 히트맵 · 장애물(소나 링) · OA 회피 아크
-   - 부채꼴(날개) 센서 FOV · 로봇 마커(위치/방위 회전) · 조류 화살표 */
-export default function MarineMap({ compact = false, zoom = 1 }) {
-  const { state, gps, heatmap, path, obstacles } = useTelemetry()
+   - 순찰 경로(오렌지 점선) + 시작/목표 마커 · 쓰레기 히트맵 · 장애물(소나 링) · OA 회피 아크
+   - 부채꼴 센서 FOV · 로봇 마커(내 위치) · 조류 화살표
+   environment prop 지정 시 해당 환경의 정적 지도(캐러셀 슬라이드용). 미지정 시 현재 활성 환경(라이브). */
+export default function MarineMap({ compact = false, zoom = 1, environment }) {
+  const ctx = useTelemetry()
+  const { state, gps } = ctx
+  // 환경별 슬라이드(비활성)면 mapData에서 직접, 활성이면 컨텍스트(라이브)에서
+  const envKey = environment || state.environment
+  const active = envKey === state.environment
+  const heatmap = environment ? heatmapSets[envKey] || heatmapSets.harbor : ctx.heatmap
+  const path = environment ? patrolPaths[envKey] || patrolPaths.harbor : ctx.path
+  const obstacles = environment ? obstacleSets[envKey] || obstacleSets.harbor : ctx.obstacles
+  const envMode = ENV_MODES.find((m) => m.key === envKey) || ENV_MODES[0]
+  const turbidity = active ? state.turbidity : envMode.turbidity
+  const waterTemp = active ? state.waterTemp : envMode.temp
 
   // 줌: 배율이 낮을수록 viewBox를 넓혀 그만큼 더 넓은 바다를 보여줌
   const vs = 100 / zoom
@@ -21,8 +31,8 @@ export default function MarineMap({ compact = false, zoom = 1 }) {
   const pathGoal = path[path.length - 1]
 
   // 수질 색조 — 탁도↑ → 탁한 오버레이 진해짐, 수온으로 청록↔갈색 이동(영상처럼 반응)
-  const murk = clamp01((state.turbidity - 16) / 56) * 0.6 // 오버레이 불투명도 0~0.6
-  const warm = clamp01((state.waterTemp - 18) / 6) // 0(차가움/청록) ~ 1(따뜻함/갈색)
+  const murk = clamp01((turbidity - 16) / 56) * 0.6 // 오버레이 불투명도 0~0.6
+  const warm = clamp01((waterTemp - 18) / 6) // 0(차가움/청록) ~ 1(따뜻함/갈색)
   const tint = `rgb(${lerp(38, 104, warm)}, ${lerp(96, 84, warm)}, ${lerp(84, 44, warm)})`
 
   // 다른 ARK-FLUID 유닛(함대) — 미션 시간 기반 궤도 이동
@@ -67,13 +77,13 @@ export default function MarineMap({ compact = false, zoom = 1 }) {
     avoidArc = `M${gps.x},${gps.y} Q${ctrl.x},${ctrl.y} ${fwd.x},${fwd.y}`
   }
 
-  // 조류 화살표 그리드
-  const cur = state.current
+  // 조류 화살표 그리드 (비활성 슬라이드는 환경 기본 유속·정적 방향)
+  const cur = active ? state.current : { speed: envMode.currentSpeed, dir: 210 }
   const curRad = (cur.dir * Math.PI) / 180
   const arrows = [
     { x: 30, y: 24 }, { x: 66, y: 34 }, { x: 78, y: 66 }, { x: 34, y: 72 }, { x: 52, y: 48 },
   ]
-  const goalDone = state.netLoad >= 90
+  const goalDone = active && state.netLoad >= 90
 
   return (
     <svg className="marinemap" viewBox={viewBox} preserveAspectRatio="xMidYMid slice" role="img" aria-label="해양 순찰 지도">
@@ -150,7 +160,7 @@ export default function MarineMap({ compact = false, zoom = 1 }) {
 
       {/* 장애물 + 소나 링 */}
       {obstacles.map((o, i) => {
-        const detected = state.nearObstacle && Math.abs(state.nearObstacle.x - o.x) < 0.1 && Math.abs(state.nearObstacle.y - o.y) < 0.1
+        const detected = active && state.nearObstacle && Math.abs(state.nearObstacle.x - o.x) < 0.1 && Math.abs(state.nearObstacle.y - o.y) < 0.1
         return (
           <g key={i}>
             <circle cx={o.x} cy={o.y} r={o.r} fill="rgba(236,61,61,0.14)" stroke={detected ? 'var(--danger)' : 'rgba(236,61,61,0.5)'} strokeWidth={detected ? 0.7 : 0.4} />
@@ -166,12 +176,12 @@ export default function MarineMap({ compact = false, zoom = 1 }) {
       })}
 
       {/* OA 회피 아크 */}
-      {avoidArc && (
+      {active && avoidArc && (
         <path d={avoidArc} fill="none" stroke="var(--warning)" strokeWidth="0.9" strokeDasharray="1.4 1.2" strokeLinecap="round" />
       )}
 
       {/* 기지 자동 복귀 경로 (배출 복귀 중) */}
-      {state.returning && (
+      {active && state.returning && (
         <line
           x1={gps.x}
           y1={gps.y}
@@ -189,7 +199,7 @@ export default function MarineMap({ compact = false, zoom = 1 }) {
       <g transform={`translate(${homeBase.x} ${homeBase.y})`}>
         <circle r="2.4" fill="none" stroke={state.returning ? 'var(--success)' : 'rgba(120,220,160,0.8)'} strokeWidth="0.5" />
         <circle r="0.9" fill="rgba(120,220,160,0.9)" />
-        {state.returning && (
+        {active && state.returning && (
           <circle r="2.4" fill="none" stroke="var(--success)" strokeWidth="0.5" opacity="0.7">
             <animate attributeName="r" values="2.4;5;2.4" dur="1.5s" repeatCount="indefinite" />
             <animate attributeName="opacity" values="0.7;0;0.7" dur="1.5s" repeatCount="indefinite" />
@@ -214,28 +224,31 @@ export default function MarineMap({ compact = false, zoom = 1 }) {
         )}
       </g>
 
-      {/* 다른 유닛(함대) — 작고 반투명한 원형 점 */}
-      {fleet.map((u, i) => (
-        <g key={`u${i}`} transform={`translate(${u.x.toFixed(2)} ${u.y.toFixed(2)})`} opacity="0.5">
-          <circle r="1.3" fill="var(--navy-300)" stroke="rgba(200,220,255,0.6)" strokeWidth="0.35" />
-        </g>
-      ))}
+      {/* 다른 유닛(함대) — 활성 환경만 */}
+      {active &&
+        fleet.map((u, i) => (
+          <g key={`u${i}`} transform={`translate(${u.x.toFixed(2)} ${u.y.toFixed(2)})`} opacity="0.5">
+            <circle r="1.3" fill="var(--navy-300)" stroke="rgba(200,220,255,0.6)" strokeWidth="0.35" />
+          </g>
+        ))}
 
-      {/* 센서 FOV 부채꼴 */}
-      <path d={`M${gps.x},${gps.y} L${fx1},${fy1} A${fovR},${fovR} 0 0 1 ${fx2},${fy2} Z`} fill="url(#fov)" opacity="0.85" />
+      {/* 센서 FOV 부채꼴 + 로봇 마커(내 위치) — 활성 환경만 */}
+      {active && (
+        <>
+          <path d={`M${gps.x},${gps.y} L${fx1},${fy1} A${fovR},${fovR} 0 0 1 ${fx2},${fy2} Z`} fill="url(#fov)" opacity="0.85" />
+          <g transform={`translate(${gps.x} ${gps.y})`}>
+            {/* 정확도 헤일로(맥동) */}
+            <circle r="4.5" fill="rgba(10,132,255,0.16)" stroke="rgba(10,132,255,0.35)" strokeWidth="0.3">
+              <animate attributeName="r" values="3.4;7;3.4" dur="2.4s" repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0.95;0.35;0.95" dur="2.4s" repeatCount="indefinite" />
+            </circle>
+            {/* 파란 위치 점(흰 테두리) */}
+            <circle r="2" fill="#0a84ff" stroke="#fff" strokeWidth="0.7" />
+          </g>
+        </>
+      )}
 
-      {/* 로봇 마커 — Apple 지도 '내 위치' 스타일 파란 점 + 맥동 헤일로 */}
-      <g transform={`translate(${gps.x} ${gps.y})`}>
-        {/* 정확도 헤일로(맥동) */}
-        <circle r="4.5" fill="rgba(10,132,255,0.16)" stroke="rgba(10,132,255,0.35)" strokeWidth="0.3">
-          <animate attributeName="r" values="3.4;7;3.4" dur="2.4s" repeatCount="indefinite" />
-          <animate attributeName="opacity" values="0.95;0.35;0.95" dur="2.4s" repeatCount="indefinite" />
-        </circle>
-        {/* 파란 위치 점(흰 테두리) */}
-        <circle r="2" fill="#0a84ff" stroke="#fff" strokeWidth="0.7" />
-      </g>
-
-      {!compact && (
+      {active && !compact && (
         <text x="3" y="97" fill="rgba(200,220,255,0.55)" fontSize="2.6" className="num">
           {gps.x.toFixed(1)}, {gps.y.toFixed(1)} · {Math.round(state.heading)}°
         </text>
