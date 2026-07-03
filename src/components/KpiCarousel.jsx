@@ -83,7 +83,7 @@ export default function KpiCarousel() {
         >
           {SLIDES.map((s) => (
             <div className="kpicar__slide" key={s.key}>
-              <div className={`kpicard ${s.accent ? 'is-accent' : ''}`}>
+              <div className={`kpicard kpicard--${s.key}`}>
                 <span className="kpicard__ic">
                   <i className={`ti ${s.icon}`} />
                 </span>
