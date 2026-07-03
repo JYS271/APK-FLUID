@@ -17,6 +17,10 @@ export default function MarineMap({ compact = false, zoom = 1, environment }) {
   const heatmap = environment ? heatmapSets[envKey] || heatmapSets.harbor : ctx.heatmap
   const path = environment ? patrolPaths[envKey] || patrolPaths.harbor : ctx.path
   const obstacles = environment ? obstacleSets[envKey] || obstacleSets.harbor : ctx.obstacles
+  // 오염 스팟(느낌표): 활성 지도는 라이브(수거 시 제거), 정적 슬라이드는 히트맵 강점 지점
+  const spots = active
+    ? (ctx.spots || []).filter((s) => !s.cleared)
+    : heatmap.filter((p) => p.w >= 0.7)
   const envMode = ENV_MODES.find((m) => m.key === envKey) || ENV_MODES[0]
   const turbidity = active ? state.turbidity : envMode.turbidity
   const waterTemp = active ? state.waterTemp : envMode.temp
@@ -153,6 +157,20 @@ export default function MarineMap({ compact = false, zoom = 1, environment }) {
       {/* 히트맵 */}
       {heatmap.map((p, i) => (
         <circle key={i} cx={p.x} cy={p.y} r={4 + p.w * 6} fill="url(#hot)" />
+      ))}
+
+      {/* 오염도 높은 지점 — 느낌표(!) 표시. 기계가 지나가면 제거됨 */}
+      {spots.map((sp, i) => (
+        <g key={sp.id || i} transform={`translate(${sp.x} ${sp.y})`}>
+          {active && (
+            <circle r="2.8" fill="none" stroke="#f5a623" strokeWidth="0.5" opacity="0.7">
+              <animate attributeName="r" values="2.8;5.4;2.8" dur="1.8s" repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0.7;0;0.7" dur="1.8s" repeatCount="indefinite" />
+            </circle>
+          )}
+          <circle r="2.8" fill="#f5a623" stroke="#fff" strokeWidth="0.5" />
+          <text x="0" y="1.05" textAnchor="middle" fontSize="3.4" fontWeight="800" fill="#fff">!</text>
+        </g>
       ))}
 
       {/* 순찰 경로 */}

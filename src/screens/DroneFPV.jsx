@@ -105,6 +105,22 @@ export default function DroneFPV({ onExit }) {
   // --- HUD 수치(저빈도 갱신) ---
   const [hud, setHud] = useState({ temp: startTempRef.current, depth: 6.5, dist: 0, delta: 0 })
 
+  // --- 드론 조종 스위치: 자동 탐사 / 수동 조종 (기본 자동) ---
+  const [droneAuto, setDroneAuto] = useState(true)
+  const autoRef = useRef(true)
+  autoRef.current = droneAuto // 렌더마다 동기화(루프에서 최신값 참조)
+  const autoPhaseRef = useRef(0)
+  const setDroneAutoMode = useCallback((val) => {
+    setDroneAuto(val)
+    if (!val) {
+      // 수동 전환 시 자동 입력 해제(드론 정지 후 사용자 제어)
+      moveRef.current = { x: 0, y: 0 }
+      depthDirRef.current = 0
+    }
+    if (navigator.vibrate) navigator.vibrate(6)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   // --- AI 탐지 박스(0.48s 주기 드리프트/교체) ---
   const [dets, setDets] = useState(() => [0, 1, 2, 3].map(makeDet))
   useEffect(() => {
@@ -135,6 +151,15 @@ export default function DroneFPV({ onExit }) {
     const step = (now) => {
       const dt = clamp((now - (prevRef.current || now)) / 1000, 0, 0.05)
       prevRef.current = now
+
+      // 자동 탐사: 조이스틱 대신 자동 이동 패턴 주입(전진 + 완만한 좌우 스윙 + 수심 변화)
+      if (autoRef.current) {
+        autoPhaseRef.current += dt
+        const ap = autoPhaseRef.current
+        moveRef.current = { x: Math.sin(ap * 0.6) * 0.45, y: -(0.55 + Math.sin(ap * 0.9) * 0.15) }
+        const dz = Math.sin(ap * 0.22)
+        depthDirRef.current = dz > 0.55 ? 1 : dz < -0.55 ? -1 : 0
+      }
 
       // 수심(상승/하강)
       depthRef.current = clamp(depthRef.current + depthDirRef.current * 1.5 * dt, 1.5, 13.5)
@@ -322,16 +347,34 @@ export default function DroneFPV({ onExit }) {
         </div>
 
         {/* ===== 조종 레이어 ===== */}
-        {/* 좌하단 — 이동 조이스틱 */}
+        {/* 좌하단 — 자동/수동 스위치 + 이동 조이스틱 */}
         <div className="dfpv-hud dfpv-joy">
-          <Joystick onMove={onJoy} />
-          <span className="dfpv-ctl-label">이동</span>
+          <div className="dfpv-modesw" role="tablist" aria-label="드론 조종 모드">
+            <button
+              role="tab"
+              aria-selected={droneAuto}
+              className={`dfpv-modesw__opt ${droneAuto ? 'is-on' : ''}`}
+              onClick={() => setDroneAutoMode(true)}
+            >
+              <i className="ti ti-robot" /> 자동
+            </button>
+            <button
+              role="tab"
+              aria-selected={!droneAuto}
+              className={`dfpv-modesw__opt ${!droneAuto ? 'is-on' : ''}`}
+              onClick={() => setDroneAutoMode(false)}
+            >
+              <i className="ti ti-hand-finger" /> 수동
+            </button>
+          </div>
+          <Joystick onMove={onJoy} disabled={droneAuto} />
+          <span className="dfpv-ctl-label">{droneAuto ? '자동 탐사 중' : '수동 이동'}</span>
         </div>
 
         {/* 우하단 — 카메라 방향 + 상승/하강 + 탐사등 */}
         <div className="dfpv-hud dfpv-right">
           <CameraPad onLook={(x, y) => (camRef.current = { x, y })} />
-          <div className="dfpv-depth">
+          <div className={`dfpv-depth ${droneAuto ? 'is-locked' : ''}`}>
             <HoldBtn className="dfpv-rbtn" onHold={() => (depthDirRef.current = -1)} onRelease={() => (depthDirRef.current = 0)} label="상승">
               <i className="ti ti-chevron-up" />
             </HoldBtn>
@@ -361,8 +404,8 @@ function Metric({ icon, label, value, tone }) {
   )
 }
 
-/* ---- 가상 조이스틱(스테이지 90° 회전 보정) ---- */
-function Joystick({ onMove }) {
+/* ---- 가상 조이스틱(스테이지 90° 회전 보정) · disabled 시 잠금 ---- */
+function Joystick({ onMove, disabled = false }) {
   const baseRef = useRef(null)
   const knobRef = useRef(null)
   const activeRef = useRef(false)
@@ -386,6 +429,7 @@ function Joystick({ onMove }) {
     onMove(+(lx / R).toFixed(3), +(ly / R).toFixed(3))
   }
   const down = (e) => {
+    if (disabled) return // 자동 모드: 조이스틱 잠금
     activeRef.current = true
     try {
       e.currentTarget.setPointerCapture(e.pointerId)
@@ -403,7 +447,7 @@ function Joystick({ onMove }) {
   }
   return (
     <div
-      className="dfpv-joybase"
+      className={`dfpv-joybase ${disabled ? 'is-locked' : ''}`}
       ref={baseRef}
       onPointerDown={down}
       onPointerMove={handle}
@@ -413,7 +457,7 @@ function Joystick({ onMove }) {
     >
       <span className="dfpv-joyring" />
       <span className="dfpv-joyknob" ref={knobRef}>
-        <i className="ti ti-arrows-move" />
+        <i className={`ti ${disabled ? 'ti-robot' : 'ti-arrows-move'}`} />
       </span>
     </div>
   )

@@ -4571,7 +4571,35 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+}
+/* 자동/수동 스위치 */
+.dfpv-modesw {
+  display: flex;
+  gap: 3px;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(6, 18, 30, 0.5);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+.dfpv-modesw__opt {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 13px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  color: rgba(234, 243, 250, 0.7);
+  cursor: pointer;
+}
+.dfpv-modesw__opt .ti {
+  font-size: 15px;
+}
+.dfpv-modesw__opt.is-on {
+  background: linear-gradient(135deg, var(--orange-500), var(--orange-600));
+  color: #fff;
 }
 .dfpv-joybase {
   position: relative;
@@ -4583,6 +4611,12 @@
   border: 1px solid rgba(255, 255, 255, 0.14);
   touch-action: none;
   cursor: grab;
+  transition: opacity 0.2s;
+}
+.dfpv-joybase.is-locked {
+  opacity: 0.4;
+  pointer-events: none;
+  cursor: default;
 }
 .dfpv-joyring {
   position: absolute;
@@ -4672,6 +4706,11 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  transition: opacity 0.2s;
+}
+.dfpv-depth.is-locked {
+  opacity: 0.4;
+  pointer-events: none;
 }
 .dfpv-rbtn {
   display: flex;

@@ -31,6 +31,16 @@ export const ENV_MODES = [
 ]
 const ENV_MAP = Object.fromEntries(ENV_MODES.map((m) => [m.key, m]))
 
+// 오염도 높은 지점(느낌표 표시) — 환경별 히트맵에서 강한 지점(w≥0.7)만 추출
+const SPOT_W_MIN = 0.7
+const SPOT_CLEAR_R = 6 // 본체가 이 반경 안을 지나가면 수거 완료로 제거(정규화 좌표)
+function buildSpots(envKey) {
+  const pts = heatmapSets[envKey] || heatmapSets.harbor
+  return pts
+    .filter((p) => p.w >= SPOT_W_MIN)
+    .map((p, i) => ({ id: `${envKey}-${i}`, x: p.x, y: p.y, cleared: false }))
+}
+
 const initialState = {
   // 연결/통신
   connection: 'online', // online | weak | lost
@@ -67,6 +77,9 @@ const initialState = {
 
   // 운용 환경 (항만/하천/저수지/연안)
   environment: 'harbor',
+
+  // 오염 스팟(느낌표) — 본체/기계가 지나가면 제거됨
+  spots: buildSpots('harbor'),
 
   // AI 자율항법
   mode: 'patrol', // patrol(auto) | manual | hold | estop
@@ -365,6 +378,22 @@ function reducer(state, action) {
       // --- 객체 탐지(온보드 추론) ---
       s.detections = computeDetections(t, s.turbidity, s.dehaze)
 
+      // --- 오염 스팟(느낌표): 어떤 모드로든 본체가 지나가면 수거 완료로 제거 ---
+      if (state.spots.some((sp) => !sp.cleared)) {
+        let clearedCount = 0
+        s.spots = state.spots.map((sp) => {
+          if (sp.cleared) return sp
+          if (Math.hypot(s.pos.x - sp.x, s.pos.y - sp.y) < SPOT_CLEAR_R) {
+            clearedCount++
+            return { ...sp, cleared: true }
+          }
+          return sp
+        })
+        if (clearedCount > 0) s.collectedToday = s.collectedToday + clearedCount
+      } else {
+        s.spots = state.spots
+      }
+
       // --- 임계 경고 ---
       if (state.netLoad < 90 && s.netLoad >= 90) {
         s.toast = { id: t, kind: 'warning', text: '수거함 90% — 회수 지점으로 복귀를 권장합니다' }
@@ -470,6 +499,7 @@ function reducer(state, action) {
       return {
         ...state,
         environment: action.key,
+        spots: buildSpots(action.key), // 환경별 오염 스팟 재생성
         toast: { id: state.missionTime, kind: 'info', text: `운용 환경 전환 · ${m ? m.label : action.key}` },
       }
     }
@@ -574,6 +604,7 @@ export function TelemetryProvider({ children }) {
     heatmap: heatmapSets[state.environment] || heatmapSets.harbor,
     path: patrolPaths[state.environment] || patrolPaths.harbor,
     obstacles: obstacleSets[state.environment] || obstacleSets.harbor,
+    spots: state.spots,
     setThruster,
     setVertical,
     toggleDrone,
