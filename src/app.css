@@ -2943,7 +2943,7 @@
   place-items: center;
   background: var(--surface-2);
   color: var(--navy-500);
-  font-size: 21px;
+  font-size: 20px;
   margin-bottom: 5px;
 }
 .kpicard--today .kpicard__ic {
@@ -2963,27 +2963,27 @@
   color: #12808c;
 }
 .kpicard__val {
-  font-size: 38px;
+  font-size: 37px;
   font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 1;
   color: var(--text);
 }
 .kpicard__val em {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   font-style: normal;
   color: var(--text-soft);
   margin-left: 3px;
 }
 .kpicard__label {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--text);
   margin-top: 4px;
 }
 .kpicard__sub {
-  font-size: 11.5px;
+  font-size: 10.5px;
   color: var(--text-soft);
 }
 .kpicar__dots {
@@ -3014,12 +3014,19 @@
   align-items: center;
   gap: 16px;
 }
-/* 기록 카드 제목·부제 +3px (대시보드 공유 클래스라 .records로 스코프) */
+/* 기록 헤더 — 대시보드 공유 클래스라 .records로 스코프해 1px 축소 */
+.records .dash__eyebrow {
+  font-size: 10px;
+}
+.records .dash__title {
+  font-size: 21.5px;
+}
+/* 기록 카드 제목·부제 (대시보드 공유 클래스라 .records로 스코프) */
 .records .card__title {
-  font-size: 15.5px;
+  font-size: 14.5px;
 }
 .records .card__sub {
-  font-size: 14px;
+  font-size: 13px;
 }
 
 /* 주간/월간 전환 토글 */
@@ -3031,7 +3038,7 @@
   gap: 2px;
 }
 .rangeToggle button {
-  font-size: 14.5px;
+  font-size: 13.5px;
   font-weight: 700;
   color: var(--text-soft);
   padding: 6px 12px;
@@ -3050,12 +3057,12 @@
   margin-bottom: 6px;
 }
 .card__range-total .num {
-  font-size: 26.5px;
+  font-size: 25.5px;
   font-weight: 800;
   color: var(--text);
 }
 .card__range-total em {
-  font-size: 14.5px;
+  font-size: 13.5px;
   font-style: normal;
   color: var(--text-soft);
 }
@@ -3070,11 +3077,11 @@
   animation: fillElastic 0.7s var(--ease-elastic) both;
 }
 .barchart__label {
-  font-size: 12px;
+  font-size: 11px;
   fill: var(--text-soft);
 }
 .barchart__val {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
 }
 
@@ -3083,12 +3090,12 @@
   overflow: visible;
 }
 .donut__total {
-  font-size: 26.5px;
+  font-size: 25.5px;
   font-weight: 800;
   fill: var(--text);
 }
 .donut__unit {
-  font-size: 14px;
+  font-size: 13px;
   fill: var(--text-soft);
 }
 .legend {
@@ -3104,7 +3111,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 14.5px;
+  font-size: 13.5px;
 }
 .legend__dot {
   width: 10px;
@@ -3134,11 +3141,11 @@
   gap: 8px;
   padding: 12px;
   border-radius: 12px 12px 16px 16px;
-  font-size: 14.5px;
+  font-size: 13.5px;
   font-weight: 600;
 }
 .badge .ti:first-child {
-  font-size: 22px;
+  font-size: 21px;
 }
 .badge--done {
   background: var(--success-bg);
@@ -3153,7 +3160,7 @@
   position: absolute;
   top: 8px;
   right: 8px;
-  font-size: 13.5px;
+  font-size: 12.5px;
   color: var(--success);
 }
 
@@ -3181,7 +3188,7 @@
   background: var(--line);
 }
 .timeline__time {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-soft);
   font-weight: 600;
 }
@@ -3203,7 +3210,7 @@
   background: var(--danger);
 }
 .timeline__text {
-  font-size: 14.5px;
+  font-size: 13.5px;
   color: var(--text);
 }
 .records__more {
@@ -3213,7 +3220,7 @@
   border-radius: 12px;
   background: var(--surface-2);
   color: var(--navy-700);
-  font-size: 14.5px;
+  font-size: 13.5px;
   font-weight: 700;
   display: inline-flex;
   align-items: center;
