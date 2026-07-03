@@ -94,6 +94,9 @@ export default function Dashboard({ onControl, onOpenWeb, onOpenIntro }) {
       {/* 배터리 카드 */}
       <BatteryCard battery={state.battery} charging={state.charging} />
 
+      {/* 미니 드론 배터리 현황 — 도킹 시 활성, 미부착 시 회색 비활성 */}
+      <DroneStatusCard drone={state.drone} />
+
       {/* 빠른 작업 */}
       <section className="quick swim-in" style={{ animationDelay: '.2s' }}>
         <h2 className="section-title">빠른 작업</h2>
@@ -179,6 +182,36 @@ function BatteryCard({ battery, charging }) {
         </span>
         <span className="battery__run num">
           {charging ? '—' : `약 ${rh}시간 ${String(rm).padStart(2, '0')}분`} 운용 가능
+        </span>
+      </div>
+    </section>
+  )
+}
+
+function DroneStatusCard({ drone }) {
+  const attached = !drone.deployed // 본체 도킹(부착) 여부
+  const pct = Math.round(drone.battery)
+  return (
+    <section className={`card card--drone swim-in ${attached ? '' : 'is-off'}`} style={{ animationDelay: '.19s' }}>
+      <div className="drone__head">
+        <span className="drone__title">
+          <i className="ti ti-drone" /> 미니 수중 드론
+        </span>
+        <span className={`drone__badge ${attached ? 'is-docked' : 'is-away'}`}>
+          <i className={`ti ${attached ? 'ti-plug-connected' : 'ti-plug-connected-x'}`} />
+          {attached ? '본체 도킹' : '전개 중 · 미부착'}
+        </span>
+      </div>
+      <div className="drone__bar">
+        <span className="drone__fill" style={{ width: `${pct}%` }} />
+      </div>
+      <div className="drone__meta">
+        <span className="drone__pct num">
+          {pct}
+          <em>%</em>
+        </span>
+        <span className="drone__note">
+          {attached ? '도킹 · 충전 중 (모니터링 활성)' : '탐사 운용 중 (원격 · 모니터링 비활성)'}
         </span>
       </div>
     </section>

@@ -19,6 +19,8 @@ const DEPTH_RATE = 1.5 // 상승·하강 속도(m/s)
 const DEPTH_MIN = 0 // 수면
 const DEPTH_MAX = 15 // 최대 수심(m)
 const DRONE_SPEED = 16 // 미니 드론 이동 속도(영상 % / s)
+const DRONE_DRAIN = 0.09 // 전개(미부착) 시 드론 배터리 소모(%/s)
+const DRONE_CHARGE = 0.35 // 도킹(부착) 시 충전(%/s)
 
 // 운용 환경 모드 — 환경별 탁도·유속·수온 기준값
 export const ENV_MODES = [
@@ -52,7 +54,7 @@ const initialState = {
   vertical: 0, // 수직 명령: -1 상승(수면 위로) / +1 하강(수면 아래로) / 0 유지
 
   // 탈부착형 미니 수중 드론(해저 탐사)
-  drone: { deployed: false, x: 50, y: 55, light: true, mvx: 0, mvy: 0 },
+  drone: { deployed: false, x: 50, y: 55, light: true, mvx: 0, mvy: 0, battery: 100 },
 
   // 추진(듀얼: 좌/우 날개 differential thrust)
   thrusterL: 0,
@@ -343,14 +345,17 @@ function reducer(state, action) {
           ? clamp(state.depth + state.vertical * DEPTH_RATE * dt, DEPTH_MIN, DEPTH_MAX)
           : state.depth
 
-      // --- 미니 수중 드론 이동(전개 시) ---
+      // --- 미니 수중 드론: 전개 시 이동·방전 / 도킹 시 충전 ---
       if (state.drone.deployed) {
         const dr = state.drone
         s.drone = {
           ...dr,
           x: clamp(dr.x + dr.mvx * DRONE_SPEED * dt, 6, 94),
           y: clamp(dr.y + dr.mvy * DRONE_SPEED * dt + Math.sin(t * 0.9) * 0.12, 30, 94),
+          battery: clamp(dr.battery - DRONE_DRAIN * dt, 0, 100),
         }
+      } else {
+        s.drone = { ...state.drone, battery: clamp(state.drone.battery + DRONE_CHARGE * dt, 0, 100) }
       }
       s.current = {
         speed: +Math.max(0.05, env.currentSpeed + Math.sin(t * 0.18) * 0.2).toFixed(2),

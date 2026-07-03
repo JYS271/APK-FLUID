@@ -1401,6 +1401,100 @@
   font-weight: 600;
 }
 
+/* ---------- 미니 드론 배터리 카드 ---------- */
+.card--drone {
+  margin-bottom: 16px;
+  padding: 16px;
+  transition: filter 0.3s;
+}
+.card--drone.is-off {
+  /* 미부착 시 회색 비활성 — swim-in 애니메이션이 opacity를 덮으므로 filter로 흐림 처리 */
+  filter: grayscale(0.6) opacity(0.55);
+}
+.drone__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.drone__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15.5px;
+  font-weight: 700;
+  color: var(--text);
+}
+.drone__title .ti {
+  font-size: 22px;
+  color: #12808c;
+}
+.card--drone.is-off .drone__title .ti {
+  color: var(--text-soft);
+}
+.drone__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 9px;
+  border-radius: 999px;
+}
+.drone__badge .ti {
+  font-size: 14px;
+}
+.drone__badge.is-docked {
+  background: rgba(18, 128, 140, 0.14);
+  color: #0e6e78;
+}
+.drone__badge.is-away {
+  background: var(--surface-2);
+  color: var(--text-soft);
+}
+.drone__bar {
+  position: relative;
+  height: 14px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(14, 31, 58, 0.12);
+}
+.drone__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #12808c, #2ab0c0);
+  transition: width 0.5s var(--ease-swim);
+}
+.card--drone.is-off .drone__fill {
+  background: var(--navy-300);
+}
+.drone__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 9px;
+}
+.drone__pct {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0e6e78;
+}
+.card--drone.is-off .drone__pct {
+  color: var(--text-soft);
+}
+.drone__pct em {
+  font-size: 12px;
+  font-weight: 700;
+  font-style: normal;
+  margin-left: 1px;
+}
+.drone__note {
+  font-size: 12px;
+  color: var(--text-soft);
+}
+
 /* ---------- Quick actions ---------- */
 .quick__row {
   display: grid;
