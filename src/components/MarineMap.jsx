@@ -35,7 +35,7 @@ export default function MarineMap({ compact = false, zoom = 1, environment }) {
   const warm = clamp01((waterTemp - 18) / 6) // 0(차가움/청록) ~ 1(따뜻함/갈색)
   const tint = `rgb(${lerp(38, 104, warm)}, ${lerp(96, 84, warm)}, ${lerp(84, 44, warm)})`
 
-  // 다른 ARK-FLUID 유닛(함대) — 미션 시간 기반 궤도 이동
+  // 다른 ARK-C 유닛(함대) — 미션 시간 기반 궤도 이동
   const t = state.missionTime
   const orbit = (cx, cy, rx, ry, w, ph) => {
     const a = t * w + ph

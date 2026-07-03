@@ -22,7 +22,7 @@ export default function WebBridge({ open, url, title, onClose }) {
         <div className="webbridge__hero">
           <i className="ti ti-world-share" />
           <h3>{title}</h3>
-          <p>SHECO · ARK-FLUID 원격 관제 포털</p>
+          <p>SHECO · ARK-C 원격 관제 포털</p>
         </div>
 
         <div className="webbridge__doc">

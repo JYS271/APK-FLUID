@@ -116,7 +116,7 @@ export default function Dashboard({ onControl, onDroneMode, onOpenWeb, onOpenInt
             <i className="ti ti-book-2" />
           </span>
           <span className="introcard__body">
-            <b>ARK-FLUID 프로젝트 소개</b>
+            <b>ARK-C 프로젝트 소개</b>
             <span>기존 정화 방식의 한계와 우리의 해결 방식</span>
           </span>
           <i className="ti ti-chevron-right introcard__arrow" />
@@ -125,7 +125,7 @@ export default function Dashboard({ onControl, onDroneMode, onOpenWeb, onOpenInt
         {/* 화면당 Primary 오렌지 CTA 1개 — 실시간 원격 접속 링크(첨부) */}
         <a className="cta" href={REMOTE_URL} target="_blank" rel="noopener noreferrer">
           <i className="ti ti-info-circle" />
-          ARK-FLUID 더 알아보기
+          ARK-C 더 알아보기
           <i className="ti ti-external-link cta__ext" />
         </a>
       </section>

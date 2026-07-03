@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-/* ARK-FLUID 프로젝트 소개 시트 — 대시보드 스타일 카드 레이아웃.
+/* ARK-C 프로젝트 소개 시트 — 대시보드 스타일 카드 레이아웃.
    상단 히어로 이미지는 public/intro-hero.png 를 사용하며,
    파일이 없으면 브랜드 배너로 자동 대체된다. */
 const HERO_SRC = import.meta.env.BASE_URL + 'intro-hero.png'
@@ -21,7 +21,7 @@ export default function IntroSheet({ open, onClose }) {
   if (!open) return null
 
   return (
-    <div className="intro" role="dialog" aria-modal="true" aria-label="ARK-FLUID 소개">
+    <div className="intro" role="dialog" aria-modal="true" aria-label="ARK-C 소개">
       <div className="intro__bar">
         <button className="intro__back" onClick={onClose}>
           <i className="ti ti-chevron-left" /> 대시보드
@@ -35,14 +35,14 @@ export default function IntroSheet({ open, onClose }) {
           <img
             className="intro__hero-img"
             src={HERO_SRC}
-            alt="ARK-FLUID"
+            alt="ARK-C"
             style={{ opacity: loaded ? 1 : 0 }}
             onLoad={() => setLoaded(true)}
           />
           {!loaded && (
             <div className="intro__hero-fallback">
               <LocationMark />
-              <b className="num">ARK·FLUID</b>
+              <b className="num">ARK·C</b>
               <span>모듈형 해양 정화 수중 로봇</span>
             </div>
           )}
@@ -53,7 +53,7 @@ export default function IntroSheet({ open, onClose }) {
             <p className="intro__eyebrow">PROJECT</p>
             <h1 className="intro__title">AI 기반 모듈형 해양 정화 로봇</h1>
             <p className="intro__lead">
-              매년 증가하는 해양 쓰레기는 해양 생태계에 심각한 피해를 주고 있습니다. ARK-FLUID는 탐사부터
+              매년 증가하는 해양 쓰레기는 해양 생태계에 심각한 피해를 주고 있습니다. ARK-C는 탐사부터
               수거까지 자동화해 더 빠르고 효율적인 정화를 실현합니다.
             </p>
           </header>
@@ -81,11 +81,11 @@ export default function IntroSheet({ open, onClose }) {
             </ul>
           </section>
 
-          {/* ARK-FLUID의 해결 방식 */}
+          {/* ARK-C의 해결 방식 */}
           <section className="card intro__card">
             <div className="card__title-row">
               <h2 className="card__title">
-                <i className="ti ti-bulb" /> ARK-FLUID의 해결 방식
+                <i className="ti ti-bulb" /> ARK-C의 해결 방식
               </h2>
             </div>
             <ol className="intro__steps">

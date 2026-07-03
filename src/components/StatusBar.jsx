@@ -35,7 +35,7 @@ export default function StatusBar({ dark = false }) {
       <div className="statusbar__brand">
         <span className="statusbar__mark" aria-hidden="true" />
         <div className="statusbar__brand-text">
-          <span className="statusbar__logo num">ARK<b>·</b>FLUID</span>
+          <span className="statusbar__logo num">ARK<b>·</b>C</span>
           <span className="statusbar__unit">NET MODULE Ver.A</span>
         </div>
       </div>

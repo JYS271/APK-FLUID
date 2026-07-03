@@ -2,7 +2,7 @@ import { createContext, useContext, useReducer, useEffect, useRef, useCallback, 
 import { patrolPaths, heatmapSets, obstacleSets, homeBase } from '../data/mapData.js'
 
 /* ============================================================
-   ARK-FLUID 가상 텔레메트리 시뮬레이션 엔진
+   ARK-C 가상 텔레메트리 시뮬레이션 엔진
    ------------------------------------------------------------
    설계 철학: "엣지 컴퓨팅" — 로봇 온보드에서 연산(OA, 객체탐지,
    경로계획)을 처리했다고 가정하고, 이 리듀서가 그 결과값을 산출한다.
