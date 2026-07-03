@@ -12,7 +12,7 @@ const REMOTE_URL = encodeURI(
 )
 
 /* 대시보드(Monitor) — 상태바·지도·영상·요약·빠른작업 */
-export default function Dashboard({ onControl, onOpenWeb }) {
+export default function Dashboard({ onControl, onOpenWeb, onOpenIntro }) {
   const { state, returnHome } = useTelemetry()
   const lat = latencyLevel(state.latency)
   const laggy = state.latency > 300
@@ -115,6 +115,18 @@ export default function Dashboard({ onControl, onOpenWeb }) {
             상세 리포트
           </button>
         </div>
+        {/* 프로젝트 소개 카드 — 누르면 소개 시트 오픈 */}
+        <button className="introcard" onClick={onOpenIntro}>
+          <span className="introcard__ic">
+            <i className="ti ti-book-2" />
+          </span>
+          <span className="introcard__body">
+            <b>ARK-FLUID 프로젝트 소개</b>
+            <span>기존 정화 방식의 한계와 우리의 해결 방식</span>
+          </span>
+          <i className="ti ti-chevron-right introcard__arrow" />
+        </button>
+
         {/* 화면당 Primary 오렌지 CTA 1개 — 실시간 원격 접속 링크(첨부) */}
         <a className="cta" href={REMOTE_URL} target="_blank" rel="noopener noreferrer">
           <i className="ti ti-info-circle" />

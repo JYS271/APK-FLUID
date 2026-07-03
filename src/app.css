@@ -353,97 +353,50 @@
   height: 100%;
   display: block;
 }
-.videofeed__seabed .sb {
-  fill: #063049;
-}
-.videofeed__seabed .sb--far {
-  fill: rgba(9, 58, 82, 0.55);
-}
-.videofeed__seabed .sb--mid {
-  fill: rgba(6, 42, 62, 0.8);
-}
-.videofeed__seabed .sb--near {
-  fill: #05263a;
-}
-.videofeed__seabed .sb--rock {
-  fill: #041d2e;
-}
-.videofeed__seabed .sb--boulder {
-  fill: #03131f;
-}
-.videofeed--thermal .videofeed__seabed .sb {
-  fill: #3a0838;
+/* 채움은 SVG 그라디언트(fill 속성)로 → 입체 음영. 열화상만 평면 난색 override */
+.videofeed__defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
 }
 .videofeed--thermal .videofeed__seabed .sb--far {
-  fill: rgba(90, 20, 74, 0.5);
+  fill: #5a2470;
+}
+.videofeed--thermal .videofeed__seabed .sb--mid {
+  fill: #3f0f52;
 }
 .videofeed--thermal .videofeed__seabed .sb--near {
-  fill: #240426;
+  fill: #260428;
 }
-/* 전경 바위 실루엣 */
-.videofeed__rocks {
+/* 전진 시 공기 방울 — 솟아오르며 좌우로 퍼짐(전진일 때만 보임) */
+.videofeed__bubbles {
   position: absolute;
   inset: 0;
   overflow: hidden;
   pointer-events: none;
 }
-.videofeed__rocks .rock {
+.videofeed__bubbles .bubble {
   position: absolute;
-  bottom: 22%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 35% 30%,
+    rgba(230, 248, 255, 0.72),
+    rgba(198, 234, 255, 0.2) 58%,
+    transparent 72%
+  );
+  border: 1px solid rgba(215, 242, 255, 0.5);
+  opacity: 0;
+  will-change: left, top, transform, opacity;
 }
-.videofeed__rocks .rock svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  fill: #041a29;
-  opacity: 0.9;
-}
-.videofeed--thermal .videofeed__rocks .rock svg {
-  fill: #220326;
-}
-/* 흔들리는 해초 실루엣(바닥에서 화면 안까지) */
-.videofeed__weeds {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-.videofeed__weeds .weed {
-  position: absolute;
-  bottom: 26%;
-  width: 24px;
-  transform-origin: bottom center;
-  animation: weedsway 6s ease-in-out infinite alternate;
-}
-.videofeed__weeds .weed svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  fill: none;
-  stroke: #051a29;
-  stroke-width: 5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  opacity: 0.82;
-}
-/* 덤불형 수초(저수지) — 채움 실루엣 */
-.videofeed__weeds .weed svg.pl--fill {
-  fill: #051a29;
-  stroke: none;
-}
-.videofeed--thermal .videofeed__weeds .weed svg {
-  stroke: #2b0530;
-}
-.videofeed--thermal .videofeed__weeds .weed svg.pl--fill {
-  fill: #2b0530;
-}
-@keyframes weedsway {
-  from {
-    transform: rotate(-6deg);
-  }
-  to {
-    transform: rotate(6deg);
-  }
+.videofeed--thermal .videofeed__bubbles .bubble {
+  background: radial-gradient(
+    circle at 35% 30%,
+    rgba(255, 224, 196, 0.55),
+    rgba(255, 200, 150, 0.14) 60%,
+    transparent 72%
+  );
+  border-color: rgba(255, 210, 170, 0.35);
 }
 /* 전진/후진 광학 흐름 — 추력에 반응하는 마린스노우 스트리크 */
 .videofeed__flow {
@@ -508,6 +461,23 @@
   box-sizing: border-box;
   box-shadow: 0 0 0 1px rgba(16, 33, 60, 0.12); /* 배경 대비 미세 외곽 */
   will-change: left, top;
+}
+/* 다가오는 쓰레기 — 감지 전엔 그림자만(박스·라벨 숨김), 가까워지면 박스 분류 */
+.videofeed__track.approach {
+  transform-origin: center;
+  border-color: transparent;
+  box-shadow: none;
+  will-change: left, top, transform, opacity;
+}
+.videofeed__track.approach .videofeed__bbox-tag {
+  display: none;
+}
+.videofeed__track.approach.is-detected {
+  border-color: var(--orange-500);
+  box-shadow: 0 0 0 1px rgba(16, 33, 60, 0.12);
+}
+.videofeed__track.approach.is-detected .videofeed__bbox-tag {
+  display: block;
 }
 /* 박스 숨김(대시보드 영상) — 쓰레기 실루엣만 표시 */
 .videofeed__dets.is-nobox .videofeed__track {
@@ -869,6 +839,266 @@
 .cta__ext {
   font-size: 17px !important;
   opacity: 0.9;
+}
+
+/* 프로젝트 소개 카드(더 알아보기 위) */
+.introcard {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  margin-bottom: 10px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--card-radius-sm);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.18s var(--ease-swim), box-shadow 0.18s, border-color 0.18s;
+}
+.introcard:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(242, 101, 34, 0.35);
+}
+.introcard:active {
+  transform: scale(0.99);
+}
+.introcard__ic {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: rgba(242, 101, 34, 0.12);
+  color: var(--orange-500);
+  font-size: 20px;
+}
+.introcard__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.introcard__body b {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+.introcard__body span {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+.introcard__arrow {
+  flex-shrink: 0;
+  font-size: 20px;
+  color: var(--text-soft);
+}
+
+/* ============================================================
+   IntroSheet (프로젝트 소개 오버레이)
+   ============================================================ */
+.intro {
+  position: absolute;
+  inset: 0;
+  z-index: 88;
+  background: var(--surface-2);
+  display: flex;
+  flex-direction: column;
+  animation: swimIn 0.35s var(--ease-swim) both;
+}
+.intro__bar {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  height: 52px;
+  padding: 0 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+.intro__back {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  border: none;
+  background: none;
+  color: var(--text);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 4px;
+}
+.intro__back .ti {
+  font-size: 20px;
+}
+.intro__bar-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+.intro__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+/* 히어로 */
+.intro__hero {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(150deg, #0e2f52 0%, #0b2240 55%, #071a30 100%);
+  overflow: hidden;
+}
+.intro__hero-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.3s;
+}
+.intro__hero-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: #fff;
+}
+.intro__hero-fallback b {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+.intro__hero-fallback span {
+  font-size: 12px;
+  color: rgba(220, 235, 255, 0.75);
+}
+.intro__manta {
+  width: 84px;
+  height: auto;
+  margin-bottom: 6px;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.3));
+}
+/* 콘텐츠 */
+.intro__content {
+  padding: 18px 16px calc(24px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.intro__head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.intro__eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--orange-500);
+}
+.intro__title {
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.intro__lead {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+.intro__card {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.intro__list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.intro__list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text);
+}
+.intro__list li .ti {
+  flex-shrink: 0;
+  font-size: 18px;
+  margin-top: 1px;
+  color: var(--orange-500);
+}
+.intro__steps {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  counter-reset: step;
+}
+.intro__steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.intro__step-no {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--orange-500), var(--orange-600));
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+}
+.intro__steps li div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.intro__steps li b {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text);
+}
+.intro__steps li div span {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+.intro__closing {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(242, 101, 34, 0.08);
+  color: var(--orange-600);
+  font-size: 13px;
+  font-weight: 700;
+}
+.intro__closing .ti {
+  font-size: 18px;
 }
 
 /* ============================================================
@@ -1742,6 +1972,107 @@
 }
 .toast--danger .ti {
   color: #ffbcbc;
+}
+
+/* ============================================================
+   AlarmCenter (경보/알람 배너 스택)
+   ============================================================ */
+.alarms {
+  position: absolute;
+  top: 50px;
+  left: 12px;
+  right: 12px;
+  z-index: 85;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+.alarm {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 10px 10px 10px 12px;
+  border-radius: 13px;
+  background: rgba(13, 27, 51, 0.96);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 3px solid var(--orange-500);
+  box-shadow: 0 10px 26px rgba(6, 16, 33, 0.4);
+  animation: alarmIn 0.3s var(--ease-elastic) both;
+}
+.alarm--critical {
+  border-left-color: #ff5a5a;
+  animation: alarmIn 0.3s var(--ease-elastic) both, alarmPulse 1.1s ease-in-out infinite;
+}
+.alarm__ic {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  background: rgba(242, 101, 34, 0.16);
+  color: var(--orange-500);
+  font-size: 17px;
+}
+.alarm--critical .alarm__ic {
+  background: rgba(255, 90, 90, 0.18);
+  color: #ff7b7b;
+}
+.alarm__body {
+  flex: 1;
+  min-width: 0;
+}
+.alarm__title {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.alarm__desc {
+  display: block;
+  font-size: 10.5px;
+  color: rgba(255, 255, 255, 0.72);
+  margin-top: 1px;
+}
+.alarm__x {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.65);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background 0.15s, color 0.15s;
+}
+.alarm__x:active {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+@keyframes alarmIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes alarmPulse {
+  0%,
+  100% {
+    box-shadow: 0 10px 26px rgba(6, 16, 33, 0.4), 0 0 0 0 rgba(255, 70, 70, 0);
+  }
+  50% {
+    box-shadow: 0 10px 26px rgba(6, 16, 33, 0.4), 0 0 0 3px rgba(255, 70, 70, 0.3);
+  }
 }
 
 /* ============================================================

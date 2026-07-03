@@ -1,9 +1,10 @@
 import { useState, useCallback } from 'react'
-import { useTelemetry } from './state/TelemetryContext.jsx'
 import StatusBar from './components/StatusBar.jsx'
 import TabBar from './components/TabBar.jsx'
 import Toast from './components/Toast.jsx'
+import AlarmCenter from './components/AlarmCenter.jsx'
 import WebBridge from './components/WebBridge.jsx'
+import IntroSheet from './components/IntroSheet.jsx'
 import Dashboard from './screens/Dashboard.jsx'
 import Control from './screens/Control.jsx'
 import Records from './screens/Records.jsx'
@@ -14,7 +15,7 @@ export default function App() {
   const [tab, setTab] = useState('dashboard') // dashboard | records
   const [control, setControl] = useState(false)
   const [web, setWeb] = useState(null) // { url, title } | null
-  const { state } = useTelemetry()
+  const [intro, setIntro] = useState(false)
 
   const openControl = useCallback(() => setControl(true), [])
   const exitControl = useCallback(() => setControl(false), [])
@@ -35,13 +36,15 @@ export default function App() {
         ) : (
           <>
             <StatusBar />
-            {tab === 'dashboard' && <Dashboard onControl={openControl} onOpenWeb={openWeb} />}
+            {tab === 'dashboard' && <Dashboard onControl={openControl} onOpenWeb={openWeb} onOpenIntro={() => setIntro(true)} />}
             {tab === 'records' && <Records onOpenWeb={openWeb} />}
             <TabBar tab={tab} onTab={setTab} onControl={openControl} />
           </>
         )}
 
         {/* 전역 오버레이 — .device 직속 */}
+        <AlarmCenter />
+        <IntroSheet open={intro} onClose={() => setIntro(false)} />
         <Toast />
         <WebBridge
           open={!!web}
@@ -49,13 +52,6 @@ export default function App() {
           title={web?.title}
           onClose={() => setWeb(null)}
         />
-
-        {/* 통신두절/저배터리 등 시스템 상태 표시(제어 중에도) */}
-        {state.connection === 'lost' && (
-          <div className="sysbanner">
-            <i className="ti ti-wifi-off" /> 통신 두절 — Fail-safe 정지 중
-          </div>
-        )}
       </div>
     </div>
   )

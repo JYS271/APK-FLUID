@@ -59,58 +59,7 @@ function DebrisShape({ kind }) {
   )
 }
 
-/* 바위/구조물 실루엣 종류별 (span에 맞춰 늘어남) */
-const ROCK_PATH = {
-  block: 'M3 52 L7 9 Q9 3 16 3 L104 6 Q114 8 116 18 L120 52 Z', // 콘크리트 블록(각짐)
-  pebble: 'M0 52 Q3 34 18 30 Q28 26 40 32 Q52 24 66 30 Q82 24 98 32 Q114 30 120 52 Z', // 자갈 무더기
-  mound: 'M0 52 Q30 20 60 18 Q92 20 120 52 Z', // 실트 둔덕(완만)
-  boulder: 'M0 52 Q3 20 30 12 Q58 5 80 18 Q102 30 120 24 L120 52 Z', // 둥근 바위
-}
-
-/* 수초 실루엣 종류별 */
-function PlantSVG({ kind }) {
-  if (kind === 'reed') {
-    // 갈대 — 곧고 가는 줄기 여러 대
-    return (
-      <svg viewBox="0 0 24 100" preserveAspectRatio="none" className="pl">
-        <path d="M12 100 L10 5" />
-        <path d="M12 100 L19 12" />
-        <path d="M12 100 L5 15" />
-        <path d="M12 100 L15 7" />
-      </svg>
-    )
-  }
-  if (kind === 'algae') {
-    // 수초 덤불 — 뭉툭한 잎(채움)
-    return (
-      <svg viewBox="0 0 40 100" preserveAspectRatio="none" className="pl pl--fill">
-        <path d="M20 100 Q4 74 10 52 Q14 38 20 44 Q26 38 30 52 Q36 74 20 100 Z" />
-        <path d="M11 82 Q0 66 5 50 Q8 42 12 50 Q15 62 11 82 Z" />
-        <path d="M29 82 Q40 66 35 50 Q32 42 28 50 Q25 62 29 82 Z" />
-      </svg>
-    )
-  }
-  if (kind === 'sparse') {
-    // 성긴 해초 — 가늘고 힘없는 몇 가닥
-    return (
-      <svg viewBox="0 0 24 100" preserveAspectRatio="none" className="pl">
-        <path d="M12 100 Q8 66 13 40 Q17 22 12 6" />
-        <path d="M12 76 Q21 64 16 48" />
-      </svg>
-    )
-  }
-  // kelp(연안) — 가지치는 다시마
-  return (
-    <svg viewBox="0 0 24 100" preserveAspectRatio="none" className="pl">
-      <path d="M12 100 Q4 74 12 54 Q20 34 11 6" />
-      <path d="M12 100 Q19 78 13 60" />
-      <path d="M12 72 Q3 60 7 44" />
-      <path d="M12 46 Q21 36 17 22" />
-    </svg>
-  )
-}
-
-/* 환경별 해저 지형 프로파일 — 바닥 굴곡 / 바위 / 수초가 각각 다름 */
+/* 환경별 해저 바닥 굴곡 프로파일 */
 const TERRAIN = {
   harbor: {
     // 평평한 뻘 바닥
@@ -195,45 +144,116 @@ const TERRAIN = {
   },
 }
 
-/* 해저 지형 — 원경 능선/바닥 굴곡 + 바위 + 흔들리는 수초(환경별로 달라짐) */
+/* 입체 음영용 그라디언트 정의(문서 1회) */
+function SeabedDefs() {
+  return (
+    <svg className="videofeed__defs" width="0" height="0" aria-hidden="true">
+      <defs>
+        <linearGradient id="sbFar" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#0f5f79" />
+          <stop offset="1" stopColor="#083c53" />
+        </linearGradient>
+        <linearGradient id="sbMid" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#0b4a63" />
+          <stop offset="1" stopColor="#052f47" />
+        </linearGradient>
+        <linearGradient id="sbNear" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#083a55" />
+          <stop offset="1" stopColor="#03253a" />
+        </linearGradient>
+      </defs>
+    </svg>
+  )
+}
+
+/* 해저 바닥 — 입체 음영 바닥 굴곡(환경별) */
 function Seabed() {
   const { state } = useTelemetry()
   const t = TERRAIN[state.environment] || TERRAIN.harbor
   return (
-    <div className="videofeed__seabed" aria-hidden="true">
-      <svg viewBox="0 0 400 220" preserveAspectRatio="none">
-        <path className="sb sb--far" d={t.far} />
-        <path className="sb sb--mid" d={t.mid} />
-        <path className="sb sb--near" d={t.near} />
-      </svg>
-      {/* 전경 바위/구조물 실루엣(해초 뿌리 높이) */}
-      <div className="videofeed__rocks" aria-hidden="true">
-        {t.rocks.map((r, i) => (
-          <span key={i} className="rock" style={{ left: r.l, width: `${r.w}px`, height: `${r.h}px` }}>
-            <svg viewBox="0 0 120 52" preserveAspectRatio="none">
-              <path d={ROCK_PATH[t.rockKind]} />
-            </svg>
-          </span>
-        ))}
+    <>
+      <SeabedDefs />
+      <div className="videofeed__seabed" aria-hidden="true">
+        <svg viewBox="0 0 400 220" preserveAspectRatio="none">
+          <path className="sb sb--far" d={t.far} fill="url(#sbFar)" />
+          <path className="sb sb--mid" d={t.mid} fill="url(#sbMid)" />
+          <path className="sb sb--near" d={t.near} fill="url(#sbNear)" />
+        </svg>
       </div>
-      {/* 흔들리는 수초 실루엣(화면 안까지 올라옴) */}
-      <div className="videofeed__weeds" aria-hidden="true">
-        {t.plants.map((p, i) => (
-          <span
-            key={i}
-            className="weed"
-            style={{
-              left: p.l,
-              width: p.w ? `${p.w}px` : undefined,
-              height: `${p.h}px`,
-              animationDelay: `${-0.4 * i}s`,
-              animationDuration: `${5 + (i % 3) * 0.6}s`,
-            }}
-          >
-            <PlantSVG kind={t.plantKind} />
-          </span>
-        ))}
-      </div>
+    </>
+  )
+}
+
+/* 전진 시 공기 방울 — 추력을 넣으면 방울이 솟아오르며 좌우로 퍼짐(전진할수록 많고 빠르게).
+   정지/후진 시엔 보이지 않음. */
+const BUBBLE_N = 22
+function BubbleField() {
+  const { state } = useTelemetry()
+  const driveRef = useRef(0)
+  driveRef.current = (state.thrusterL + state.thrusterR) / 2
+  const elsRef = useRef([])
+  const psRef = useRef(null)
+  if (!psRef.current) {
+    psRef.current = Array.from({ length: BUBBLE_N }, () => ({
+      x: rand(8, 92),
+      y: rand(40, 120),
+      r: rand(3, 8),
+      sp: rand(7, 16),
+      wob: rand(0, Math.PI * 2),
+      wsp: rand(1.4, 2.6),
+    }))
+  }
+
+  useEffect(() => {
+    let raf
+    let last = null
+    const loop = (t) => {
+      if (last == null) last = t
+      let dt = (t - last) / 1000
+      last = t
+      if (dt > 0.05) dt = 0.05
+      const fwd = Math.max(0, driveRef.current) // 전진일 때만
+      const arr = psRef.current
+      for (let i = 0; i < arr.length; i++) {
+        const p = arr[i]
+        p.wob += dt * p.wsp
+        // 부력으로 상승(전진할수록 빠르게) + 전진 시 좌우로 벌어짐 + 흔들림
+        p.y -= p.sp * (0.35 + fwd * 2.2) * dt
+        p.x += (Math.sin(p.wob) * 3 + Math.sign(p.x - 50) * fwd * 14) * dt
+        if (p.y < -6 || p.x < -8 || p.x > 108) {
+          p.y = rand(102, 122)
+          p.x = 50 + rand(-34, 34)
+          p.r = rand(3, 8)
+        }
+        const el = elsRef.current[i]
+        if (!el) continue
+        if (fwd < 0.03) {
+          el.style.opacity = '0'
+          continue
+        }
+        let op = Math.min(0.8, fwd * 1.05)
+        if (p.y < 12) op *= Math.max(0, p.y / 12) // 상단에서 사라짐
+        el.style.left = p.x + '%'
+        el.style.top = p.y + '%'
+        el.style.opacity = String(op)
+        el.style.transform = `translate(-50%, -50%) scale(${0.7 + fwd * 0.7})`
+      }
+      raf = requestAnimationFrame(loop)
+    }
+    raf = requestAnimationFrame(loop)
+    return () => cancelAnimationFrame(raf)
+  }, [])
+
+  return (
+    <div className="videofeed__bubbles" aria-hidden="true">
+      {psRef.current.map((p, i) => (
+        <span
+          key={i}
+          ref={(el) => (elsRef.current[i] = el)}
+          className="bubble"
+          style={{ width: `${p.r * 2}px`, height: `${p.r * 2}px` }}
+        />
+      ))}
     </div>
   )
 }
@@ -289,6 +309,9 @@ const CREATURES = [
 const rand = (a, b) => a + Math.random() * (b - a)
 
 function MarineLife() {
+  const { state } = useTelemetry()
+  const driveRef = useRef(0)
+  driveRef.current = (state.thrusterL + state.thrusterR) / 2
   const elsRef = useRef([])
   const stateRef = useRef(null)
   if (!stateRef.current) {
@@ -300,6 +323,8 @@ function MarineLife() {
       turn: rand(-0.5, 0.5),
       phase: rand(0, Math.PI * 2),
       swims: c.type !== 'jelly',
+      z: rand(0.15, 0.95), // 원근 깊이(0=멀리 작게, 1=가까이 크게)
+      zv: rand(-0.06, 0.06), // 스스로 다가오거나 멀어짐
     }))
   }
 
@@ -311,6 +336,7 @@ function MarineLife() {
       let dt = (t - last) / 1000
       last = t
       if (dt > 0.05) dt = 0.05 // 탭 비활성 등으로 큰 점프 방지
+      const drive = driveRef.current
       const arr = stateRef.current
       for (let i = 0; i < arr.length; i++) {
         const c = arr[i]
@@ -330,20 +356,38 @@ function MarineLife() {
         c.x = Math.max(5, Math.min(95, c.x))
         c.y = Math.max(8, Math.min(92, c.y))
 
+        // 원근 깊이: 스스로 다가옴/멀어짐 + 전진 추력이면 가까워짐
+        c.zv += rand(-1, 1) * 0.06 * dt
+        c.zv = Math.max(-0.12, Math.min(0.12, c.zv))
+        c.z += c.zv * dt + drive * 0.1 * dt
+        if (c.z > 1) {
+          // 가까이서 지나감 → 다시 멀리서 새로 등장
+          c.z = 0.12
+          c.x = rand(20, 80)
+          c.y = rand(18, 70)
+        } else if (c.z < 0.1) {
+          c.z = 0.1
+          c.zv = Math.abs(c.zv)
+        }
+        const depthScale = 0.4 + c.z * 1.15 // 멀면 작게, 가까우면 크게
+
         const el = elsRef.current[i]
         if (!el) continue
         let tf = 'translate(-50%, -50%)'
         if (c.swims) {
           const deg = (c.heading * 180) / Math.PI
           const flipY = Math.cos(c.heading) < 0 ? -1 : 1 // 좌향 시 상하 뒤집어 배가 아래로
-          tf += ` rotate(${deg}deg) scale(1, ${flipY})`
+          tf += ` rotate(${deg}deg) scale(${depthScale}, ${depthScale * flipY})`
         } else {
           c.phase += dt * 2
-          tf += ` translateY(${Math.sin(c.phase) * 2.5}px)`
+          tf += ` translateY(${Math.sin(c.phase) * 2.5}px) scale(${depthScale})`
         }
         el.style.left = c.x + '%'
         el.style.top = c.y + '%'
         el.style.transform = tf
+        // 원근 대기감: 멀면 흐릿하고 옅게
+        el.style.opacity = String(Math.min(1, c.op * (0.5 + c.z * 0.7)))
+        el.style.filter = `blur(${c.blur + (1 - c.z) * 1.6}px)`
       }
       raf = requestAnimationFrame(loop)
     }
@@ -369,7 +413,7 @@ function MarineLife() {
 
 /* 전진/후진 광학 흐름 — 추력을 넣으면 소실점에서 방사상으로 흐르는 부유물(마린스노우)
    전진: 중심→바깥으로 뻗어 지나감(앞으로 나아가는 느낌) · 후진: 바깥→중심으로 수렴 */
-const FLOW_N = 24
+const FLOW_N = 14
 const FLOW_CX = 50
 const FLOW_CY = 44
 function MotionFlow() {
@@ -412,7 +456,7 @@ function MotionFlow() {
         const dy = p.y - FLOW_CY
         const dist = Math.hypot(dx, dy) || 0.01
         // 원근: 바깥일수록 빠르게 흐름
-        const speed = drive * 48 * (0.28 + dist / 46) * p.r
+        const speed = drive * 20 * (0.28 + dist / 46) * p.r
         p.x += (dx / dist) * speed * dt
         p.y += (dy / dist) * speed * dt
         const off = p.x < -8 || p.x > 108 || p.y < -8 || p.y > 108
@@ -429,10 +473,10 @@ function MotionFlow() {
           continue
         }
         const ang = (Math.atan2(dy, dx) * 180) / Math.PI
-        const len = 1 + mag * (1.6 + dist * 0.12)
+        const len = 1 + mag * (1.1 + dist * 0.08)
         el.style.left = p.x + '%'
         el.style.top = p.y + '%'
-        el.style.opacity = String(Math.min(0.55, mag * (0.2 + dist / 55)))
+        el.style.opacity = String(Math.min(0.3, mag * (0.12 + dist / 80)))
         el.style.transform = `translate(-50%, -50%) rotate(${ang}deg) scaleX(${len})`
       }
       raf = requestAnimationFrame(loop)
@@ -505,7 +549,7 @@ function DebrisField() {
           const dx = c.x - 50
           const dy = c.y - 44
           const dist = Math.hypot(dx, dy) || 0.01
-          const fs = drive * 20 * (0.3 + dist / 50)
+          const fs = drive * 8 * (0.3 + dist / 50)
           c.x += (dx / dist) * fs * dt
           c.y += (dy / dist) * fs * dt
         }
@@ -552,6 +596,105 @@ function DebrisField() {
   )
 }
 
+/* 전진 시 멀리서 다가오는 쓰레기 — 소실점에서 그림자로 등장, 가까워지면 박스가 종류를 분류.
+   전진(양수)일 때만 나타나 다가옴(z 증가) · 지나가면 소실점으로 재순환하며 다음 쓰레기 감지. */
+const APPROACH_KINDS = ['bottle', 'can', 'glass', 'cup']
+const AP_HORIZON = 42
+const AP_BOTTOM = 118
+const AP_SPREAD = 44
+const AP_COUNT = 7
+const AP_DETECT_Z = 0.18 // 이 정도 다가오면 감지·분류(박스 표시)
+function ApproachingDebris() {
+  const { state } = useTelemetry()
+  const driveRef = useRef(0)
+  driveRef.current = (state.thrusterL + state.thrusterR) / 2
+  const trackRef = useRef([])
+  const objRef = useRef([])
+  const tagRef = useRef([])
+  const stRef = useRef(null)
+  if (!stRef.current) {
+    stRef.current = Array.from({ length: AP_COUNT }, (_, i) => ({
+      kind: APPROACH_KINDS[i % 4],
+      lat: ((i * 0.7548776662) % 1) * 2 - 1,
+      z: (i + 0.5) / AP_COUNT,
+      conf: 0.82 + ((i * 0.137) % 1) * 0.15,
+      phase: (i * 1.7) % (Math.PI * 2),
+    }))
+  }
+
+  useEffect(() => {
+    let raf
+    let last = null
+    const loop = (t) => {
+      if (last == null) last = t
+      let dt = (t - last) / 1000
+      last = t
+      if (dt > 0.05) dt = 0.05
+      const drive = driveRef.current
+      const fwd = Math.max(0, drive) // 전진일 때만 등장·전진
+      const gate = Math.min(1, fwd * 3) // 살짝만 전진해도 서서히 나타남
+      const arr = stRef.current
+      for (let i = 0; i < arr.length; i++) {
+        const c = arr[i]
+        c.phase += dt
+        c.z += fwd * 0.12 * dt
+        if (c.z >= 1) {
+          c.z -= 1
+          c.conf = 0.82 + ((i * 0.29 + c.phase) % 1) * 0.15 // 새 감지 신뢰도
+        }
+        const z = c.z
+        const persp = Math.pow(z, 1.7)
+        const y = AP_HORIZON + (AP_BOTTOM - AP_HORIZON) * persp
+        const x = 50 + c.lat * AP_SPREAD * (0.18 + z) + Math.sin(c.phase * 0.6) * 1.2
+        const scale = 0.3 + z * 1.25
+        let depthOp = 1
+        if (z < 0.06) depthOp = z / 0.06
+        else if (z > 0.94) depthOp = (1 - z) / 0.06
+        depthOp = Math.max(0, Math.min(1, depthOp))
+        const track = trackRef.current[i]
+        if (!track) continue
+        track.style.left = x + '%'
+        track.style.top = y + '%'
+        track.style.transform = `translate(-50%, -50%) scale(${scale})`
+        track.style.opacity = String(depthOp * gate)
+        // 감지·분류: 어느 정도 다가오면 박스+라벨 표시
+        const detected = z > AP_DETECT_Z && gate > 0.5
+        track.classList.toggle('is-detected', detected)
+        const obj = objRef.current[i]
+        if (obj) obj.style.filter = z < 0.5 ? `blur(${(0.5 - z) * 4}px)` : 'none' // 멀면 흐릿한 그림자
+        const tag = tagRef.current[i]
+        if (tag) tag.textContent = `${KIND_LABEL[c.kind]} ${(c.conf + Math.sin(c.phase * 1.5) * 0.02).toFixed(2)}`
+      }
+      raf = requestAnimationFrame(loop)
+    }
+    raf = requestAnimationFrame(loop)
+    return () => cancelAnimationFrame(raf)
+  }, [])
+
+  return (
+    <>
+      {stRef.current.map((c, i) => {
+        const bw = 40 + (i % 4) * 5
+        return (
+          <div
+            key={i}
+            ref={(el) => (trackRef.current[i] = el)}
+            className="videofeed__track approach"
+            style={{ width: `${bw}px`, height: `${bw * KIND_ASPECT[c.kind]}px`, opacity: 0 }}
+          >
+            <span ref={(el) => (tagRef.current[i] = el)} className="videofeed__bbox-tag num">
+              {KIND_LABEL[c.kind]}
+            </span>
+            <span ref={(el) => (objRef.current[i] = el)} className="videofeed__obj">
+              <DebrisShape kind={c.kind} />
+            </span>
+          </div>
+        )
+      })}
+    </>
+  )
+}
+
 /* 가상 카메라 피드 (RGB / 열화상)
    - AI 바운딩 박스: state.detections를 픽셀단위(%) 실시간 오버레이
    - 디헤이징: 탁도 보정 필터로 시인성 확보
@@ -585,11 +728,15 @@ export default function VideoFeed({ compact = false, thermal: thermalProp, showC
         <MarineLife />
         {/* 전진/후진 광학 흐름(추력 반응) */}
         <MotionFlow />
+        {/* 전진 시 공기 방울 */}
+        <BubbleField />
       </div>
 
       {/* 떠다니는 쓰레기 (+ 추적 박스, hideBoxes면 실루엣만) — 배율에 따라 축소/확대 */}
       <div className={`videofeed__dets ${hideBoxes ? 'is-nobox' : ''}`} style={{ transform: `scale(${zoom})` }}>
         <DebrisField />
+        {/* 전진 시 멀리서 다가오는 쓰레기 + 종류 분류 박스 */}
+        <ApproachingDebris />
       </div>
 
       {/* HUD 오버레이 (제어 배경에선 숨김 — 상단 바와 겹침 방지) */}
