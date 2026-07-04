@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect, useLayoutEffect, useCallback } from 'react'
 import { useTelemetry, ENV_MODES } from '../state/TelemetryContext.jsx'
+import Joystick from '../components/Joystick.jsx'
 
 /* ============================================================
    미니 수중 드론 1인칭(FPV) 조종 화면
@@ -11,11 +12,6 @@ import { useTelemetry, ENV_MODES } from '../state/TelemetryContext.jsx'
 
 const ENV_MAP = Object.fromEntries(ENV_MODES.map((m) => [m.key, m]))
 
-// 스테이지 rotate(90deg) → 화면좌표 델타를 스테이지 로컬 좌표로 변환
-// local.x = screen.y, local.y = -screen.x
-function toLocal(sdx, sdy) {
-  return { lx: sdy, ly: -sdx }
-}
 function clamp(v, lo, hi) {
   return Math.max(lo, Math.min(hi, v))
 }
@@ -431,7 +427,7 @@ export default function DroneFPV({ onExit }) {
               <i className="ti ti-hand-finger" /> 수동
             </button>
           </div>
-          <Joystick onMove={onJoy} disabled={droneAuto} />
+          <Joystick onChange={onJoy} disabled={droneAuto} rotated />
           <span className="dfpv-ctl-label">{droneAuto ? '자동 탐사 중' : '수동 이동'}</span>
         </div>
 
@@ -468,64 +464,6 @@ function Metric({ icon, label, value, tone }) {
   )
 }
 
-/* ---- 가상 조이스틱(스테이지 90° 회전 보정) · disabled 시 잠금 ---- */
-function Joystick({ onMove, disabled = false }) {
-  const baseRef = useRef(null)
-  const knobRef = useRef(null)
-  const activeRef = useRef(false)
-  const R = 42
-
-  const setKnob = (lx, ly) => {
-    if (knobRef.current) knobRef.current.style.transform = `translate(${lx}px, ${ly}px)`
-  }
-  const handle = (e) => {
-    if (!activeRef.current) return
-    const r = baseRef.current.getBoundingClientRect()
-    const sdx = e.clientX - (r.left + r.width / 2)
-    const sdy = e.clientY - (r.top + r.height / 2)
-    let { lx, ly } = toLocal(sdx, sdy)
-    const mag = Math.hypot(lx, ly)
-    if (mag > R) {
-      lx = (lx / mag) * R
-      ly = (ly / mag) * R
-    }
-    setKnob(lx, ly)
-    onMove(+(lx / R).toFixed(3), +(ly / R).toFixed(3))
-  }
-  const down = (e) => {
-    if (disabled) return // 자동 모드: 조이스틱 잠금
-    activeRef.current = true
-    try {
-      e.currentTarget.setPointerCapture(e.pointerId)
-    } catch {
-      /* noop */
-    }
-    handle(e)
-    if (navigator.vibrate) navigator.vibrate(6)
-  }
-  const up = () => {
-    if (!activeRef.current) return
-    activeRef.current = false
-    setKnob(0, 0)
-    onMove(0, 0)
-  }
-  return (
-    <div
-      className={`dfpv-joybase ${disabled ? 'is-locked' : ''}`}
-      ref={baseRef}
-      onPointerDown={down}
-      onPointerMove={handle}
-      onPointerUp={up}
-      onPointerLeave={up}
-      onPointerCancel={up}
-    >
-      <span className="dfpv-joyring" />
-      <span className="dfpv-joyknob" ref={knobRef}>
-        <i className={`ti ${disabled ? 'ti-robot' : 'ti-arrows-move'}`} />
-      </span>
-    </div>
-  )
-}
 
 /* ---- 카메라 방향 4-way(누르는 동안 시야 이동) ---- */
 function CameraPad({ onLook }) {

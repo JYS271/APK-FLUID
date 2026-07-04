@@ -3,7 +3,7 @@ import { useTelemetry } from '../state/TelemetryContext.jsx'
 import { latencyLevel } from '../components/StatusBar.jsx'
 import MarineMap from '../components/MarineMap.jsx'
 import VideoFeed from '../components/VideoFeed.jsx'
-import SteeringWheel from '../components/SteeringWheel.jsx'
+import Joystick from '../components/Joystick.jsx'
 import Throttle from '../components/Throttle.jsx'
 import { IOSStatusBar } from '../components/IPhoneChrome.jsx'
 
@@ -147,9 +147,9 @@ export default function Control({ onExit, onDroneMode }) {
         </div>
       )}
 
-      {/* 하단 컨트롤 독 — 운전대(선회) · E-STOP · 스로틀(추력) */}
+      {/* 하단 컨트롤 독 — 조이스틱(선회) · E-STOP · 스로틀(추력) */}
       <div className={`control__dock ${auto ? 'is-locked' : ''}`}>
-        <SteeringWheel label="운전대" onChange={onSteer} />
+        <Joystick label="운전대" axis="x" onChange={(x) => onSteer(x)} />
 
         <div className="control__center">
           <EStopButton onEngage={estop} engaged={estopped} onReset={resetEstop} />
@@ -381,7 +381,7 @@ function ControlBackground({ onSteer, onThrottle, throttleResetKey, onDroneMode 
             style={{ width: `${landDims.h}px`, height: `${landDims.w}px` }}
           >
             <div className="control__land-steer">
-              <SteeringWheel label="운전대" onChange={onSteer} />
+              <Joystick label="운전대" axis="x" rotated onChange={(x) => onSteer(x)} />
             </div>
             <div className="control__land-throttle">
               <Throttle label="스로틀" onChange={onThrottle} resetKey={throttleResetKey} axis="x" />

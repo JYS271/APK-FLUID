@@ -4663,6 +4663,19 @@
   background: linear-gradient(135deg, var(--orange-500), var(--orange-600));
   color: #fff;
 }
+/* 공용 조이스틱 래퍼(운전대 대체 · FPV 공용) */
+.joystick {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.joystick__label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: rgba(234, 243, 250, 0.85);
+}
 .dfpv-joybase {
   position: relative;
   width: 112px;
